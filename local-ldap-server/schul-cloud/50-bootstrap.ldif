@@ -1,0 +1,190 @@
+
+dn: ou=users,dc=schul-cloud,dc=org
+objectClass: organizationalUnit
+ou: People
+ou: users
+
+dn: ou=groups,dc=schul-cloud,dc=org
+objectClass: organizationalUnit
+ou: groups
+
+dn: ou=roles,ou=groups,dc=schul-cloud,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: roles
+description: Rollen
+
+dn: ou=classes,ou=groups,dc=schul-cloud,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: classes
+description: Klassen
+
+dn: uid=alice.daniel,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: alice.daniel
+gidNumber: 0
+homeDirectory: /
+sn: Daniel
+uid: alice.daniel
+uidNumber: 1201
+givenName: Alice
+mail: alice.daniel@schul-cloud.org
+
+dn: uid=emma.wall,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: emma.wall
+gidNumber: 0
+homeDirectory: /
+sn: Wall
+uid: emma.wall
+uidNumber: 1202
+givenName: Emma
+mail: emma.wall@schul-cloud.org
+
+dn: uid=anna.barber,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: anna.barber
+gidNumber: 0
+homeDirectory: /
+sn: Barber
+uid: anna.barber
+uidNumber: 1203
+givenName: Anna
+mail: anna.barber@schul-cloud.org
+
+dn: uid=ida.sanders,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: ida.sanders
+gidNumber: 0
+homeDirectory: /
+sn: Sanders
+uid: ida.sanders
+uidNumber: 1204
+givenName: Ida
+mail: ida.sanders@schul-cloud.org
+
+dn: uid=clara.hill,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: clara.hill
+gidNumber: 0
+homeDirectory: /
+sn: Hill
+uid: clara.hill
+uidNumber: 1205
+givenName: Clara
+mail: clara.hill@schul-cloud.org
+
+dn: uid=cora.bolt,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: cora.bolt
+gidNumber: 0
+homeDirectory: /
+sn: Bolt
+uid: cora.bolt
+uidNumber: 1206
+givenName: Cora
+mail: cora.bolt@schul-cloud.org
+
+dn: cn=student,ou=roles,ou=groups,dc=schul-cloud,dc=org
+objectClass: groupOfNames
+cn: student
+member: uid=alice.daniel,ou=users,dc=schul-cloud,dc=org
+member: uid=anna.barber,ou=users,dc=schul-cloud,dc=org
+member: uid=emma.wall,ou=users,dc=schul-cloud,dc=org
+member: uid=hannes.test,ou=users,dc=schul-cloud,dc=org
+description: Schueler
+
+dn: cn=teacher,ou=roles,ou=groups,dc=schul-cloud,dc=org
+objectClass: groupOfNames
+cn: teacher
+member: uid=clara.hill,ou=users,dc=schul-cloud,dc=org
+member: uid=cora.bolt,ou=users,dc=schul-cloud,dc=org
+description: Lehrer
+
+dn: cn=8a,ou=classes,ou=groups,dc=schul-cloud,dc=org
+objectClass: groupOfNames
+cn: 8a
+member: uid=alice.daniel,ou=users,dc=schul-cloud,dc=org
+member: uid=clara.hill,ou=users,dc=schul-cloud,dc=org
+member: uid=cora.bolt,ou=users,dc=schul-cloud,dc=org
+member: uid=emma.wall,ou=users,dc=schul-cloud,dc=org
+description: 8a
+
+dn: cn=9a,ou=classes,ou=groups,dc=schul-cloud,dc=org
+objectClass: groupOfNames
+cn: 9a
+member: uid=anna.barber,ou=users,dc=schul-cloud,dc=org
+member: uid=clara.hill,ou=users,dc=schul-cloud,dc=org
+member: uid=cora.bolt,ou=users,dc=schul-cloud,dc=org
+description: 9a
+
+dn: uid=hannes.test,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: Hannes Test
+gidNumber: 0
+homeDirectory: /
+sn: Test
+uid: hannes.test
+uidNumber: 6120
+displayName: hannes.test
+givenName: Hannes
+mail: hannes.test@schul-cloud.org
+shadowExpire: 99999
+shadowFlag: 0
+shadowInactive: 99999
+shadowLastChange: 12011
+shadowMax: 99999
+shadowMin: 0
+shadowWarning: 0
+
+dn: uid=sso.admin,ou=users,dc=schul-cloud,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: top
+cn: sso.admin
+gidNumber: 0
+homeDirectory: /
+sn: Admin
+uid: sso.admin
+uidNumber: 63897
+displayName: sso.admin
+givenName: SSO-Test
+mail: sso.admin@schul-cloud.org
+shadowExpire: 99999
+shadowFlag: 0
+shadowInactive: 99999
+shadowLastChange: 12011
+shadowMax: 99999
+shadowMin: 0
+shadowWarning: 0
+
+dn: cn=admin,ou=roles,ou=groups,dc=schul-cloud,dc=org
+objectClass: groupOfNames
+cn: admin
+member: uid=ida.sanders,ou=users,dc=schul-cloud,dc=org
+member: uid=sso.admin,ou=users,dc=schul-cloud,dc=org
+description: Admin
+
