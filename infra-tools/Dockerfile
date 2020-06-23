@@ -22,9 +22,7 @@ RUN set -x \
         unzip \
         netcat-openbsd \
         bind-tools \
-        curl \
         redis \
         mongodb-tools \
-        rabbitmq-c-utils \
         postgresql-client
 
