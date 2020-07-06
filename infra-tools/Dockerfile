@@ -16,6 +16,7 @@ RUN set -x \
         curl \
         git \
         make \
+        bash \
         openssh \
         openssl \
         python3 \
