@@ -1,7 +1,7 @@
-ARG ALPINE_IMAGE_TAG="3.11.6"
+ARG DEBIAN_IMAGE_TAG="stable-20200607"
 
 # --- stage:release ------------------------------------------------------------
-FROM alpine:${ALPINE_IMAGE_TAG} as release
+FROM debian:${DEBIAN_IMAGE_TAG} as release
 
 ARG BUILD_BRANCH
 ARG BUILD_HASH
@@ -11,19 +11,24 @@ LABEL build.branch="${BUILD_BRANCH}"
 LABEL build.hash="${BUILD_HASH}"
 
 RUN set -x \
-    && apk update \
-    && apk add --no-cache \
+    && apt-get -y update \
+    && apt-get -y install wget gnupg \
+    && wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - \
+    && echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list \
+    && apt-get -y update \
+    && apt-get -y install \
         curl \
         git \
         make \
         bash \
-        openssh \
+        openssh-client \
         openssl \
         python3 \
         unzip \
         netcat-openbsd \
-        bind-tools \
-        redis \
-        mongodb-tools \
-        postgresql-client
+        dnsutils \
+        redis-tools \
+        mongodb-org-shell \
+        postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
