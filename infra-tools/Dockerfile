@@ -29,6 +29,7 @@ RUN set -x \
         dnsutils \
         redis-tools \
         mongodb-org-shell \
+        mongodb-org-tools \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
