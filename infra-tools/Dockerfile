@@ -30,6 +30,8 @@ RUN set -x \
         redis-tools \
         mongodb-org-shell \
         mongodb-org-tools \
+        vim-tiny \
+        mc \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
