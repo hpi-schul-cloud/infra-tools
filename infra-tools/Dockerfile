@@ -32,6 +32,8 @@ RUN set -x \
         mongodb-org-tools \
         vim-tiny \
         mc \
+        gpg \
+        duply \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
