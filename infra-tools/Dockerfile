@@ -30,10 +30,11 @@ RUN set -x \
         redis-tools \
         mongodb-org-shell \
         mongodb-org-tools \
-        vim-tiny \
+        vim-nox \
         mc \
         gpg \
         duply \
+        python-boto \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
