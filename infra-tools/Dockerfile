@@ -35,6 +35,7 @@ RUN set -x \
         gpg \
         duply \
         python-boto \
+        bsd-mailx \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
