@@ -26,6 +26,7 @@ RUN set -x \
         python3 \
         unzip \
         netcat-openbsd \
+        traceroute \
         dnsutils \
         redis-tools \
         mongodb-org-shell \
@@ -35,7 +36,6 @@ RUN set -x \
         gpg \
         duply \
         python-boto \
-        bsd-mailx \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
