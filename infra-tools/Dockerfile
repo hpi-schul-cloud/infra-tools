@@ -5,7 +5,7 @@ RUN set -x \
     && apt-get -y update \
     && apt-get -y install git gcc make \
     && git clone https://github.com/hpi-schul-cloud/infra-tsocks.git . \
-    && ./configure && make install
+    && ./configure && make
 
 # --- stage:release ------------------------------------------------------------
 FROM debian:${DEBIAN_IMAGE_TAG} as release
@@ -44,5 +44,5 @@ RUN set -x \
         duply \
         python-boto \
         postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* && cd tsocks && make install
 
