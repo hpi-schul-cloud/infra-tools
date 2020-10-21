@@ -5,7 +5,7 @@ RUN set -x \
     && apt-get -y update \
     && apt-get -y install git gcc make \
     && git clone https://github.com/hpi-schul-cloud/infra-tsocks.git . \
-    && ./configure && make
+    && ./configure && make install
 
 # --- stage:release ------------------------------------------------------------
 FROM debian:${DEBIAN_IMAGE_TAG} as release
