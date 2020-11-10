@@ -1,0 +1,11 @@
+# For example hidrive3:bucket-5ef1bc78d136a8002aee2702
+*-https-/
+
+# hidrive3:/bucket-5f0d56bb9017a40029791bb4
+# OPS-1545
+1601380498861-marco-polo.docx
+
+# hidrivebrandenburg:/bucket-5cf7bdc52e180e0013e28328
+1587985605773-https-//images..txt
+# OPS-1545
+1588847225615-pb-genug-für-alle.*
