@@ -1,0 +1,142 @@
+---
+s3_backup_configuration:
+  # See also https://docs.hpi-schul-cloud.org/display/PROD/Infrastructure+Conventions+Schul-Cloud
+  instances:
+    - instancename: international
+      instancename_short: int
+      s3_backup_bucket: s3-backup-international-put9ai
+      s3_source_drives: [ hidriveinternational ]
+      s3_target_drive: hidriveinternationalbackup
+      backup_day_of_month: 18
+
+    - instancename: open
+      instancename_short: open
+      s3_backup_bucket: s3-backup-open-naem9f
+      s3_source_drives: [ "hidriveopen", "hidriveopen2" ]
+      s3_target_drive: hidriveopenbackup
+      backup_day_of_month: 21
+      
+    - instancename: brandenburg
+      instancename_short: brb
+      s3_backup_bucket: s3-backup-brabu-ain5ah
+      s3_source_drives: [ "hidrivebrandenburg", "hidrivebrandenburg2", "hidrivebrandenburg3", "hidrivebrandenburg4", "hidrivebrandenburg5" ]
+      s3_target_drive: hidrivebrandenburgbackup
+      backup_day_of_month: 13
+
+    - instancename: niedersachsen
+      instancename_short: nds
+      s3_backup_bucket: s3-backup-niedersachsen-sha6cu
+      s3_source_drives: [ "hidrivenbc", "hidrivenbc2" ,"hidrivenbc3", "hidrivenbc4", "hidrivenbc5", "hidrivenbc6", "hidrivenbc7", "hidrivenbc8", "hidrivenbc9", "hidrivenbc10", "hidrivenbc11" ]
+      s3_target_drive: hidrivenbcbackup
+      backup_day_of_month: 19
+
+    # boss is a legacy name
+    - instancename: boss
+      instancename_short: hpi
+      s3_backup_bucket: s3-backup-bosscloud-iey9mi
+      s3_source_drives: [ "hidrive", "hidrive2", "hidrive3", "hidrive4"]
+      s3_target_drive: hidrivebackup
+      backup_day_of_month: 01
+
+    - instancename: thueringen
+      instancename_short: thr
+      s3_backup_bucket: s3-backup-thueringen-cee2ae
+      s3_source_drives: [ "hidrivethueringen", "hidrivethueringen2", "hidrivethueringen3", "hidrivethueringen4", "hidrivethueringen5" ]
+      s3_target_drive: hidrivethueringenbackup
+      backup_day_of_month: 23
+  s3drives:
+    - drivename: hidriveopen
+      backupdrive: False
+    - drivename: hidriveopen2
+      backupdrive: False
+    - drivename: hidriveopenbackup
+      backupdrive: True
+    - drivename: hidrivebrandenburg
+      backupdrive: False
+    - drivename: hidrivebrandenburg2
+      backupdrive: False
+    - drivename: hidrivebrandenburg3
+      backupdrive: False
+    - drivename: hidrivebrandenburg4
+      backupdrive: False
+    - drivename: hidrivebrandenburg5
+      backupdrive: False
+    - drivename: hidrivebrandenburgbackup
+      backupdrive: True
+    - drivename: hidrivenbc
+      backupdrive: False
+    - drivename: hidrivenbc2
+      backupdrive: False
+    - drivename: hidrivenbc3
+      backupdrive: False
+    - drivename: hidrivenbc4
+      backupdrive: False
+    - drivename: hidrivenbc5
+      backupdrive: False
+    - drivename: hidrivenbc6
+      backupdrive: False
+    - drivename: hidrivenbc7
+      backupdrive: False
+    - drivename: hidrivenbc8
+      backupdrive: False
+    - drivename: hidrivenbc9
+      backupdrive: False
+    - drivename: hidrivenbc10
+      backupdrive: False
+    - drivename: hidrivenbc11
+      backupdrive: False
+    - drivename: hidrivenbcbackup
+      backupdrive: True
+    - drivename: hidrivebrandenburg
+      backupdrive: False
+    - drivename: hidrivebrandenburg2
+      backupdrive: False
+    - drivename: hidrivebrandenburg3
+      backupdrive: False
+    - drivename: hidrivebrandenburg4
+      backupdrive: False
+    - drivename: hidrivebrandenburg5
+      backupdrive: False
+    - drivename: hidrivebrandenburgbackup
+      backupdrive: True
+    - drivename: hidrive
+      backupdrive: False
+    - drivename: hidrive2
+      backupdrive: False
+    - drivename: hidrive3
+      backupdrive: False
+    - drivename: hidrive4
+      backupdrive: False
+    - drivename: hidrivebackup
+      backupdrive: True
+    - drivename: hidrivethueringen
+      backupdrive: False
+    - drivename: hidrivethueringen2
+      backupdrive: False
+    - drivename: hidrivethueringen3
+      backupdrive: False
+    - drivename: hidrivethueringen4
+      backupdrive: False
+    - drivename: hidrivethueringen5
+      backupdrive: False
+    - drivename: hidrivethueringenbackup
+      backupdrive: True
+    - drivename: hidriveinternational
+      backupdrive: False
+    - drivename: hidriveinternationalbackup
+      backupdrive: True
+  defect_buckets:
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5e97b98f4fccb20029058807
+  defect_files:
+    - drivename: hidrive3
+      bucketname: bucket-5ef1bc78d136a8002aee2702
+      filename: "*-https-/"
+    # OPS-1545
+    - drivename: hidrive3
+      bucketname: bucket-5f0d56bb9017a40029791bb4
+      filename: 1601380498861-marco-polo.docx
+    # OPS-1545
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5f0d56bb9017a40029791bb4
+      filename: "1588847225615-pb-genug-für-alle.*"

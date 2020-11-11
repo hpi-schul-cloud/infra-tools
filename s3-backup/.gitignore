@@ -1,1 +1,5 @@
-*_backupsizes/**
+*_backupsizes/
+/log/
+*.log
+__pycache__/
+*.py[co]
