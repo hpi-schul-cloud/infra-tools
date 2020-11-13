@@ -2,11 +2,14 @@ import logging
 import time
 from pathlib import Path
 
+logFilename = None
 
 def initLogging():
     '''
     Initializes the logger.
     '''
+    global logFilename
+    
     logdir = './log'
     Path(logdir).mkdir(parents=True, exist_ok=True)
     timestamp = time.strftime('%Y%m%d_%H%M%S')
@@ -30,4 +33,4 @@ def initLogging():
     consoleHandler.setLevel(logging.INFO)
     rootLogger.addHandler(consoleHandler)
     
-    logging.info('Logging initialized')
+    logging.debug('Logging initialized')

@@ -3,9 +3,10 @@ s3_backup_configuration:
   instances:
     - instancename: infradev
       instancename_short: id
-      s3_backup_bucket: s3-backup-infradev-hat23i
       s3_source_drives: [ infradev1 ]
+      s3_source_bucket_patterns: ['testbucket-*']
       s3_target_drive: infradev2
+      s3_target_backup_bucket: s3-backup-infradev-hat23i
       backup_day_of_month: 00
   s3drives:
     - drivename: infradev1
@@ -14,8 +15,8 @@ s3_backup_configuration:
       backupdrive: True
   defect_buckets:
     - drivename: infradev1
-      bucketname: bucket-5e97b98f4fccb20029058807
+      bucketname: testbucket-0987654321
   defect_files:
     - drivename: infradev1
-      bucketname: bucket-5ef1bc78d136a8002aee2702
-      filename: "skipme"
+      bucketname: testbucket-1234567890
+      filename: "20201109_082442_35_random.bin"

@@ -11,6 +11,9 @@ from s3b_data.configuration import BackupConfiguration
 from s3b_common.s3bexception import S3bException
 
 def read_configuration(configuration_file):
+    '''
+    Reads an s3b.yaml configuration file into a BackupConfiguration object and returns the filled data object.
+    '''
     a_yaml_file = open(configuration_file)
     data = load(a_yaml_file, Loader=Loader)['s3_backup_configuration']
     # convert into objects
@@ -37,7 +40,7 @@ def read_configuration(configuration_file):
         # Check, if this is defined as a backup target
         if not s3_target_drive.isBackupDrive():
             raise S3bException("The drive %s is not flagged as backup drive." % s3_target_drive)
-        instances[item['instancename']] = Instance(item['instancename'], item['instancename_short'], item['s3_backup_bucket'], s3_source_drives, s3_target_drive, item['backup_day_of_month'])
+        instances[item['instancename']] = Instance(item['instancename'], item['instancename_short'], s3_source_drives, item['s3_source_bucket_patterns'], s3_target_drive, item['s3_target_backup_bucket'], item['backup_day_of_month'])
     configuration.instances = instances
 
     # defective buckets
@@ -53,3 +56,13 @@ def read_configuration(configuration_file):
     configuration.defective_files = defective_files
 
     return configuration
+
+def get_instance_list_from_instance_names(s3_backup_config, instance_names):
+    '''
+    Returns a list of Instance objects where the instance names match the names in the given instance_names list.
+    The Instance objects are taken from the given configuration.
+    '''
+    instances: [Instance] = []
+    for current_instance_name in instance_names:
+        instances.append(s3_backup_config.instances[current_instance_name])
+    return instances

@@ -4,45 +4,51 @@ s3_backup_configuration:
   instances:
     - instancename: international
       instancename_short: int
-      s3_backup_bucket: s3-backup-international-put9ai
       s3_source_drives: [ hidriveinternational ]
+      s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidriveinternationalbackup
+      s3_target_backup_bucket: s3-backup-international-put9ai
       backup_day_of_month: 18
 
     - instancename: open
       instancename_short: open
-      s3_backup_bucket: s3-backup-open-naem9f
       s3_source_drives: [ "hidriveopen", "hidriveopen2" ]
+      s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidriveopenbackup
+      s3_target_backup_bucket: s3-backup-open-naem9f
       backup_day_of_month: 21
       
     - instancename: brandenburg
       instancename_short: brb
-      s3_backup_bucket: s3-backup-brabu-ain5ah
       s3_source_drives: [ "hidrivebrandenburg", "hidrivebrandenburg2", "hidrivebrandenburg3", "hidrivebrandenburg4", "hidrivebrandenburg5" ]
+      s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidrivebrandenburgbackup
+      s3_target_backup_bucket: s3-backup-brabu-ain5ah
       backup_day_of_month: 13
 
     - instancename: niedersachsen
       instancename_short: nds
-      s3_backup_bucket: s3-backup-niedersachsen-sha6cu
       s3_source_drives: [ "hidrivenbc", "hidrivenbc2" ,"hidrivenbc3", "hidrivenbc4", "hidrivenbc5", "hidrivenbc6", "hidrivenbc7", "hidrivenbc8", "hidrivenbc9", "hidrivenbc10", "hidrivenbc11" ]
+      s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidrivenbcbackup
+      s3_target_backup_bucket: s3-backup-niedersachsen-sha6cu
       backup_day_of_month: 19
 
     # boss is a legacy name
     - instancename: boss
       instancename_short: hpi
-      s3_backup_bucket: s3-backup-bosscloud-iey9mi
       s3_source_drives: [ "hidrive", "hidrive2", "hidrive3", "hidrive4"]
+      s3_source_bucket_patterns: ['bucket-*', 'rocketchat-uploads', 'schul-cloud-hpi']
       s3_target_drive: hidrivebackup
+      s3_target_backup_bucket: s3-backup-bosscloud-iey9mi
       backup_day_of_month: 01
 
     - instancename: thueringen
       instancename_short: thr
-      s3_backup_bucket: s3-backup-thueringen-cee2ae
       s3_source_drives: [ "hidrivethueringen", "hidrivethueringen2", "hidrivethueringen3", "hidrivethueringen4", "hidrivethueringen5" ]
+      s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidrivethueringenbackup
+      s3_target_backup_bucket: s3-backup-thueringen-cee2ae
       backup_day_of_month: 23
   s3drives:
     - drivename: hidriveopen

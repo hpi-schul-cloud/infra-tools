@@ -9,6 +9,8 @@ from s3b_data.defect_file import DefectFile
 class BackupConfiguration:
     '''
     Dataclass that stores the full backup configuration.
+    The data contained here is usually read from a s3b.yaml configuration file.
+    See also s3b_common.s3b_config.
     '''
 
     instances: Dict[str, Instance] = {}
@@ -24,11 +26,12 @@ class BackupConfiguration:
     # These files are skipped during backup, because the are defect.
 
     def __init__(self):
-        '''
-        
-        '''
+        pass
 
     def __str__(self):
+        '''
+        Assembles the class member content into a string.
+        '''
         # instances
         instances_string = ""
         for instance_name, instance in self.instances.items():

@@ -16,28 +16,32 @@ class Instance:
     instancename_short: str = None
     # The abbreviated instance name. 'open', 'brb', ...
 
-    s3_backup_bucket: str = None
-    # The bucket where the backups shall be stored.
-    
     s3_source_drives: Dict[str, S3Drive] = {}
     # The s3drives to backup.
     
+    s3_source_bucket_patterns = []
+    # Multiple glob patterns or just bucket names that shall be backed up. E.g. 'schul-cloud-hpi' or 'bucket-*'
+
     s3_target_drive: str = None
     # The s3drive where the backup shall be stored.
+    
+    s3_target_backup_bucket: str = None
+    # The bucket where the backups shall be stored.
     
     backup_day_of_month: int = None
     # The day of the month, when the backup shall run.
 
-    def __init__(self, instancename, instancename_short, s3_backup_bucket, s3_source_drives: Dict[str, S3Drive], s3_target_drive, backup_day_of_month):
+    def __init__(self, instancename, instancename_short, s3_source_drives: Dict[str, S3Drive], s3_source_bucket_patterns, s3_target_drive, s3_target_backup_bucket, backup_day_of_month):
         '''
         The instancename like 'brandenburg'.
         The short instancename like 'brb'.
         '''
         self.instancename = instancename
         self.instancename_short = instancename_short
-        self.s3_backup_bucket = s3_backup_bucket
         self.s3_source_drives = s3_source_drives
+        self.s3_source_bucket_patterns = s3_source_bucket_patterns
         self.s3_target_drive = s3_target_drive
+        self.s3_target_backup_bucket = s3_target_backup_bucket
         self.backup_day_of_month = backup_day_of_month
 
     def __str__(self):
