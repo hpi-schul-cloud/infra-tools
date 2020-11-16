@@ -1,6 +1,7 @@
 import logging
 import json
 import pathlib
+import io
 from datetime import datetime, date, time
 from typing import Dict
 from s3b_common import s3b_logging
@@ -12,11 +13,42 @@ from s3b_data.instance import Instance
 from s3b_data.s3drive import S3Drive
 from s3b_data.validation_result import ValidationResult, BucketInfo, BucketCompare
 
+def validate_configuration(s3_backup_config):
+    '''
+    Validates the configuration of the s3-backup tool against the rclone
+    configuration.
+    '''
+    # Check the drive configuration in rclone. It is a common problem, that the rclone configuration
+    # does not provide the needed drives. So we give a nice message here instead of cryptic rclone messages.
+    remotes = list_remotes(s3_backup_config)
+    for s3drive_name, s3drive in s3_backup_config.s3drives.items():
+        if not s3drive.drivename in remotes:
+            raise S3bException("Drive '%s' not found in rclone configuration." % s3drive.drivename)
+
+def list_remotes(s3_backup_config):
+    '''
+    List the remotes configured with rclone.
+    '''
+    logging.debug("Listing remotes.")
+    rcloneCommand = ['rclone']
+    rcloneSubCommand = ['listremotes']
+    command = rcloneCommand + rcloneSubCommand
+    logging.debug("Running command: '%s'" % ' '.join(command))
+    (remotes_string, error) = run_command_get_output(command)
+    remotes_list = []
+    buffer = io.StringIO(remotes_string)
+    line = buffer.readline()
+    while line:
+        line = buffer.readline()
+        remote = line.rstrip().rstrip(':')
+        remotes_list.append(remote)
+    logging.debug("Number of remotes: '%s'", len(remotes_list))
+    return remotes_list
+
 def run_backup(s3_backup_config, instance_names_to_backup, dailyincrement, syncfull, validate, force, whatif):
     '''
     Main method to start backups. Dailyincrement, syncfull and validation may be executed in one go.
     '''
-
     logging.info("Running backup. Instances: '%s', syncfull: '%s', dailyincrement: '%s', validate: '%s', force: '%s', whatif: '%s'" % (instance_names_to_backup, syncfull, dailyincrement, validate, force, whatif))
     if dailyincrement:
         run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif)
@@ -24,6 +56,13 @@ def run_backup(s3_backup_config, instance_names_to_backup, dailyincrement, syncf
         run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whatif)
     if validate:
         run_backup_validate(s3_backup_config, instance_names_to_backup, whatif)
+
+def test_s3drive_configuration(s3_backup_config):
+    '''
+    Tests, if the configured s3drives are configured with rclone.
+    '''
+    remotes = list_remotes()
+    #for s3drive in s3_backup_config.s4d
 
 def run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whatif):
     '''
@@ -127,7 +166,7 @@ def evaluate_source_bucket_list(drivename, patterns):
             continue
         logging.debug("Including bucket. One of pattern '%s' matches '%s'" % (patterns, path_to_check))
         source_bucket_list.append(source_bucket_info.get('Path'))
-    logging.info("Evaluation of source bucket list for drive '%s' complete." % drivename)
+    logging.info("Evaluation of source bucket list for drive '%s' complete. Number of buckets: %s" % (drivename, len(source_bucket_list)))
     return source_bucket_list
 
 def run_backup_syncfull_for_single_bucket(source_drivename, bucket_to_backup, target_drivename, target_backup_bucket, backup_set_instancename, backup_set_id, whatif):

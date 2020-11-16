@@ -84,6 +84,8 @@ if __name__ == '__main__':
                     instances_to_backup.append(current_instance.instancename)
             logging.info('The following instances are in scope: %s' % instances_to_backup)
 
+            # Validate the s3-backup config.
+            rclone.validate_configuration(s3_backup_config)
             # Run the backup or validation.
             rclone.run_backup(s3_backup_config, instances_to_backup, parsedArgs.dailyincrement, parsedArgs.syncfull, parsedArgs.validate, parsedArgs.force, parsedArgs.whatif)
         else:
