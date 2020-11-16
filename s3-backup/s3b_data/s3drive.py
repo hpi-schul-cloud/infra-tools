@@ -1,6 +1,8 @@
 class S3Drive:
     '''
     Dataclass that stores information about a (Hi)Drive.
+
+    Typically part of the BackupConfiguration.
     '''
     drivename = None
     # The name of the drive, like 'hidrivenbc'.

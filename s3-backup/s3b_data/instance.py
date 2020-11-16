@@ -7,7 +7,10 @@ class Instance:
     Dataclass that stores instance information. An instance is one HPI Schul-Cloud 
     application stack running under a uniquely identifiable name. For example
     'niedersachsen' is one instance.
+
     How the S3 backup of this instance is defined is stored in this class.
+
+    Typically part of the BackupConfiguration.
     '''
 
     instancename: str = None

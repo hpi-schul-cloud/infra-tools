@@ -1,6 +1,8 @@
 class DefectBucket:
     '''
     Dataclass that stores information about defective buckets.
+
+    This is needed, to exclude these buckets from the backup. See OPS-1531
     '''
     drivename = None
     # The name of the drive, like 'hidrivenbc'.

@@ -1,6 +1,7 @@
 import logging
 import time
 from pathlib import Path
+from s3b_common.s3b_tools import get_absolute_path
 
 logFilename = None
 
@@ -10,7 +11,7 @@ def initLogging():
     '''
     global logFilename
     
-    logdir = './log'
+    logdir = get_absolute_path('logs')
     Path(logdir).mkdir(parents=True, exist_ok=True)
     timestamp = time.strftime('%Y%m%d_%H%M%S')
     applicationName = 's3-backup'
@@ -34,3 +35,4 @@ def initLogging():
     rootLogger.addHandler(consoleHandler)
     
     logging.debug('Logging initialized')
+    logging.info('Logging to %s' % logFilename)

@@ -29,6 +29,9 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whati
     '''
     Starts a syncfull backup.
     '''
+    logging.info("======================================================================")
+    logging.info("===== Syncfull =======================================================")
+    logging.info("======================================================================")
     instance_list = get_instance_list_from_instance_names(s3_backup_config, instance_names_to_backup)
     backup_set_id = get_backup_set_id()
     # For each instance
@@ -45,8 +48,12 @@ def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif
     '''
     Starts a daily incremental backup.
     '''
+    logging.info("======================================================================")
+    logging.info("===== Daily Increment ================================================")
+    logging.info("======================================================================")
     instance_list = get_instance_list_from_instance_names(s3_backup_config, instance_names_to_backup)
     backup_set_datestamp = get_backup_set_datestamp()
+    backup_set_datestamp_as_path = get_backup_set_month_datestamp_as_path()
     # For each instance
     for current_instance in instance_list:
         create_target_backup_bucket(current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, whatif)
@@ -55,7 +62,7 @@ def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif
             source_bucket_list = evaluate_source_bucket_list(current_s3drive.drivename, current_instance.s3_source_bucket_patterns)
             # For each bucket on the drive of the instance, rclone it
             for current_bucket_to_backup in source_bucket_list:
-                run_backup_dailyincrement_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_datestamp, whatif)
+                run_backup_dailyincrement_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_datestamp, backup_set_datestamp_as_path, whatif)
 
 def create_target_backup_bucket(drivename, s3_target_backup_bucket, whatif):
     '''
@@ -70,9 +77,9 @@ def create_target_backup_bucket(drivename, s3_target_backup_bucket, whatif):
         rcloneOptions.append('--dry-run')
     rcloneLogOption = ['--log-file=' + s3b_logging.logFilename]
     rcloneParameters = [drivename + ":" + s3_target_backup_bucket]
-    logging.info("Creating the target backup bucket. '%s'" % rcloneParameters[0])
+    logging.info("Creating the target backup bucket, if it does not exist. '%s'" % rcloneParameters[0])
     command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
-    logging.info("Running command: '%s'" % ' '.join(command))
+    logging.debug("Running command: '%s'" % ' '.join(command))
     run_command(command)
     logging.info("Target backup bucket '%s' created." % rcloneParameters[0])
 
@@ -91,7 +98,7 @@ def evaluate_source_bucket_list(drivename, patterns):
     rcloneLogOption = ['--log-file=' + s3b_logging.logFilename]
     rcloneParameters = [drivename + ':']
     command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
-    logging.info("Running command: '%s'" % ' '.join(command))
+    logging.debug("Running command: '%s'" % ' '.join(command))
     (source_bucket_json_str, error) = run_command_get_output(command)
     source_bucket_infos = json.loads(source_bucket_json_str)
     source_bucket_list = []
@@ -111,12 +118,16 @@ def evaluate_source_bucket_list(drivename, patterns):
             continue
         logging.debug("Including bucket. One of pattern '%s' matches '%s'" % (patterns, path_to_check))
         source_bucket_list.append(source_bucket_info.get('Path'))
+    logging.info("Evaluation of source bucket list for drive '%s' complete." % drivename)
     return source_bucket_list
 
 def run_backup_syncfull_for_single_bucket(source_drivename, bucket_to_backup, target_drivename, target_backup_bucket, backup_set_instancename, backup_set_id, whatif):
     '''
     Runs a syncfull backup for a single bucket.
     '''
+    source = source_drivename + ':' + bucket_to_backup
+    target = target_drivename + ':' + target_backup_bucket + '/' + backup_set_instancename + '-full-' + backup_set_id + '/' + bucket_to_backup
+    logging.info("Syncfull backup for '%s'." % source)
     # Old Bash command: rclone sync -v --create-empty-src-dirs ${sourcedrive}:${bucket_to_backup} ${targetdrive}:${s3_backup_bucket}/${instance}-full-${month_moduo2}/${bucket_to_backup}
     rcloneCommand = ['rclone']
     rcloneSubCommand = ['sync']
@@ -125,10 +136,11 @@ def run_backup_syncfull_for_single_bucket(source_drivename, bucket_to_backup, ta
     if whatif:
         rcloneOptions.append('--dry-run')
     rcloneLogOption = ['--log-file=' + s3b_logging.logFilename]
-    rcloneParameters = [source_drivename + ':' + bucket_to_backup, target_drivename + ':' + target_backup_bucket + '/' + backup_set_instancename + '-full-' + backup_set_id + '/' + bucket_to_backup]
+    rcloneParameters = [source, target]
     command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
-    logging.info("Running command: '%s'" % ' '.join(command))
+    logging.debug("Running command: '%s'" % ' '.join(command))
     run_command_no_output(command)
+    logging.info("Syncfull backup for '%s' finished." % source)
 
 def get_backup_set_id():
     '''
@@ -141,11 +153,14 @@ def get_backup_set_id():
     logging.debug("Backup_set_id: '%s'", backup_set_id)
     return backup_set_id
 
-def run_backup_dailyincrement_for_single_bucket(source_drivename, bucket_to_backup, target_drivename, target_backup_bucket, backup_set_instancename, backup_set_datestamp, whatif):
+def run_backup_dailyincrement_for_single_bucket(source_drivename, bucket_to_backup, target_drivename, target_backup_bucket, backup_set_instancename, backup_set_datestamp, backup_set_datestamp_as_path, whatif):
     '''
     Runs a daily incremental backup for a single bucket.
     '''
+    source = source_drivename + ':' + bucket_to_backup
+    target = target_drivename + ':' + target_backup_bucket + '/' + backup_set_instancename + '-dailyinc/' + backup_set_datestamp_as_path + "/" + backup_set_datestamp + '-' + backup_set_instancename + '-dailyinc/' + bucket_to_backup
     # Old Bash command: rclone copy --max-age 25h --create-empty-src-dirs --exclude-from /root/infra-tools/s3-backup/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${datestamp}-${instance}-inc/$current_bucket
+    logging.info("Daily incremental backup for '%s'." % source)
     rcloneCommand = ['rclone']
     rcloneSubCommand = ['copy']
     rcloneOptions = ['--verbose', '--max-age', '25h', '--use-server-modtime']
@@ -153,10 +168,11 @@ def run_backup_dailyincrement_for_single_bucket(source_drivename, bucket_to_back
     if whatif:
         rcloneOptions.append('--dry-run')
     rcloneLogOption = ['--log-file=' + s3b_logging.logFilename]
-    rcloneParameters = [source_drivename + ':' + bucket_to_backup, target_drivename + ':' + target_backup_bucket + '/dailyinc/' + backup_set_datestamp + '-' + backup_set_instancename + '-dailyinc/' + bucket_to_backup]
+    rcloneParameters = [source, target]
     command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
-    logging.info("Running command: '%s'" % ' '.join(command))
+    logging.debug("Running command: '%s'" % ' '.join(command))
     run_command_no_output(command)
+    logging.info("Daily incremental backup for '%s' finished." % source)
 
 def get_backup_set_datestamp():
     '''
@@ -168,11 +184,23 @@ def get_backup_set_datestamp():
     logging.debug("Backup_set_datestamp: '%s'", backup_set_datestamp)
     return backup_set_datestamp
 
+def get_backup_set_month_datestamp_as_path():
+    '''
+    Calculate a backup_set_datestamp from the current date.
+    E.g. "2020/10/30"
+    '''
+    dt = date.today()
+    backup_set_datestamp = "%s/%s" % (dt.year, dt.month)
+    logging.debug("Backup_set_datestamp: '%s'", backup_set_datestamp)
+    return backup_set_datestamp
+
 def run_backup_validate(s3_backup_config, instance_names_to_backup, whatif):
     '''
     Starts a backup validation for a syncfull backup.
     '''
-
+    logging.info("======================================================================")
+    logging.info("===== Validation =====================================================")
+    logging.info("======================================================================")
     validation_results: Dict[str, ValidationResult] = {}
     # Maps instance names to validation results
 
@@ -193,7 +221,7 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, whatif):
             path = ""
             for current_bucket_to_backup in source_bucket_list:
                 source_bucket_info = read_bucket_info(current_s3drive.drivename, path, current_bucket_to_backup, whatif)
-                validation_result.set_source_bucket_info(source_bucket_info)
+                validation_result.add_source_bucket_info(source_bucket_info)
 
         # On the target side, we read the buckets that exist on the backup bucket.
         backup_drive = current_instance.s3_target_drive.drivename
@@ -201,7 +229,7 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, whatif):
         target_bucket_list = read_directory_list(backup_drive, backup_path, whatif)
         for current_bucket_to_backup in target_bucket_list:
             target_bucket_info = read_bucket_info(current_instance.s3_target_drive.drivename, backup_path, current_bucket_to_backup, whatif)
-            validation_result.set_target_bucket_info(target_bucket_info)
+            validation_result.add_target_bucket_info(target_bucket_info)
 
         # Compare the collected bucket information.
         validation_result.compare()
@@ -219,7 +247,7 @@ def read_directory_list(drivename, path, whatif):
     rcloneLogOption = []
     rcloneParameters = [drivename + ':' + path]
     command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
-    logging.info("Running command: '%s'" % ' '.join(command))
+    logging.debug("Running command: '%s'" % ' '.join(command))
     (json_str, error) = run_command_get_output(command)
     directory_infos = json.loads(json_str)
     directory_list = []
@@ -247,7 +275,7 @@ def read_bucket_info(drivename, path, bucket_to_backup, whatif):
     full_path = bucket_info.get_full_path()
     rcloneParameters = [full_path]
     command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
-    logging.info("Running command: '%s'" % ' '.join(command))
+    logging.debug("Running command: '%s'" % ' '.join(command))
     (bucket_json_str, error) = run_command_get_output(command)
     bucket_info_struct = json.loads(bucket_json_str)
     bucket_info.size_in_bytes = bucket_info_struct['bytes']

@@ -1,6 +1,8 @@
 class DefectFile:
     '''
     Dataclass that stores information about a defective file.
+
+    This is needed, to exclude these files from the backup. See OPS-1545
     '''
     drivename = None
     # The name of the drive, like 'hidrivenbc'.

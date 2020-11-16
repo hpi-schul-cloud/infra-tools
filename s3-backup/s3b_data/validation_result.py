@@ -4,6 +4,13 @@ from s3b_common.s3bexception import S3bException
 from s3b_common.s3b_tools import sizeof_fmt
 
 class BucketInfo:
+    '''
+    Dataclass to store information about a bucket.
+    Typically drive and path are different for backup source and target buckets.
+    The 'bucket_to_backup' name is typically equal.
+
+    For a bucket the size and object count can be evaluated and stored in this object.
+    '''
     drivename = None
     # The drive name like 'hidrive' or 'hidrivebrandenburgbackup'.
 
@@ -32,10 +39,22 @@ class BucketInfo:
         return "drivename: " + str(self.drivename) + ", path: " + str(self.path) + ", bucket_to_backup: " + str(self.bucket_to_backup) + ", size_in_bytes: " + str(self.size_in_bytes) + ", object_count: " + str(self.object_count)
 
 class BucketCompare:
+    '''
+    Dataclass to ease the comparison of two buckets.
+    One can add a source and a target bucket.
+    Comparison methods for the two added buckets are provided by this class.
+    '''
     source_bucket_info: BucketInfo = None
     target_bucket_info: BucketInfo = None
 
     def is_buckets_equal(self):
+        '''
+        Compares the source and target buckets.
+
+        Buckets are equal:
+        - if they both exist and size and object count match
+        - if one exists and the other has a size of 0 bytes
+        '''
         if self.source_bucket_info == None and self.target_bucket_info == None:
             # Equal, but no bucket info
             return True
@@ -64,6 +83,13 @@ class BucketCompare:
             return True
 
     def get_difference_info(self):
+        '''
+        Returns a textual representation of the found differences. 
+        This method follows the same equal logic as is_buckets_equal.
+
+        For equal buckets this method returns None.
+        For unequal buckets a textual description of the difference is returned.
+        '''
         if self.source_bucket_info == None and self.target_bucket_info == None:
             # Equal, but no bucket info
             return None
@@ -94,11 +120,44 @@ class BucketCompare:
                 object_difference = self.source_bucket_info.object_count - self.target_bucket_info.object_count
                 difference += "Object count difference: %s" % object_difference
             return difference
-        
 
+    def get_size_difference(self):
+        '''
+        Returns the size difference of the source and target buckets.
+
+        If there is a positive difference, something is missing.
+        If there is a negative difference, there is additional data.
+        '''
+        if self.source_bucket_info == None and self.target_bucket_info == None:
+            return 0
+        if self.target_bucket_info == None:
+            return self.source_bucket_info.size_in_bytes
+        if self.source_bucket_info == None:
+            return 0 - self.target_bucket_info.size_in_bytes
+        size_difference = self.source_bucket_info.size_in_bytes - self.target_bucket_info.size_in_bytes
+        return size_difference
+
+    def get_object_count_difference(self):
+        '''
+        Returns the object count difference of the source and target buckets.
+
+        If there is a positive difference, something is missing.
+        If there is a negative difference, there are additional objects.
+        '''
+        if self.source_bucket_info == None and self.target_bucket_info == None:
+            return 0
+        if self.target_bucket_info == None:
+            return self.source_bucket_info.object_count
+        if self.source_bucket_info == None:
+            return 0 - self.target_bucket_info.object_count
+        object_count_difference = self.source_bucket_info.object_count - self.target_bucket_info.object_count
+        return object_count_difference
+        
 class ValidationResult:
     '''
     Dataclass that stores information about validation results.
+
+    The validation result is typically a collection of BucketCompares for all buckets of an instance.
     '''
     bucket_infos: Dict[str, BucketCompare] = {}
     # Maps bucket names to BucketCompare objects.
@@ -106,7 +165,13 @@ class ValidationResult:
     def __init__(self):
         pass
 
-    def set_source_bucket_info(self, source_bucket_info):
+    def add_source_bucket_info(self, source_bucket_info):
+        '''
+        Adds the given information about the source bucket.
+        The bucket_to_backup name is used as key to match source and target bucket.
+
+        If already added, an exception is thrown.
+        '''
         bucket_compare = self.bucket_infos.get(source_bucket_info.bucket_to_backup)
         if bucket_compare == None:
             bucket_compare = BucketCompare()
@@ -117,7 +182,13 @@ class ValidationResult:
                 raise S3bException('Cannot set source bucket. The source bucket is already set.')
             bucketCompare.source_bucket_info = source_bucket_info
 
-    def set_target_bucket_info(self, target_bucket_info):
+    def add_target_bucket_info(self, target_bucket_info):
+        '''
+        Adds the given information about the target bucket.
+        The bucket_to_backup name is used as key to match source and target bucket.
+        
+        If already added, an exception is thrown.
+        '''
         bucket_compare = self.bucket_infos.get(target_bucket_info.bucket_to_backup)
         if bucket_compare == None:
             bucket_compare = BucketCompare()
@@ -129,13 +200,34 @@ class ValidationResult:
             bucket_compare.target_bucket_info = target_bucket_info
     
     def compare(self):
+        '''
+        Walks over the added buckets and counts the size or object count differences.
+        '''
         differences_found = 0
+        size_difference = 0
+        object_count_difference = 0
         for bucket_to_backup, backup_compare in self.bucket_infos.items():
             if not backup_compare.is_buckets_equal():
                 differences_found += 1
+                # Size
+                current_size_difference = backup_compare.get_size_difference()
+                if current_size_difference > 0:
+                    # We count only missing data here. Additional data does not fill this up.
+                    size_difference += current_size_difference
+                else:
+                    logging.warning("Unexpected additional size. Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_size_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
+                # Object count
+                current_object_count_difference = backup_compare.get_object_count_difference()
+                if current_object_count_difference > 0:
+                    # We count only missing data here. Additional data does not fill this up.
+                    object_count_difference += current_object_count_difference
+                else:
+                    logging.warning("Unexpected additional objects. Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_object_count_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
+                # Textual output
                 differences_info = backup_compare.get_difference_info()
-                logging.warning("Source and target buckets are different: '%s', difference: '%s', Source: '%s', Target: '%s'" % (bucket_to_backup, differences_info, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
+                logging.warning("Source and target buckets are different. Bucket: '%s', difference: '%s', source: '%s', target: '%s'" % (bucket_to_backup, differences_info, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
         if differences_found > 0:
-            logging.warning("Buckets different: %s" % (differences_found))
+            size_difference_human_readable = sizeof_fmt(size_difference)
+            logging.warning("Buckets different: %s, missing objects: %s, missing data: %s bytes (%s)" % (differences_found, object_count_difference, size_difference, size_difference_human_readable))
         else:
             logging.info("All buckets are equal concerning size and object count.")

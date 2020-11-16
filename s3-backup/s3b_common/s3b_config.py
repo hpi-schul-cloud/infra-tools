@@ -1,19 +1,23 @@
+import os, sys
+import yaml
+from yaml import load, dump, Loader, FullLoader, Dumper
 from typing import Dict
 from typing import List
 
-from yaml import load, dump, Loader, FullLoader, Dumper
-import yaml
+from s3b_common.s3b_tools import get_absolute_path
+from s3b_common.s3bexception import S3bException
 from s3b_data.instance import Instance
 from s3b_data.s3drive import S3Drive
 from s3b_data.defect_bucket import DefectBucket
 from s3b_data.defect_file import DefectFile
 from s3b_data.configuration import BackupConfiguration
-from s3b_common.s3bexception import S3bException
 
 def read_configuration(configuration_file):
     '''
     Reads an s3b.yaml configuration file into a BackupConfiguration object and returns the filled data object.
     '''
+
+    configuration_file = get_absolute_path(configuration_file)
     a_yaml_file = open(configuration_file)
     data = load(a_yaml_file, Loader=Loader)['s3_backup_configuration']
     # convert into objects
