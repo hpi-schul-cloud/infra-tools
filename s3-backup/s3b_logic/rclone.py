@@ -17,7 +17,7 @@ def run_backup(s3_backup_config, instance_names_to_backup, dailyincrement, syncf
     Main method to start backups. Dailyincrement, syncfull and validation may be executed in one go.
     '''
 
-    logging.info("Running backup. Instances: '%s', syncfull: '%s', dailyincrement: '%s', validate: '%s', force: '%s'" % (instance_names_to_backup, syncfull, dailyincrement, validate, force))
+    logging.info("Running backup. Instances: '%s', syncfull: '%s', dailyincrement: '%s', validate: '%s', force: '%s', whatif: '%s'" % (instance_names_to_backup, syncfull, dailyincrement, validate, force, whatif))
     if dailyincrement:
         run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif)
     if syncfull:
@@ -36,6 +36,15 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whati
     backup_set_id = get_backup_set_id()
     # For each instance
     for current_instance in instance_list:
+        # Check, if today is backup_day_of_month or if force is set
+        if force:
+            pass
+        else:
+            current_day_of_month = int(date.today().day)
+            if current_instance.backup_day_of_month != current_day_of_month:
+                logging.info("Skipping syncfull backup. Today: '%s', Backup day: '%s'. Syncfullbackup will happen only on the configured backup day." %(current_day_of_month, current_instance.backup_day_of_month))
+                continue
+
         create_target_backup_bucket(current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, whatif)
         # For each drive in the instance
         for current_s3drive_name, current_s3drive in current_instance.s3_source_drives.items():

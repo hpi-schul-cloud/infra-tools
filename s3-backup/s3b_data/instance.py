@@ -1,6 +1,7 @@
 from typing import Dict
 
 from s3b_data.s3drive import S3Drive
+from s3b_common.s3bexception import S3bException
 
 class Instance:
     '''
@@ -45,6 +46,10 @@ class Instance:
         self.s3_source_bucket_patterns = s3_source_bucket_patterns
         self.s3_target_drive = s3_target_drive
         self.s3_target_backup_bucket = s3_target_backup_bucket
+
+        # Validate. Has to be 2 number chars.
+        if backup_day_of_month < 0 or backup_day_of_month > 31:
+            raise S3bException("backup_day_of_month has to be a positive number lower or equal as 31, but it is '%s'", str(backup_day_of_month))
         self.backup_day_of_month = backup_day_of_month
 
     def __str__(self):
