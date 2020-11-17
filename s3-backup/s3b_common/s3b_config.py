@@ -59,6 +59,9 @@ def read_configuration(configuration_file):
         defective_files.append(DefectFile(item['drivename'], item['bucketname'], item['filename']))
     configuration.defective_files = defective_files
 
+    # receiver_mail_addresses
+    configuration.receiver_mail_addresses = data['mail']['receiver_mail_addresses']
+
     return configuration
 
 def get_instance_list_from_instance_names(s3_backup_config, instance_names):

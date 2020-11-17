@@ -1,6 +1,18 @@
 ---
 s3_backup_configuration:
+  # Instance definitions. S3 backups are done per instance.
   # See also https://docs.hpi-schul-cloud.org/display/PROD/Infrastructure+Conventions+Schul-Cloud
+  #
+  # instancename: A unique name. Used to identify the backup.
+  # instancename_short: Abbreviation of the instance name.
+  # s3_source_drives: Buckets on these drives are backed up.
+  # s3_source_bucket_patterns: Buckets that match these patterns are backed up. Other buckets are ignored.
+  # s3_target_drive: The backups are stored on this S3 drives.
+  # s3_target_backup_bucket: The backups will be put in this bucket on the s3_target_drive. 
+  # backup_day_of_month: On this calendar day of the month, the syncfull backup will actually run. 
+  #    On all other days it will be skipped unless you use the -force option.
+  #
+  # Note: All drive names used here must be configured in the s3drives section below.
   instances:
     - instancename: international
       instancename_short: int
@@ -50,6 +62,12 @@ s3_backup_configuration:
       s3_target_drive: hidrivethueringenbackup
       s3_target_backup_bucket: s3-backup-thueringen-cee2ae
       backup_day_of_month: 23
+  
+  # S3 drive definitions.
+  # This should be similar as the rclone definition.
+  #
+  # drivename: The name as it is set in rclone.conf
+  # backupdrive True/False. Prevents to accidently add backupdrives as source or vice versa.
   s3drives:
     - drivename: hidriveopen
       backupdrive: False
@@ -131,10 +149,15 @@ s3_backup_configuration:
       backupdrive: False
     - drivename: hidriveinternationalbackup
       backupdrive: True
+  
+  # Buckets marked as defective are skipped during the backup process.
   defect_buckets:
     # OPS-1531: solved
     #- drivename: hidrivethueringen3
     #  bucketname: bucket-5e97b98f4fccb20029058807
+  
+  # Files marked as defective are skipped during the backup process.
+  # Will be passed to rclone as exclusion.
   defect_files:
     # OPS-1600
     - drivename: hidrive3
@@ -148,3 +171,8 @@ s3_backup_configuration:
     #- drivename: hidrivebrandenburg
     #  bucketname: bucket-5f0d56bb9017a40029791bb4
     #  filename: "1588847225615-pb-genug-für-alle.*"
+  
+  # Settings for the mailer
+  mail:
+    # mail address for error reporting
+    receiver_mail_addresses: [ devops@hpi-schul-cloud.de ]

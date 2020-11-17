@@ -9,11 +9,13 @@ import os
 import subprocess
 import logging
 import argparse
+import traceback
 from contextlib import redirect_stdout
 
-from s3b_common.s3b_logging import initLogging
+from s3b_common.s3b_logging import initLogging, get_logfile_name
 from s3b_common.s3b_config import read_configuration
 from s3b_common.s3bexception import S3bException
+from s3b_common.s3b_mail import send_error_mail_to_multiple_receivers
 from s3b_data.instance import Instance
 from s3b_data.s3drive import S3Drive
 from s3b_data.configuration import BackupConfiguration
@@ -47,6 +49,7 @@ def logWhatIfHeader():
     logging.info("====================================================")
 
 if __name__ == '__main__':
+    s3_backup_config = None
     try:
         if sys.version_info[0] < 3 or sys.version_info[1] < 6:
             print("This script requires Python version 3.6")
@@ -83,7 +86,6 @@ if __name__ == '__main__':
                 for current_instance_name, current_instance in s3_backup_config.instances.items():
                     instances_to_backup.append(current_instance.instancename)
             logging.info('The following instances are in scope: %s' % instances_to_backup)
-
             # Validate the s3-backup config.
             rclone.validate_configuration(s3_backup_config)
             # Run the backup or validation.
@@ -96,4 +98,6 @@ if __name__ == '__main__':
     except Exception as ex:
         logging.exception(ex)
         logging.info("Backup failed.")
+        if s3_backup_config != None:
+            send_error_mail_to_multiple_receivers(s3_backup_config.receiver_mail_addresses, traceback.format_exc(), get_logfile_name())
         exit(1)

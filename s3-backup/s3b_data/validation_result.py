@@ -215,14 +215,14 @@ class ValidationResult:
                     # We count only missing data here. Additional data does not fill this up.
                     size_difference += current_size_difference
                 else:
-                    logging.warning("Unexpected additional size (counts negative). Did you add something to the defect lists? Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_size_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
+                    logging.warning("Unexpected additional size (counts negative). Did you add something to the defect lists? Bucket: '%s', additional size: '%s'\n\tsource: '%s'\n\ttarget: '%s'" % (bucket_to_backup, current_size_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
                 # Object count
                 current_object_count_difference = backup_compare.get_object_count_difference()
                 if current_object_count_difference > 0:
                     # We count only missing data here. Additional data does not fill this up.
                     object_count_difference += current_object_count_difference
                 else:
-                    logging.warning("Unexpected additional objects (count negative). Did you add something to the defect lists? Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_object_count_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
+                    logging.warning("Unexpected additional objects (count negative). Did you add something to the defect lists? Bucket: '%s', additional objects: '%s'\n\tsource: '%s'\n\ttarget: '%s'" % (bucket_to_backup, current_object_count_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
                 # Textual output
                 differences_info = backup_compare.get_difference_info()
                 logging.warning("Source and target buckets are different. Bucket: '%s', difference: '%s', source: '%s', target: '%s'" % (bucket_to_backup, differences_info, backup_compare.source_bucket_info, backup_compare.target_bucket_info))

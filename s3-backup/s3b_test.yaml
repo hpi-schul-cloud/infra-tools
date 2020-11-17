@@ -20,3 +20,6 @@ s3_backup_configuration:
     - drivename: infradev1
       bucketname: testbucket-1234567890
       filename: "20201109_082442_35_random.bin"
+  mail:
+    #receiver_mail_addresses: [ markus.bartels@guest.hpi.de ]
+    receiver_mail_addresses: []

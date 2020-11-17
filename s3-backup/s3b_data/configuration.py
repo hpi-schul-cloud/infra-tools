@@ -25,6 +25,9 @@ class BackupConfiguration:
     defective_files: List[DefectFile] = []
     # These files are skipped during backup, because the are defect.
 
+    receiver_mail_addresses = []
+    # List of mail addresses that want to receive error notifications.
+
     def __init__(self):
         pass
 
@@ -84,4 +87,4 @@ class BackupConfiguration:
             if len(defective_files_string) != 0:
                 defective_files_string += ", "
             defective_files_string += defective_file.__str__()
-        return "instances: " + instances_string + ", s3drives: " + drives_string + ", defective_buckets: " + defective_buckets_string + ", defective_files: " + defective_files_string
+        return "instances: " + instances_string + ", s3drives: " + drives_string + ", defective_buckets: " + defective_buckets_string + ", defective_files: " + defective_files_string + ", receiver_mail_addresses: " + receiver_mail_addresses

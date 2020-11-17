@@ -5,6 +5,9 @@ from s3b_common.s3b_tools import get_absolute_path
 
 logFilename = None
 
+def get_logfile_name():
+    return logFilename
+
 def initLogging():
     '''
     Initializes the logger.
