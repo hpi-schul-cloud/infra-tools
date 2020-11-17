@@ -16,7 +16,7 @@ s3_backup_configuration:
   defect_buckets:
     - drivename: infradev1
       bucketname: testbucket-0987654321
-  defect_files:
+  defect_files: # []
     - drivename: infradev1
       bucketname: testbucket-1234567890
       filename: "20201109_082442_35_random.bin"

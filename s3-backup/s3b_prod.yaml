@@ -132,17 +132,19 @@ s3_backup_configuration:
     - drivename: hidriveinternationalbackup
       backupdrive: True
   defect_buckets:
-    - drivename: hidrivethueringen3
-      bucketname: bucket-5e97b98f4fccb20029058807
+    # OPS-1531: solved
+    #- drivename: hidrivethueringen3
+    #  bucketname: bucket-5e97b98f4fccb20029058807
   defect_files:
+    # OPS-1600
     - drivename: hidrive3
       bucketname: bucket-5ef1bc78d136a8002aee2702
       filename: "*-https-/"
-    # OPS-1545
-    - drivename: hidrive3
-      bucketname: bucket-5f0d56bb9017a40029791bb4
-      filename: 1601380498861-marco-polo.docx
-    # OPS-1545
-    - drivename: hidrivebrandenburg
-      bucketname: bucket-5f0d56bb9017a40029791bb4
-      filename: "1588847225615-pb-genug-für-alle.*"
+    # OPS-1545: solved
+    #- drivename: hidrive3
+    #  bucketname: bucket-5f0d56bb9017a40029791bb4
+    #  filename: 1601380498861-marco-polo.docx
+    # OPS-1545: solved
+    #- drivename: hidrivebrandenburg
+    #  bucketname: bucket-5f0d56bb9017a40029791bb4
+    #  filename: "1588847225615-pb-genug-für-alle.*"

@@ -215,14 +215,14 @@ class ValidationResult:
                     # We count only missing data here. Additional data does not fill this up.
                     size_difference += current_size_difference
                 else:
-                    logging.warning("Unexpected additional size. Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_size_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
+                    logging.warning("Unexpected additional size (counts negative). Did you add something to the defect lists? Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_size_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
                 # Object count
                 current_object_count_difference = backup_compare.get_object_count_difference()
                 if current_object_count_difference > 0:
                     # We count only missing data here. Additional data does not fill this up.
                     object_count_difference += current_object_count_difference
                 else:
-                    logging.warning("Unexpected additional objects. Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_object_count_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
+                    logging.warning("Unexpected additional objects (count negative). Did you add something to the defect lists? Bucket: '%s', additional objects: '%s' , source: '%s', target: '%s'" % (bucket_to_backup, current_object_count_difference, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
                 # Textual output
                 differences_info = backup_compare.get_difference_info()
                 logging.warning("Source and target buckets are different. Bucket: '%s', difference: '%s', source: '%s', target: '%s'" % (bucket_to_backup, differences_info, backup_compare.source_bucket_info, backup_compare.target_bucket_info))
@@ -231,3 +231,12 @@ class ValidationResult:
             logging.warning("Buckets different: %s, missing objects: %s, missing data: %s bytes (%s)" % (differences_found, object_count_difference, size_difference, size_difference_human_readable))
         else:
             logging.info("All buckets are equal concerning size and object count.")
+
+    def log_statistics(self):
+        '''
+        Walks over the added buckets and summerizes the size and object counts.
+        '''
+        for bucket_to_backup, backup_compare in self.bucket_infos.items():
+            source_bucket_info = backup_compare.source_bucket_info
+            target_bucket_info = backup_compare.target_bucket_info
+            logging.info("Bucket: '%s'\n\tsource: %s bytes (%s) %s objects %s\n\ttarget: %s bytes (%s) %s objects %s" % (bucket_to_backup, source_bucket_info.size_in_bytes, sizeof_fmt(source_bucket_info.size_in_bytes), source_bucket_info.object_count, source_bucket_info.get_full_path(), target_bucket_info.size_in_bytes, sizeof_fmt(target_bucket_info.size_in_bytes), target_bucket_info.object_count, target_bucket_info.get_full_path()))

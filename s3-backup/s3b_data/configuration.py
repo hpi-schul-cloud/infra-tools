@@ -28,6 +28,34 @@ class BackupConfiguration:
     def __init__(self):
         pass
 
+    def is_defective_bucket(self, drivename, bucketname):
+        '''
+        Returns True, if the given bucket on the specified drive is marked as defect.
+        '''
+        for current_defective_bucket in self.defective_buckets:
+            if current_defective_bucket.is_defective_bucket(drivename, bucketname):
+                return True
+        return False
+
+    def is_defective_file(self, drivename, bucketname, filename):
+        '''
+        Returns True, if the given file on the specified drive and bucket is marked as defect.
+        '''
+        for current_defective_file in self.defective_files:
+            if current_defective_file.is_defective_file(drivename, bucketname, filename):
+                return True
+        return False
+
+    def get_defective_file_list(self, drivename, bucketname):
+        '''
+        Returns a list with the names of the files that are marked as defective.
+        '''
+        defective_file_list = []
+        for current_defective_file in self.defective_files:
+            if current_defective_file.drivename == drivename and current_defective_file.bucketname == bucketname:
+                defective_file_list.append(current_defective_file.filename)
+        return defective_file_list
+
     def __str__(self):
         '''
         Assembles the class member content into a string.

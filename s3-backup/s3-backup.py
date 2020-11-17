@@ -26,14 +26,14 @@ def parseArguments():
     parser = argparse.ArgumentParser(description='Run S3 instance backups for the HPI Schul-Cloud application.')
 
     parser.add_argument('--version', action='version', version='1.0.0')
-    parser.add_argument("-sc", "--showconfig", action='store_true', help = "Prints out the configuration that will be used.")
+    parser.add_argument("-sc", "--showconfig", action='store_true', help = "Prints out the configuration that will be used, before any other action.")
     parser.add_argument("-d", "--dailyincrement", action='store_true', help = "Creates a backup of the files that were uploaded during the last day.")
-    parser.add_argument("-s", "--syncfull", action='store_true', help = "Synchronizes the full backup of the specified instances.")
-    parser.add_argument("-va", "--validate", action='store_true', help = "Validates the existing backup. The validation currently checks the number of objects and the size of the buckets.")
-    parser.add_argument("-i", "--instance", action='append', dest = 'instances_to_backup', help = "The full name of an instance to backup.")
+    parser.add_argument("-s", "--syncfull", action='store_true', help = "Synchronizes the full backup of the configured instances, if scheduled for today.")
+    parser.add_argument("-va", "--validate", action='store_true', help = "Validates the existing syncfull backup. The validation checks the number of objects and the size of the buckets.")
+    parser.add_argument("-i", "--instance", action='append', dest = 'instances_to_backup', help = "Limits the scope to the specified instance. Add the name of an instance to backup as argument.")
     parser.add_argument("-c", "--configuration", help = "Name of a yaml configuration file to use for the backup. The configuration file contains the definition of the available instances and other static configuration data.", default="s3b_test.yaml")
-    parser.add_argument("-f", "--force", action='store_true', help = "Forces a backup, even if it is not scheduled for today.")
-    parser.add_argument("-w", "--whatif", action='store_true', help = "If set no operations are executed.")
+    parser.add_argument("-f", "--force", action='store_true', help = "Force. If -s is specified forces a syncfull backup, even if it is not scheduled for today.")
+    parser.add_argument("-w", "--whatif", action='store_true', help = "If set no write operations are executed. rclone operations are executed with --dryrun.")
     args = parser.parse_args()
     return args
 
