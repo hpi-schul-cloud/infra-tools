@@ -51,9 +51,9 @@ function incbackup {
 				continue
 			fi
 			if [ $whatif == 1 ]; then
-				echo "rclone copy --max-age 25h --create-empty-src-dirs  --exclude-from /root/backup_s3/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${datestamp}-${instance}-inc/$current_bucket"
+				echo "rclone copy --max-age 25h --create-empty-src-dirs  --exclude-from /root/infra-tools/s3-backup/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${datestamp}-${instance}-inc/$current_bucket"
 			else
-				(set -x; rclone copy --max-age 25h --create-empty-src-dirs --exclude-from /root/backup_s3/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${datestamp}-${instance}-inc/$current_bucket)
+				(set -x; rclone copy --max-age 25h --create-empty-src-dirs --exclude-from /root/infra-tools/s3-backup/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${datestamp}-${instance}-inc/$current_bucket)
 			fi
 		done
 	done
@@ -85,9 +85,9 @@ function fullbackup {
 				continue
 			fi
 			if [ $whatif == 1 ]; then
-				echo "rclone sync --create-empty-src-dirs --exclude-from /root/backup_s3/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${instance}-full-${month_moduo2}/$current_bucket"
+				echo "rclone sync --create-empty-src-dirs --exclude-from /root/infra-tools/s3-backup/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${instance}-full-${month_moduo2}/$current_bucket"
 			else
-				(set -x; rclone sync -v --create-empty-src-dirs --exclude-from /root/backup_s3/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${instance}-full-${month_moduo2}/$current_bucket)
+				(set -x; rclone sync -v --create-empty-src-dirs --exclude-from /root/infra-tools/s3-backup/exclude_from_backup.txt ${sourcedrive}:$current_bucket ${targetdrive}:${s3_backup_bucket}/${instance}-full-${month_moduo2}/$current_bucket)
 			fi
 		done
 	done
