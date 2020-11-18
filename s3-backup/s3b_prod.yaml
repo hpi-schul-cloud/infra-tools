@@ -151,7 +151,7 @@ s3_backup_configuration:
       backupdrive: True
   
   # Buckets marked as defective are skipped during the backup process.
-  defect_buckets:
+  defect_buckets: []
     # OPS-1531: solved
     #- drivename: hidrivethueringen3
     #  bucketname: bucket-5e97b98f4fccb20029058807
@@ -159,10 +159,6 @@ s3_backup_configuration:
   # Files marked as defective are skipped during the backup process.
   # Will be passed to rclone as exclusion.
   defect_files:
-    # OPS-1600
-    - drivename: hidrive3
-      bucketname: bucket-5ef1bc78d136a8002aee2702
-      filename: "*-https-/"
     # OPS-1545: solved
     #- drivename: hidrive3
     #  bucketname: bucket-5f0d56bb9017a40029791bb4
@@ -171,8 +167,42 @@ s3_backup_configuration:
     #- drivename: hidrivebrandenburg
     #  bucketname: bucket-5f0d56bb9017a40029791bb4
     #  filename: "1588847225615-pb-genug-für-alle.*"
+    # boss
+    # OPS-1600
+    - drivename: hidrive3
+      bucketname: bucket-5ef1bc78d136a8002aee2702
+      filename: "*-https-/"
+    # international
+    - drivename: hidriveinternational
+      bucketname: bucket-5ecf738a5725b30029e08867 
+      filename: "1597075411845-https-/"
+    # nbc
+    - drivename: hidrivenbc
+      bucketname: bucket-000bc186816abba584714c55 
+      filename: "1602227779063---onmouseover-alert-document.cookie-------/"
+    - drivename: hidrivenbc
+      bucketname: bucket-000bc186816abba584714c55 
+      filename: "1602165108872---onmouseover-alert-document.cookie-------/"
+    - drivename: hidrivenbc2
+      bucketname: bucket-5edf4918010cfc83f8e85f75
+      filename: "1592347340258-https-/"
+    - drivename: hidrivenbc4
+      bucketname: bucket-5ed771e9315eea181f65a776
+      filename: "1592292625320-https-/"
+    # thueringen
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e6b9963ba560100296bc776
+      filename: "1600272359022-https-/"
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e742f1e52b6230029a14be1
+      filename: "1585268288583-https-/"
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e7ac69eae0374002957f0ab
+      filename: "1590663534546-ahhttps-/"
   
   # Settings for the mailer
   mail:
     # mail address for error reporting
+    # receiver_mail_addresses: [ markus.bartels@guest.hpi.de ]
     receiver_mail_addresses: [ devops@hpi-schul-cloud.de ]
+    

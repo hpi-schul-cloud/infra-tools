@@ -236,7 +236,36 @@ class ValidationResult:
         '''
         Walks over the added buckets and summerizes the size and object counts.
         '''
+        source_size_in_bytes_total = 0
+        source_object_count_total = 0
+        target_size_in_bytes_total = 0
+        target_object_count_total = 0
         for bucket_to_backup, backup_compare in self.bucket_infos.items():
             source_bucket_info = backup_compare.source_bucket_info
+            # Source
+            source_size_in_bytes = None
+            source_size_in_bytes_human_readable = None
+            source_object_count = None
+            source_bucket_full_path = None
+            if source_bucket_info:
+                source_size_in_bytes = source_bucket_info.size_in_bytes
+                source_size_in_bytes_total += source_size_in_bytes
+                source_size_in_bytes_human_readable = sizeof_fmt(source_size_in_bytes)
+                source_object_count = source_bucket_info.object_count
+                source_object_count_total += source_object_count
+                source_bucket_full_path = source_bucket_info.get_full_path()
+            # Target
             target_bucket_info = backup_compare.target_bucket_info
-            logging.info("Bucket: '%s'\n\tsource: %s bytes (%s) %s objects %s\n\ttarget: %s bytes (%s) %s objects %s" % (bucket_to_backup, source_bucket_info.size_in_bytes, sizeof_fmt(source_bucket_info.size_in_bytes), source_bucket_info.object_count, source_bucket_info.get_full_path(), target_bucket_info.size_in_bytes, sizeof_fmt(target_bucket_info.size_in_bytes), target_bucket_info.object_count, target_bucket_info.get_full_path()))
+            target_size_in_bytes = None
+            target_size_in_bytes_human_readable = None
+            target_object_count = None
+            target_bucket_full_path = None
+            if target_bucket_info:
+                target_size_in_bytes = target_bucket_info.size_in_bytes
+                target_size_in_bytes_total += target_size_in_bytes
+                target_size_in_bytes_human_readable = sizeof_fmt(target_size_in_bytes)
+                target_object_count = target_bucket_info.object_count
+                target_object_count_total += target_object_count
+                target_bucket_full_path = target_bucket_info.get_full_path()
+            logging.info("Bucket: '%s'\n\tsource: %s bytes (%s) %s objects %s\n\ttarget: %s bytes (%s) %s objects %s" % (bucket_to_backup, source_size_in_bytes, source_size_in_bytes_human_readable, source_object_count, source_bucket_full_path, target_size_in_bytes, target_size_in_bytes_human_readable, target_object_count, target_bucket_full_path))
+        logging.info("Total:\n\tsource: %s bytes (%s) %s objects\n\ttarget: %s bytes (%s) %s objects" % (source_size_in_bytes_total, sizeof_fmt(source_size_in_bytes_total), source_object_count_total, target_size_in_bytes_total, sizeof_fmt(target_size_in_bytes_total), target_object_count_total))

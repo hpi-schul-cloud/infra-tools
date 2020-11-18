@@ -79,15 +79,20 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whati
 
         create_target_backup_bucket(current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, whatif)
         # For each drive in the instance
+        current_drive_number = 1
         for current_s3drive_name, current_s3drive in current_instance.s3_source_drives.items():
             source_bucket_list = evaluate_source_bucket_list(current_s3drive.drivename, current_instance.s3_source_bucket_patterns)
             # For each bucket on the drive in the instance, rclone it
+            current_bucket_number = 1
             for current_bucket_to_backup in source_bucket_list:
+                logging.info("Drive '%s' of '%s'. Bucket '%s' of '%s'." % (current_drive_number, len(current_instance.s3_source_drives), current_bucket_number, len(source_bucket_list)))
+                current_bucket_number += 1
                 if s3_backup_config.is_defective_bucket(current_s3drive_name, current_bucket_to_backup):
                     logging.info("Skipping bucket '%s' on '%s'. The bucket is marked as defective in the configuration." % (current_bucket_to_backup, current_s3drive_name))
                     continue
                 defective_file_list = s3_backup_config.get_defective_file_list(current_s3drive_name, current_bucket_to_backup)
                 run_backup_syncfull_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_id, defective_file_list, whatif)
+            current_drive_number += 1
 
 def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif):
     '''
@@ -103,16 +108,20 @@ def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif
     for current_instance in instance_list:
         create_target_backup_bucket(current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, whatif)
         # For each drive of the instance
+        current_drive_number = 1
         for current_s3drive_name, current_s3drive in current_instance.s3_source_drives.items():
             source_bucket_list = evaluate_source_bucket_list(current_s3drive.drivename, current_instance.s3_source_bucket_patterns)
-
             # For each bucket on the drive of the instance, rclone it
+            current_bucket_number = 1
             for current_bucket_to_backup in source_bucket_list:
+                logging.info("Drive '%s' of '%s'. Bucket '%s' of '%s'." % (current_drive_number, len(current_instance.s3_source_drives), current_bucket_number, len(source_bucket_list)))
+                current_bucket_number += 1
                 if s3_backup_config.is_defective_bucket(current_s3drive_name, current_bucket_to_backup):
                     logging.info("Skipping bucket '%s' on '%s'. The bucket is marked as defective in the configuration." % (current_bucket_to_backup, current_s3drive_name))
                     continue
                 defective_file_list = s3_backup_config.get_defective_file_list(current_s3drive_name, current_bucket_to_backup)
                 run_backup_dailyincrement_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_datestamp, backup_set_datestamp_as_path, defective_file_list, whatif)
+            current_drive_number += 1
 
 def create_target_backup_bucket(drivename, s3_target_backup_bucket, whatif):
     '''
@@ -181,6 +190,7 @@ def run_backup_syncfull_for_single_bucket(source_drivename, bucket_to_backup, ta
     rcloneCommand = ['rclone']
     rcloneSubCommand = ['sync']
     rcloneOptions = ['--create-empty-src-dirs']
+    #rcloneOptions.append('--verbose')
     for defective_file in defective_file_list:
         rcloneOptions.append("--exclude")
         rcloneOptions.append(defective_file)
@@ -213,7 +223,8 @@ def run_backup_dailyincrement_for_single_bucket(source_drivename, bucket_to_back
     logging.info("Daily incremental backup for '%s'." % source)
     rcloneCommand = ['rclone']
     rcloneSubCommand = ['copy']
-    rcloneOptions = ['--verbose', '--max-age', '25h', '--use-server-modtime']
+    rcloneOptions = ['--max-age', '25h', '--use-server-modtime']
+    #rcloneOptions.append('--verbose')
     for defective_file in defective_file_list:
         rcloneOptions.append("--exclude")
         rcloneOptions.append(defective_file)
@@ -267,17 +278,22 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, whatif):
         # On the source side, we look just on the bucket that are configured. 
         # So we can reuse evaluate_source_bucket_list, which delivers the buckets to backup.
         # For each drive of the instance
+        current_drive_number = 1
         for current_s3drive_name, current_s3drive in current_instance.s3_source_drives.items():
             source_bucket_list = evaluate_source_bucket_list(current_s3drive.drivename, current_instance.s3_source_bucket_patterns)
             # For each bucket on the drive of the instance, add it to the validation list.
             path = ""
+            current_bucket_number = 1
             for current_bucket_to_backup in source_bucket_list:
+                logging.info("Drive '%s' of '%s'. Bucket '%s' of '%s'." % (current_drive_number, len(current_instance.s3_source_drives), current_bucket_number, len(source_bucket_list)))
+                current_bucket_number += 1
                 if s3_backup_config.is_defective_bucket(current_s3drive_name, current_bucket_to_backup):
                     logging.info("Skipping bucket '%s' on '%s'. The bucket is marked as defective in the configuration." % (current_bucket_to_backup, current_s3drive_name))
                     continue
                 defective_file_list = s3_backup_config.get_defective_file_list(current_s3drive_name, current_bucket_to_backup)
                 source_bucket_info = read_bucket_info(current_s3drive.drivename, path, current_bucket_to_backup, defective_file_list, whatif)
                 validation_result.add_source_bucket_info(source_bucket_info)
+            current_drive_number += 1
 
         # On the target side, we read the buckets that exist on the backup bucket.
         backup_drive = current_instance.s3_target_drive.drivename
@@ -289,8 +305,12 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, whatif):
             validation_result.add_target_bucket_info(target_bucket_info)
 
         # Compare the collected bucket information.
+        logging.info("===== Validation Statistics ==========================================")
         validation_result.log_statistics()
+        logging.info("===== Validation Compare =============================================")
         validation_result.compare()
+        logging.info("Note that file exclusions do not work with 'rclone size' and may occure as difference here.")
+        logging.info("===== Validation Finished ============================================")
 
 def read_directory_list(drivename, path, whatif):
     '''
@@ -327,6 +347,9 @@ def read_bucket_info(drivename, path, bucket_to_backup, defective_file_list, wha
     rcloneCommand = ['rclone']
     rcloneSubCommand = ['size']
     rcloneOptions = ['--json']
+    # Unfortunatly excludes do not seem to work.
+    # At least the *-https-/ problems cannot be excluded and lead to differences.
+    # Stays here until confirmed with normal files.
     for defective_file in defective_file_list:
         rcloneOptions.append("--exclude")
         rcloneOptions.append(defective_file)
