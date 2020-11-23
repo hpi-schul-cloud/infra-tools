@@ -168,6 +168,24 @@ s3_backup_configuration:
     #  bucketname: bucket-5f0d56bb9017a40029791bb4
     #  filename: "1588847225615-pb-genug-für-alle.*"
     # boss
+    - drivename: hidrive
+      bucketname: bucket-0000d186816abba584714c42
+      filename: "1565197470481-https:/"
+    - drivename: hidrive
+      bucketname: bucket-0000d186816abba584714c58
+      filename: "1603650357207-https-/"
+    - drivename: hidrive
+      bucketname: bucket-0000d186816abba584714c5c
+      filename: "1582562536221-geht-auf-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5ac749a4e45dc8710cb64acb
+      filename: "1598536800234-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5ac749a4e45dc8710cb64acb
+      filename: "1596575909388-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5ac74e8fe45dc8710cb64ae9
+      filename: "1584702273871-/"
     # OPS-1600
     - drivename: hidrive3
       bucketname: bucket-5ef1bc78d136a8002aee2702
