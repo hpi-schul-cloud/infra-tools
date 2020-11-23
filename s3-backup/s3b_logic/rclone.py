@@ -67,6 +67,7 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whati
     instance_list = get_instance_list_from_instance_names(s3_backup_config, instance_names_to_backup)
     backup_set_id = get_backup_set_id()
     # For each instance
+    #do_skip = True
     for current_instance in instance_list:
         # Check, if today is backup_day_of_month or if force is set
         if force:
@@ -87,6 +88,9 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whati
             for current_bucket_to_backup in source_bucket_list:
                 logging.info("Drive '%s' of '%s'. Bucket '%s' of '%s'." % (current_drive_number, len(current_instance.s3_source_drives), current_bucket_number, len(source_bucket_list)))
                 current_bucket_number += 1
+                #if do_skip and current_bucket_to_backup != "bucket-5bfff495a4605400116bf6db":
+                #    continue
+                #do_skip = False
                 if s3_backup_config.is_defective_bucket(current_s3drive_name, current_bucket_to_backup):
                     logging.info("Skipping bucket '%s' on '%s'. The bucket is marked as defective in the configuration." % (current_bucket_to_backup, current_s3drive_name))
                     continue
