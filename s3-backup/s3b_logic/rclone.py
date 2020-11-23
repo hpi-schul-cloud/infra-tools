@@ -56,7 +56,8 @@ def run_backup(s3_backup_config, instance_names_to_backup, dailyincrement, syncf
         run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whatif)
     if validate:
         run_backup_validate(s3_backup_config, instance_names_to_backup, whatif)
-
+    logging.info("Running backup finished. Instances: '%s', syncfull: '%s', dailyincrement: '%s', validate: '%s', force: '%s', whatif: '%s'" % (instance_names_to_backup, syncfull, dailyincrement, validate, force, whatif))
+    
 def run_backup_syncfull(s3_backup_config, instance_names_to_backup, force, whatif):
     '''
     Starts a syncfull backup.
