@@ -71,6 +71,7 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, current_day_
     # For each instance
     #do_skip = True
     for current_instance in instance_list:
+        logging.info("===== Syncfull %s =====" % current_instance.instancename)
         # Check, if today is backup_day_of_month or if force is set
         if force:
             pass
@@ -111,6 +112,7 @@ def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif
     backup_set_datestamp_as_path = get_backup_set_month_datestamp_as_path()
     # For each instance
     for current_instance in instance_list:
+        logging.info("===== Daily Increment %s =====" % current_instance.instancename)
         create_target_backup_bucket(current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, whatif)
         # For each drive of the instance
         current_drive_number = 1
@@ -276,6 +278,7 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, current_day_
     backup_set_id = get_backup_set_id()
     # For each instance
     for current_instance in instance_list:
+        logging.info("===== Validation %s =====" % current_instance.instancename)
         # Check, if today is backup_day_of_month or if force is set
         if force:
             pass
