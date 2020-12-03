@@ -186,10 +186,76 @@ s3_backup_configuration:
     - drivename: hidrive
       bucketname: bucket-5ac74e8fe45dc8710cb64ae9
       filename: "1584702273871-/"
+    - drivename: hidrive
+      bucketname: bucket-5bbc5c431bd42c0016e12ded
+      filename: "1585116656957-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5c1b5be388997c0012b9efe5
+      filename: "1598098494590-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5d400af3094b3d001c4741bd
+      filename: "1573066229459-https:/"
+    - drivename: hidrive
+      bucketname: bucket-5e202704c6037f003915af5e
+      filename: "1598019385385-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5e81b34ddea1920029a5ba05
+      filename: "1587454147829-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5e81b34ddea1920029a5ba05
+      filename: "1587454147091-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5e8304051c667b002a6e0ff0
+      filename: "1597151025415-https-/"
+    - drivename: hidrive
+      bucketname: bucket-5e8304051c667b002a6e0ff0
+      filename: "1596816138662-http-/"
+    - drivename: hidrive2
+      bucketname: bucket-5e8c32ea27d0b300299a7005
+      filename: "1597094967840-https-/"
+    - drivename: hidrive2
+      bucketname: bucket-5e8c32ea27d0b300299a7005
+      filename: "1597588290253-https-/"
+    - drivename: hidrive2
+      bucketname: bucket-5e8ef4f50a79e80029a3ccf3
+      filename: "1586556801968-https-/"
+    - drivename: hidrive2
+      bucketname: bucket-5eb27a9570aa470029452069
+      filename: "1599037893235-http-/"
+    - drivename: hidrive2
+      bucketname: bucket-5edde0f109c72c002ab7482a
+      filename: "1605762398029-https-/"
     # OPS-1600
     - drivename: hidrive3
       bucketname: bucket-5ef1bc78d136a8002aee2702
       filename: "*-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5ef44d4cd5a4510029f29254
+      filename: "1597997820423-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5ef4582c381e5b00291e9331
+      filename: "1604256180146-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5ef4582c381e5b00291e9331
+      filename: "1601893178037-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5f32613cf509130029ebcb8e
+      filename: "1598001581460-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5f32613cf509130029ebcb8e
+      filename: "1602331350997-lernbüro-plus--https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5f3a4dda6dd25b0029b29fea
+      filename: "1606494448302-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5f3a4dda6dd25b0029b29fea
+      filename: "1606494231984-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5f9a8d731bcf680029d47462
+      filename: "1606752482803-https-/"
+    - drivename: hidrive3
+      bucketname: bucket-5fabbdf9b054260028a26b4f
+      filename: "1606227831432-https-/"
     # international
     - drivename: hidriveinternational
       bucketname: bucket-5ecf738a5725b30029e08867 
@@ -201,9 +267,15 @@ s3_backup_configuration:
     - drivename: hidrivenbc
       bucketname: bucket-000bc186816abba584714c55 
       filename: "1602165108872---onmouseover-alert-document.cookie-------/"
+    - drivename: hidrivenbc
+      bucketname: bucket-5e8dbb7c4fa567002b932788
+      filename: "1606556592991-link-zu-vielen-unterrichtsideen-von-bis--https-/"
     - drivename: hidrivenbc2
       bucketname: bucket-5edf4918010cfc83f8e85f75
       filename: "1592347340258-https-/"
+    - drivename: hidrivenbc2
+      bucketname: bucket-5edf4918010cfc83f8e85f75
+      filename: "1592347292438-https-/"
     - drivename: hidrivenbc4
       bucketname: bucket-5ed771e9315eea181f65a776
       filename: "1592292625320-https-/"
@@ -217,7 +289,130 @@ s3_backup_configuration:
     - drivename: hidrivethueringen
       bucketname: bucket-5e7ac69eae0374002957f0ab
       filename: "1590663534546-ahhttps-/"
-  
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e85448e0dd4230029b9fef0
+      filename: "1585990179803-https-/"
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e85448e0dd4230029b9fef0
+      filename: "1585989163133-https-/"
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e85448e0dd4230029b9fef0
+      filename: "1585989316998-https-/"
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e85448e0dd4230029b9fef0
+      filename: "1585989098441-https-/"
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e85448e0dd4230029b9fef0
+      filename: "1585990005113-https-/"
+    - drivename: hidrivethueringen
+      bucketname: bucket-5e85448e0dd4230029b9fef0
+      filename: "1585989401165-https-/"
+    - drivename: hidrivethueringen2
+      bucketname: bucket-5edf5ba0b06a560029ecf034
+      filename: "1606217855684-https-/"
+    - drivename: hidrivethueringen2
+      bucketname: bucket-5edf5ba0b06a560029ecf034
+      filename: "1606217576341-https-/"
+    - drivename: hidrivethueringen2
+      bucketname: bucket-5edf5ba0b06a560029ecf034
+      filename: "1606217510561-https-/"
+    - drivename: hidrivethueringen2
+      bucketname: bucket-5f7fd461b798c6002a1b3c74
+      filename: "1606685638300-https-/"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5eb2c9cae08692002a85cdeb
+      filename: "1606557940637-https-/"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5eb2c9cae08692002a85cdec
+      filename: "1593105767607-https-/"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ebe79cb63063c002996649f
+      filename: "1599131607588-https-/"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ebe79cb63063c002996649f
+      filename: "1599131714090-https-/"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ebe79cb63063c002996649f
+      filename: "1602669088788-https-/"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ed64b33913b6d002aa8a2d2
+      filename: "1605034712140-https-/"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5f0c58daaf37aa0029374a60
+      filename: "1600759575816-https-/"
+    - drivename: hidrivethueringen4
+      bucketname: bucket-5eb8fc69adc6e100298f5447
+      filename: "1606382124321-https-/"
+    - drivename: hidrivethueringen4
+      bucketname: bucket-5f11165f9f0aa6002a3bff14
+      filename: "1603473915346-https-/"
+    - drivename: hidrivethueringen4
+      bucketname: bucket-5f11165f9f0aa6002a3bff14
+      filename: "1603473487066-https-/"
+    - drivename: hidrivethueringen4
+      bucketname: bucket-5f11165f9f0aa6002a3bff14
+      filename: "1603473771325-https-/"
+    # brandenburg
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5cf7bcb62e180e0013e28314
+      filename: "1583394117045-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5cf7bda72e180e0013e28324
+      filename: "1605622405548-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5cf7bda72e180e0013e28324
+      filename: "1605622405539-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5cf7bda72e180e0013e28324
+      filename: "1600340178594-http-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5cf7bdae2e180e0013e28325
+      filename: "1591298370534-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5cf7bdbe2e180e0013e28327
+      filename: "1568368093125-https:/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5cf7bdc52e180e0013e28328
+      filename: "1587985605773-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5e8cdce848226600290a00df
+      filename: "1600266000807-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5e8d6163dbac9100295d39f2
+      filename: "1596539364832-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5e8d6163dbac9100295d39f2
+      filename: "1596539331852-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5e8d8228dbac9100295d728b
+      filename: "1605822198493-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5e8db78f113e1e002959de72
+      filename: "1598886252445-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5e981f17203cc30029958567
+      filename: "1600703772908-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5ea022ffe577c80029d4b569
+      filename: "1606305657799-https-/"
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5eaa90a444a3760029997d42
+      filename: "1596656697911-https-/"
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5eaff51e6ee53d0029f8698f
+      filename: "1605693918531-https-/"
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5eb54a2969cc2e002ab689dc
+      filename: "1606342156383-unser-neues-padlet--https-/"
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5eda30ff6b310b0029baf5b3
+      filename: "1604251654674-https-/"
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5eda30ff6b310b0029baf5b3
+      filename: "1604251475437-https-/"
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5ee75b60846c1d00295e504e
+      filename: "1606423400473-https-/"
   # Settings for the mailer
   mail:
     # mail address for error reporting
