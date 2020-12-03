@@ -46,6 +46,7 @@ class Instance:
         self.s3_source_bucket_patterns = s3_source_bucket_patterns
         self.s3_target_drive = s3_target_drive
         self.s3_target_backup_bucket = s3_target_backup_bucket
+        self.backup_day_of_month: int = None
 
         # Validate. Has to be 2 number chars.
         if backup_day_of_month < 0 or backup_day_of_month > 31:

@@ -11,26 +11,25 @@ class BucketInfo:
 
     For a bucket the size and object count can be evaluated and stored in this object.
     '''
-    drivename = None
-    # The drive name like 'hidrive' or 'hidrivebrandenburgbackup'.
-
-    path = None
-    # The path like '/s3-backup-brabu-ain5ah/brandenburg-full-1
-    # This may contain the backup-bucket name!
-    # On source drives this is just '/'.
-
-    bucket_to_backup = None
-    # The the bucket to backup. Like 'bucket-3984747367'.
-    # This is the primary identifier of a BucketInfo object.
-
-    size_in_bytes = -1
-    # Accumulated size of all objects in the bucket in bytes
-
-    object_count = -1
-    # Accumulated number of objects in the bucket
 
     def __init__(self, bucket_to_backup):
+        self.drivename = None
+        # The drive name like 'hidrive' or 'hidrivebrandenburgbackup'.
+        
+        self.path = None
+        # The path like '/s3-backup-brabu-ain5ah/brandenburg-full-1
+        # This may contain the backup-bucket name!
+        # On source drives this is just '/'.
+
         self.bucket_to_backup = bucket_to_backup
+        # The the bucket to backup. Like 'bucket-3984747367'.
+        # This is the primary identifier of a BucketInfo object.
+
+        self.size_in_bytes = -1
+        # Accumulated size of all objects in the bucket in bytes
+
+        self.object_count = -1
+        # Accumulated number of objects in the bucket
 
     def get_full_path(self):
         return self.drivename + ':' + self.path + '/' + self.bucket_to_backup
@@ -44,8 +43,10 @@ class BucketCompare:
     One can add a source and a target bucket.
     Comparison methods for the two added buckets are provided by this class.
     '''
-    source_bucket_info: BucketInfo = None
-    target_bucket_info: BucketInfo = None
+
+    def __init__(self):
+        self.source_bucket_info: BucketInfo = None
+        self.target_bucket_info: BucketInfo = None
 
     def is_buckets_equal(self):
         '''
@@ -159,11 +160,10 @@ class ValidationResult:
 
     The validation result is typically a collection of BucketCompares for all buckets of an instance.
     '''
-    bucket_infos: Dict[str, BucketCompare] = {}
-    # Maps bucket names to BucketCompare objects.
 
     def __init__(self):
-        pass
+        self.bucket_infos: Dict[str, BucketCompare] = {}
+        # Maps bucket names to BucketCompare objects.
 
     def add_source_bucket_info(self, source_bucket_info):
         '''

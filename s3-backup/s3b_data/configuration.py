@@ -13,23 +13,21 @@ class BackupConfiguration:
     See also s3b_common.s3b_config.
     '''
 
-    instances: Dict[str, Instance] = {}
-    # A dictionary that maps instance names to instance objects.
-
-    s3drives: Dict[str, S3Drive] = {}
-    # A dictionary that maps s3drive names to s3drive objects.
-
-    defective_buckets: List[DefectBucket] = []
-    # These buckets are skipped during backup, because the are defect.
-
-    defective_files: List[DefectFile] = []
-    # These files are skipped during backup, because the are defect.
-
-    receiver_mail_addresses = []
-    # List of mail addresses that want to receive error notifications.
-
     def __init__(self):
-        pass
+        self.instances: Dict[str, Instance] = {}
+        # A dictionary that maps instance names to instance objects.
+
+        self.s3drives: Dict[str, S3Drive] = {}
+        # A dictionary that maps s3drive names to s3drive objects.
+
+        self.defective_buckets: List[DefectBucket] = []
+        # These buckets are skipped during backup, because the are defect.
+
+        self.defective_files: List[DefectFile] = []
+        # These files are skipped during backup, because the are defect.
+
+        self.receiver_mail_addresses = []
+        # List of mail addresses that want to receive error notifications.
 
     def is_defective_bucket(self, drivename, bucketname):
         '''
