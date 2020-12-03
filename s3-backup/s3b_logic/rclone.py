@@ -99,6 +99,7 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, current_day_
                 defective_file_list = s3_backup_config.get_defective_file_list(current_s3drive_name, current_bucket_to_backup)
                 run_backup_syncfull_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_id, defective_file_list, whatif)
             current_drive_number += 1
+    logging.info("===== Syncfull finished ==============================================")
 
 def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif):
     '''
@@ -129,6 +130,7 @@ def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif
                 defective_file_list = s3_backup_config.get_defective_file_list(current_s3drive_name, current_bucket_to_backup)
                 run_backup_dailyincrement_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_datestamp, backup_set_datestamp_as_path, defective_file_list, whatif)
             current_drive_number += 1
+    logging.info("===== Daily Increment finished =======================================")
 
 def create_target_backup_bucket(drivename, s3_target_backup_bucket, whatif):
     '''
@@ -321,12 +323,12 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, current_day_
             validation_result.add_target_bucket_info(target_bucket_info)
 
         # Compare the collected bucket information.
-        logging.info("===== Validation Statistics ==========================================")
+        logging.info("===== Validation Statistics %s =====" % current_instance.instancename)
         validation_result.log_statistics()
-        logging.info("===== Validation Compare =============================================")
+        logging.info("===== Validation Compare %s ===== "% current_instance.instancename)
         validation_result.compare()
         logging.info("Note that file exclusions do not work with 'rclone size' and may occure as difference here.")
-        logging.info("===== Validation Finished ============================================")
+    logging.info("===== Validation finished ============================================")
 
 def read_directory_list(drivename, path, whatif):
     '''
