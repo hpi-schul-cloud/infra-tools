@@ -68,6 +68,7 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, current_day_
     logging.info("======================================================================")
     instance_list = get_instance_list_from_instance_names(s3_backup_config, instance_names_to_backup)
     backup_set_id = get_backup_set_id()
+    logging.info("Backup set %s" % backup_set_id)
     # For each instance
     #do_skip = True
     for current_instance in instance_list:
@@ -278,6 +279,7 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, current_day_
 
     instance_list = get_instance_list_from_instance_names(s3_backup_config, instance_names_to_backup)
     backup_set_id = get_backup_set_id()
+    logging.info("Backup set %s" % backup_set_id)
     # For each instance
     for current_instance in instance_list:
         logging.info("===== Validation %s =====" % current_instance.instancename)
