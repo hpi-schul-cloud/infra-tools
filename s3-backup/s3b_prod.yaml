@@ -378,6 +378,9 @@ s3_backup_configuration:
       bucketname: bucket-5e8cdce848226600290a00df
       filename: "1600266000807-https-/"
     - drivename: hidrivebrandenburg
+      bucketname: bucket-5e8cdce848226600290a00df
+      filename: "1607113351155-https-/"
+    - drivename: hidrivebrandenburg
       bucketname: bucket-5e8d6163dbac9100295d39f2
       filename: "1596539364832-https-/"
     - drivename: hidrivebrandenburg
@@ -404,6 +407,9 @@ s3_backup_configuration:
     - drivename: hidrivebrandenburg2
       bucketname: bucket-5eb54a2969cc2e002ab689dc
       filename: "1606342156383-unser-neues-padlet--https-/"
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5eb8e6c6d281c2002a2c8cf5
+      filename: "1607196356161-kolonialpolitik-des-deutschen-reichs.docx"
     - drivename: hidrivebrandenburg2
       bucketname: bucket-5eda30ff6b310b0029baf5b3
       filename: "1604251654674-https-/"
