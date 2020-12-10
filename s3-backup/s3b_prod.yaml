@@ -53,7 +53,7 @@ s3_backup_configuration:
       s3_source_bucket_patterns: ['bucket-*', 'rocketchat-uploads', 'schul-cloud-hpi']
       s3_target_drive: hidrivebackup
       s3_target_backup_bucket: s3-backup-bosscloud-iey9mi
-      backup_day_of_month: 01
+      backup_day_of_month: 1
 
     - instancename: thueringen
       instancename_short: thr
@@ -199,6 +199,15 @@ s3_backup_configuration:
       bucketname: bucket-5e202704c6037f003915af5e
       filename: "1598019385385-https-/"
     - drivename: hidrive
+      bucketname: bucket-5e202704c6037f003915af5e
+      filename: "1590154141118-397852669/"
+    - drivename: hidrive
+      bucketname: bucket-5e202704c6037f003915af5e
+      filename: "1590154224245-397852669/"
+    - drivename: hidrive
+      bucketname: bucket-5e202704c6037f003915af5e
+      filename: "1589912234167-397062540/"
+    - drivename: hidrive
       bucketname: bucket-5e81b34ddea1920029a5ba05
       filename: "1587454147829-https-/"
     - drivename: hidrive
@@ -222,6 +231,12 @@ s3_backup_configuration:
     - drivename: hidrive2
       bucketname: bucket-5eb27a9570aa470029452069
       filename: "1599037893235-http-/"
+    - drivename: hidrive2
+      bucketname: bucket-5eb3c204593f9a002aca7425
+      filename: "1596008444020-/"
+    - drivename: hidrive2
+      bucketname: bucket-5eb3c204593f9a002aca7425
+      filename: "1596008401562-/"
     - drivename: hidrive2
       bucketname: bucket-5edde0f109c72c002ab7482a
       filename: "1605762398029-https-/"
@@ -389,6 +404,9 @@ s3_backup_configuration:
     - drivename: hidrivebrandenburg
       bucketname: bucket-5e8d8228dbac9100295d728b
       filename: "1605822198493-https-/"
+    - drivename: hidrivebrandenburg
+      bucketname: bucket-5e8d8228dbac9100295d728b
+      filename: "1607113351155-https-/"
     - drivename: hidrivebrandenburg
       bucketname: bucket-5e8db78f113e1e002959de72
       filename: "1598886252445-https-/"
