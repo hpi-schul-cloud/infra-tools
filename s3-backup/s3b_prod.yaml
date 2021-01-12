@@ -57,7 +57,7 @@ s3_backup_configuration:
 
     - instancename: thueringen
       instancename_short: thr
-      s3_source_drives: [ "hidrivethueringen", "hidrivethueringen2", "hidrivethueringen3", "hidrivethueringen4", "hidrivethueringen5" ]
+      s3_source_drives: [ "hidrivethueringen", "hidrivethueringen2", "hidrivethueringen3", "hidrivethueringen4", "hidrivethueringen5", "hidrivethueringen6" ]
       s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidrivethueringenbackup
       s3_target_backup_bucket: s3-backup-thueringen-cee2ae
@@ -142,6 +142,8 @@ s3_backup_configuration:
     - drivename: hidrivethueringen4
       backupdrive: False
     - drivename: hidrivethueringen5
+      backupdrive: False
+    - drivename: hidrivethueringen6
       backupdrive: False
     - drivename: hidrivethueringenbackup
       backupdrive: True
