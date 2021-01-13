@@ -33,16 +33,15 @@ def send_test_mail():
 
 def send_error_mail_to_multiple_receivers(receiver_mail_addresses, error_message, logfilename):
     for receiver_mail_address in receiver_mail_addresses:
-        send_error_mail(error_message + "\nLogfile: " + logfilename)
+        send_error_mail(receiver_mail_address, error_message + "\nLogfile: " + logfilename)
 
-def send_error_mail(error_message):
+def send_error_mail(receiver_mail_address, error_message):
     '''
     Sends the exception or error message to the configured receivers.
     '''
     hostname = socket.gethostname()
     username = getpass.getuser()
     sender_mail_address = username + "@" + hostname
-    receiver_mail_address = "markus.bartels@guest.hpi.de"
 
     msg = MIMEMultipart()
     msg['From'] = sender_mail_address
