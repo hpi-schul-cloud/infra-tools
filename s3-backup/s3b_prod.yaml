@@ -49,7 +49,7 @@ s3_backup_configuration:
     # boss is a legacy name
     - instancename: boss
       instancename_short: hpi
-      s3_source_drives: [ "hidrive", "hidrive2", "hidrive3", "hidrive4"]
+      s3_source_drives: [ "hidrive", "hidrive2", "hidrive3", "hidrive4", "hidrive5"]
       s3_source_bucket_patterns: ['bucket-*', 'rocketchat-uploads', 'schul-cloud-hpi']
       s3_target_drive: hidrivebackup
       s3_target_backup_bucket: s3-backup-bosscloud-iey9mi
@@ -130,6 +130,8 @@ s3_backup_configuration:
     - drivename: hidrive3
       backupdrive: False
     - drivename: hidrive4
+      backupdrive: False
+    - drivename: hidrive5
       backupdrive: False
     - drivename: hidrivebackup
       backupdrive: True
