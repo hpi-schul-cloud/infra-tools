@@ -36,6 +36,8 @@ def parseArguments():
     parser.add_argument("-c", "--configuration", help = "Name of a yaml configuration file to use for the backup. The configuration file contains the definition of the available instances and other static configuration data.", default="s3b_test.yaml")
     parser.add_argument("-f", "--force", action='store_true', help = "Force. If -s is specified forces a syncfull backup, even if it is not scheduled for today.")
     parser.add_argument("-w", "--whatif", action='store_true', help = "If set no write operations are executed. rclone operations are executed with --dryrun.")
+    parser.add_argument("-ra", "--restoreall", action='store', dest = 'restore_instance', help = "Restores all buckets from a backup set. The parameters ri and rb must be given. The instance drive where the restore will happen must be empty.")
+    parser.add_argument("-rb", "--restorebackupset", action='store', dest = 'restore_backupset', help = "When restoring, the backupset to restore. E.g. 'demo-full-0'")
     args = parser.parse_args()
     return args
 
@@ -90,6 +92,13 @@ if __name__ == '__main__':
             rclone.validate_configuration(s3_backup_config)
             # Run the backup or validation.
             rclone.run_backup(s3_backup_config, instances_to_backup, parsedArgs.dailyincrement, parsedArgs.syncfull, parsedArgs.validate, parsedArgs.force, parsedArgs.whatif)
+        elif parsedArgs.restore_instance:
+            # Restores a backed up buckets or all backed up buckets in a specific backup set.
+            # The bucket to restore must not exist
+            if parsedArgs.restore_backupset:
+                rclone.run_restore_all(s3_backup_config, parsedArgs.restore_instance, parsedArgs.restore_backupset, parsedArgs.whatif)
+            else:
+                raise S3bException('For restore the parameters "restoreinstance" and "restorebackupset" must be set.')
         else:
             logging.info("No action specified. Use a parameter like -d, -s or -sc to define an action.")
         if parsedArgs.whatif:

@@ -386,3 +386,119 @@ def read_bucket_info(drivename, path, bucket_to_backup, defective_file_list, wha
     bucket_info.size_in_bytes = bucket_info_struct['bytes']
     bucket_info.object_count = bucket_info_struct['count']
     return bucket_info
+
+def run_restore_all(s3_backup_config, restore_instance_name, backup_set, whatif):
+    '''
+    Main method to start a full restore.
+    For this use case it is assumed that your original data is lost and you want to
+    restore it from the backup location to the original location.
+
+    Currently this is limited to Minio, where we have no 200 bucket limit.
+
+    To support STRATO, it would be necessary to remember during the backup, which bucket
+    is copied from which drive.
+
+    Prerequisites:
+    - The source drive must be empty. 
+
+    restore_instance_name: The name of the instance to restore. The instance definition
+    contains all relevant data like the drive where the instance data is stored.
+    backup_set: The backup set from where the data is restored. E.g. "demo-full-0". You
+    need to choose which backup set you want to restore.
+    '''
+    logging.info("Running restore. Instance: '%s', backup set: '%s', whatif: '%s'" % (restore_instance_name, backup_set, whatif))
+
+    # Input parameters
+    restore_instance = s3_backup_config.instances[restore_instance_name]
+    source_drivename = restore_instance.s3_target_drive.drivename
+    if len(restore_instance.s3_source_drives) > 1:
+        raise S3bException("Currently only single source restores are supported (Minio).")
+    source_backup_bucket = restore_instance.s3_target_backup_bucket
+    s3_source_drives_first_key = list(restore_instance.s3_source_drives.keys())[0]
+    target_drivename = restore_instance.s3_source_drives[s3_source_drives_first_key].drivename
+    backup_set_instancename = restore_instance.instancename
+
+    # Check if target drive is empty
+    if not restore_check_drive_empty(target_drivename, "/", whatif):
+        raise S3bException("Cannot restore. Target drive '%s' is not empty" % target_drivename)
+
+    # Read the list of available buckets to restore and copy back the data.
+    source_bucket_list = evaluate_restore_bucket_list(source_drivename, source_backup_bucket, backup_set, None)
+    current_bucket_number = 1
+    for current_bucket_to_restore in source_bucket_list:
+        logging.info("Bucket '%s' of '%s'." % (current_bucket_number, len(source_bucket_list)))
+        current_bucket_number += 1
+        run_restore_for_single_bucket(source_drivename, current_bucket_to_restore, target_drivename, source_backup_bucket, backup_set, whatif)
+
+    logging.info("Running restore finished. Instances: '%s', backup set: '%s', whatif: '%s'" % (restore_instance_name, backup_set, whatif))
+
+def run_restore_for_single_bucket(source_drivename, bucket_to_restore, target_drivename, source_backup_bucket, backup_set, whatif):
+    '''
+    Runs a restore for a single bucket.
+    '''
+    source = source_drivename + ':' + source_backup_bucket + '/' + backup_set + '/' + bucket_to_restore
+    target = target_drivename + ':' + bucket_to_restore
+    logging.info("Restore from '%s' to '%s'." % (source, target))
+    rcloneCommand = ['rclone']
+    rcloneSubCommand = ['copy']
+    rcloneOptions = ['--create-empty-src-dirs']
+    if whatif:
+        rcloneOptions.append('--dry-run')
+    rcloneLogOption = ['--log-file=' + s3b_logging.logFilename]
+    rcloneParameters = [source, target]
+    command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
+    logging.debug("Running command: '%s'" % ' '.join(command))
+    run_command_no_output(command)
+    logging.info("Restore from '%s'  to '%s' finished." % (source, target))
+
+def evaluate_restore_bucket_list(drivename, source_backup_bucket, backup_set, patterns):
+    '''
+    Evaluates the list of restore buckets that shall be restored.
+    These are all buckets that are in the given directory: drivename + ':' + source_backup_bucket + '/' + backup_set
+    '''
+    # Get the source buckets
+    logging.info("Evaluating the source bucket list for drive '%s'." % drivename)
+    rcloneCommand = ['rclone']
+    rcloneSubCommand = ['lsjson']
+    rcloneOptions = []
+    rcloneLogOption = ['--log-file=' + s3b_logging.logFilename]
+    rcloneParameters = [drivename + ':' + source_backup_bucket + '/' + backup_set]
+    command = rcloneCommand + rcloneSubCommand + rcloneOptions + rcloneLogOption + rcloneParameters
+    logging.debug("Running command: '%s'" % ' '.join(command))
+    (source_bucket_json_str, error) = run_command_get_output(command)
+    source_bucket_infos = json.loads(source_bucket_json_str)
+    source_bucket_list = []
+    for source_bucket_info in source_bucket_infos:
+        path_to_check: str = source_bucket_info.get('Path')
+        # This is one of the pattern schools. It is not possible to restore it at STRATO as long as it exists
+        # in hidrivebrandenburg as well. No problem on Minio.
+        #if pathlib.PurePath(path_to_check).match("bucket-5c63fd064199850015166d33"):
+        #    continue
+        # Only directories
+        if source_bucket_info.get('IsDir') == False:
+            continue
+        # Match the bucket path with the configured patterns. Currently not used, but may be usefull,
+        # if only specific buckets shall be restored.
+        if patterns != None and len(patterns) > 0:
+            match = False
+            for pattern in patterns:
+                if pathlib.PurePath(path_to_check).match(pattern):
+                    match = True
+                    break
+            if not match:
+                logging.debug("Skipping bucket. No match of pattern '%s' to path '%s'" % (patterns, path_to_check))
+                continue
+            logging.debug("One of pattern '%s' matches '%s'" % (patterns, path_to_check))
+        logging.debug("Including bucket '%s'." % path_to_check)
+        source_bucket_list.append(path_to_check)
+    logging.info("Evaluation of restore bucket list for drive '%s', source_backup_bucket '%s', backup_set '%s' complete. Number of buckets: %s" % (drivename, source_backup_bucket, backup_set, len(source_bucket_list)))
+    return source_bucket_list
+
+def restore_check_drive_empty(drive, path, whatif):
+    '''
+    Returns true, if the restore drive is empty.
+    '''
+    bucket_list = read_directory_list(drive, path, whatif)
+    if len(bucket_list) == 0:
+        return True
+    return False
