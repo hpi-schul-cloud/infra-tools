@@ -39,9 +39,10 @@ def list_remotes(s3_backup_config):
     buffer = io.StringIO(remotes_string)
     line = buffer.readline()
     while line:
-        line = buffer.readline()
         remote = line.rstrip().rstrip(':')
-        remotes_list.append(remote)
+        if remote != "":
+            remotes_list.append(remote)
+        line = buffer.readline()
     logging.debug("Number of remotes: '%s'", len(remotes_list))
     return remotes_list
 

@@ -62,7 +62,15 @@ s3_backup_configuration:
       s3_target_drive: hidrivethueringenbackup
       s3_target_backup_bucket: s3-backup-thueringen-cee2ae
       backup_day_of_month: 23
-  
+
+    - instancename: demo
+      instancename_short: demo
+      s3_source_drives: [ demo ]
+      s3_source_bucket_patterns: ['bucket-*']
+      s3_target_drive: demobackup
+      s3_target_backup_bucket: s3-backup-demo-dcf44i
+      backup_day_of_month: 27
+
   # S3 drive definitions.
   # This should be similar as the rclone definition.
   #
@@ -152,6 +160,10 @@ s3_backup_configuration:
     - drivename: hidriveinternational
       backupdrive: False
     - drivename: hidriveinternationalbackup
+      backupdrive: True
+    - drivename: demo
+      backupdrive: False
+    - drivename: demobackup
       backupdrive: True
   
   # Buckets marked as defective are skipped during the backup process.
