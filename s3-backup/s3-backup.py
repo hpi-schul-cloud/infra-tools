@@ -36,8 +36,8 @@ def parseArguments():
     parser.add_argument("-c", "--configuration", help = "Name of a yaml configuration file to use for the backup. The configuration file contains the definition of the available instances and other static configuration data.", default="s3b_test.yaml")
     parser.add_argument("-f", "--force", action='store_true', help = "Force. If -s is specified forces a syncfull backup, even if it is not scheduled for today.")
     parser.add_argument("-w", "--whatif", action='store_true', help = "If set no write operations are executed. rclone operations are executed with --dryrun.")
-    parser.add_argument("-ra", "--restoreall", action='store', dest = 'restore_instance', help = "Restores all buckets from a backup set. The parameters ri and rb must be given. The instance drive where the restore will happen must be empty.")
-    parser.add_argument("-rb", "--restorebackupset", action='store', dest = 'restore_backupset', help = "When restoring, the backupset to restore. E.g. 'demo-full-0'")
+    parser.add_argument("-ra", "--restoreall", action='store', dest = 'restore_instance', help = "Restores all buckets from a backup set. The parameter rb must be set additionally. The instance drive where the restore will happen must be empty.")
+    parser.add_argument("-rb", "--restorebackupset", action='store', dest = 'restore_backupset', help = "Use together with -ra. Selects the backupset to restore. E.g. 'demo-full-0'")
     args = parser.parse_args()
     return args
 
