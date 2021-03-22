@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import onepwd
+
+if __name__ == "__main__":
+    onepwd.main()
