@@ -107,8 +107,9 @@ class OnePwd(object):
                 return "not found"
         return "ok"
 
-    def get(self, resource, item_name):
-        op_command = f"{self.op} get {resource} '{item_name}' --session={self.session_token}"
+    def get(self, resource, item_name, vault=None):
+        vault_flag = get_optional_flag(vault=vault)
+        op_command = f"{self.op} get {resource} '{item_name}' {vault_flag} --session={self.session_token}"
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except subprocess.CalledProcessError:
@@ -268,8 +269,8 @@ def generate_secrets_file(op, items, file, instance=None, disable_empty=False):
          yaml.add_representer(str, yaml_str_presenter)
          f.write(yaml.dump(secrets, width=1000, allow_unicode=True, default_flow_style=False).replace("\n\n","\n"))
 
-def get_single_secret(op, item_name, instance=None):
-    item=op.get('item', item_name)
+def get_single_secret(op, item_name, instance=None, vault=None):
+    item=op.get('item', item_name, vault=vault)
     svalue=""
     if item["templateUuid"]=='005': # Password template type
         svalue=item["details"]["password"]
@@ -295,7 +296,7 @@ def main():
     login_secret=get_op_login()
     op = OnePwd(secret=login_secret, shorthand=args.session_shorthand, session_timeout=args.session_timeout)
     if args.get_single_secret:
-        secret_value=get_single_secret(op, args.get_single_secret, args.instance)
+        secret_value=get_single_secret(op, args.get_single_secret, instance=args.instance, vault=args.vault)
         with open(args.secrets_file, 'w') as f:
             f.write(secret_value)
     else:

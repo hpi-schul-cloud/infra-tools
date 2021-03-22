@@ -26,5 +26,6 @@ class LookupModule(LookupBase):
         session_timeout=kwargs.get('session_timeout', 30)
         op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
         secret_name=kwargs.get('secret_name', '')
+        vault=kwargs.get('vault', None)
         instance=kwargs.get('instance', '')
-        secret_value=onepwd.get_single_secret(op, secret_name, instance)
+        secret_value=onepwd.get_single_secret(op, secret_name, instance=instance, vault=vault)
