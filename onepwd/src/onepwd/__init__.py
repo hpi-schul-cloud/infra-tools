@@ -240,7 +240,7 @@ def yaml_str_presenter(dumper, data):
     return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
   return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
-def generate_secrets_file(op, items, file, instance=None, disable_empty=False):
+def generate_secrets_file(op, items, file, instance=None, disable_empty=False, permissions=0o600):
     secrets={}
     sname=""
     svalue=""
@@ -288,6 +288,7 @@ def main():
     parser.add_argument('--vault', type=str, required=True)
     parser.add_argument('--instance', type=str, default=None)
     parser.add_argument('--secrets-file', type=str, required=True)
+    parser.add_argument('--secrets-file-permissions', type=int, default=0o600, required=False)
     parser.add_argument('--session-shorthand', type=str, required=False)
     parser.add_argument('--session-timeout', type=int, default=30, required=False)
     parser.add_argument('--disable-empty', type=bool, default=False, required=False)
@@ -299,6 +300,7 @@ def main():
         secret_value=get_single_secret(op, args.get_single_secret, instance=args.instance, vault=args.vault)
         with open(args.secrets_file, 'w') as f:
             f.write(secret_value)
+            os.chmod(args.secrets_file, args.secrets_file_permissions)
     else:
         items = op.list("items", args.vault)
-        generate_secrets_file(op, items, args.secrets_file, args.instance, args.disable_empty)
+        generate_secrets_file(op, items, args.secrets_file, args.instance, args.disable_empty, args.secrets_file_permissions)
