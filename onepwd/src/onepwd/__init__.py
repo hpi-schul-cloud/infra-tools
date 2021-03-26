@@ -268,6 +268,7 @@ def generate_secrets_file(op, items, file, instance=None, disable_empty=False, p
     with open(file, 'w') as f:
          yaml.add_representer(str, yaml_str_presenter)
          f.write(yaml.dump(secrets, width=1000, allow_unicode=True, default_flow_style=False).replace("\n\n","\n"))
+         os.chmod(file, permissions)
 
 def get_single_secret(op, item_name, instance=None, vault=None):
     item=op.get('item', item_name, vault=vault)
