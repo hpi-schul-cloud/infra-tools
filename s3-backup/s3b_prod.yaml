@@ -165,6 +165,8 @@ s3_backup_configuration:
       backupdrive: False
     - drivename: demobackup
       backupdrive: True
+    - drivename: hidrivewebcontent
+      backupdrive: True
   
   # Buckets marked as defective are skipped during the backup process.
   defect_buckets: []
