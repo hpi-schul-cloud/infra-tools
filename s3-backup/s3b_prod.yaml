@@ -16,7 +16,7 @@ s3_backup_configuration:
   instances:
     - instancename: international
       instancename_short: int
-      s3_source_drives: [ hidriveinternational ]
+      s3_source_drives: [ "hidriveinternational" ]
       s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidriveinternationalbackup
       s3_target_backup_bucket: s3-backup-international-put9ai
