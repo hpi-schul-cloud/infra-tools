@@ -76,7 +76,7 @@ s3_backup_configuration:
       s3_source_drives: [ "hidrivebayern1" ]
       s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidrivebayernbackup
-      s3_target_backup_bucket: s3-backup-bayern-aiNei1
+      s3_target_backup_bucket: s3-backup-bayern-ainei1
       backup_day_of_month: 5
 
   # S3 drive definitions.
