@@ -45,5 +45,7 @@ RUN set -x \
         python-boto \
         postgresql-client \
         procps \
+        screen \
+        tmux
     && rm -rf /var/lib/apt/lists/* && cd tsocks && make install
 
