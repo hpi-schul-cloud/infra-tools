@@ -37,5 +37,7 @@ RUN set -x \
         procps \
         screen \
         tmux \
+        mtr-tiny \
+        tcpdump \
     && rm -rf /var/lib/apt/lists/*
 
