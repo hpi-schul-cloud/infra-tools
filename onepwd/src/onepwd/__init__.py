@@ -284,12 +284,16 @@ def get_single_secret(op, item_name, instance=None, vault=None):
         svalue=document.replace("\n\n","\n")
     return svalue
 
+# Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
+def oct2int(x):
+   return int(x, 8)
+
 def main():
     parser=argparse.ArgumentParser(description="Generate secrets yaml file")
     parser.add_argument('--vault', type=str, required=True)
     parser.add_argument('--instance', type=str, default=None)
     parser.add_argument('--secrets-file', type=str, required=True)
-    parser.add_argument('--secrets-file-permissions', type=int, default=0o600, required=False)
+    parser.add_argument('--secrets-file-permissions', type=oct2int, default=0o600, required=False)
     parser.add_argument('--session-shorthand', type=str, required=False)
     parser.add_argument('--session-timeout', type=int, default=30, required=False)
     parser.add_argument('--disable-empty', type=bool, default=False, required=False)
