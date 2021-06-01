@@ -16,7 +16,7 @@ s3_backup_configuration:
   instances:
     - instancename: international
       instancename_short: int
-      s3_source_drives: [ hidriveinternational ]
+      s3_source_drives: [ "hidriveinternational" ]
       s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: hidriveinternationalbackup
       s3_target_backup_bucket: s3-backup-international-put9ai
@@ -49,7 +49,7 @@ s3_backup_configuration:
     # boss is a legacy name
     - instancename: boss
       instancename_short: hpi
-      s3_source_drives: [ "hidrive", "hidrive2", "hidrive3", "hidrive4", "hidrive5"]
+      s3_source_drives: [ "hidrive", "hidrive2", "hidrive3", "hidrive4", "hidrive5", "hidrivewebcontent" ]
       s3_source_bucket_patterns: ['bucket-*', 'rocketchat-uploads', 'schul-cloud-hpi']
       s3_target_drive: hidrivebackup
       s3_target_backup_bucket: s3-backup-bosscloud-iey9mi
@@ -65,11 +65,19 @@ s3_backup_configuration:
 
     - instancename: demo
       instancename_short: demo
-      s3_source_drives: [ demo ]
+      s3_source_drives: [ "demo" ]
       s3_source_bucket_patterns: ['bucket-*']
       s3_target_drive: demobackup
       s3_target_backup_bucket: s3-backup-demo-dcf44i
       backup_day_of_month: 27
+
+    - instancename: bayern
+      instancename_short: bay
+      s3_source_drives: [ "hidrivebayern1" ]
+      s3_source_bucket_patterns: ['bucket-*']
+      s3_target_drive: hidrivebayernbackup
+      s3_target_backup_bucket: s3-backup-bayern-ainei1
+      backup_day_of_month: 5
 
   # S3 drive definitions.
   # This should be similar as the rclone definition.
@@ -165,7 +173,13 @@ s3_backup_configuration:
       backupdrive: False
     - drivename: demobackup
       backupdrive: True
-  
+    - drivename: hidrivewebcontent
+      backupdrive: False
+    - drivename: hidrivebayernbackup
+      backupdrive: True
+    - drivename: hidrivebayern1
+      backupdrive: False
+
   # Buckets marked as defective are skipped during the backup process.
   defect_buckets: []
     # OPS-1531: solved
@@ -182,7 +196,7 @@ s3_backup_configuration:
     # OPS-1545: solved
     #- drivename: hidrivebrandenburg
     #  bucketname: bucket-5f0d56bb9017a40029791bb4
-    #  filename: "1588847225615-pb-genug-für-alle.*"
+    #  filename: "1588847225615-pb-genug-fuer-alle.*"
     # boss
     - drivename: hidrive
       bucketname: bucket-0000d186816abba584714c42
