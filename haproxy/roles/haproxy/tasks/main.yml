@@ -1,0 +1,3 @@
+---
+  - import_tasks: install-haproxy.yml
+  - import_tasks: install_haproxy_exporter.yml

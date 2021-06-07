@@ -1,0 +1,13 @@
+[Unit]
+Description=HAProxy Exporter
+Wants=haproxy.service
+After=haproxy.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/haproxy_exporter --haproxy.scrape-uri=unix:/var/lib/haproxy/stats
+
+[Install]
+WantedBy=multi-user.target

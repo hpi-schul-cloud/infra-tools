@@ -1,0 +1,78 @@
+---
+  - name: copy haproxy rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+      
+  - name: copy haproxy debuginfo rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-debuginfo-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+      
+  - name: copy haproxy halog rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-halog-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+      
+  - name: copy haproxy tools rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-tools-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+      
+  - name: install haproxy
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-2.1.3-1.el7.x86_64.rpm
+      state: present
+      
+  - name: install haproxy-halog 
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-halog-2.1.3-1.el7.x86_64.rpm
+      state: present
+      
+  - name: install haproxy-tools 
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-tools-2.1.3-1.el7.x86_64.rpm
+      state: present
+      
+#  - name: install haproxy-debuginfo 
+#    yum:
+#      name: /root/haproxy-debuginfo-2.1.3-1.el7.x86_64.rpm
+#      state: present
+      
+  - name: install haproxy-stuff
+    yum:
+      name: [ 'certbot', 'jq']
+      state: latest
+    
+  - name: enable haproxy
+    service:
+      name: haproxy
+      enabled: true
+      state: started
+      
+  - name: copy haproxy.cfg
+    tags: [ haproxy_update ]
+    template:
+      src: "{{ haproxy_config_template }}"
+      dest: /etc/haproxy/haproxy.cfg
+      owner: root
+      group: root
+      backup: yes
+    notify: reload haproxy
+
+  - name: sysctl settings
+    lineinfile:
+      path: /etc/sysctl.d/99-sysctl.conf
+      line: "{{ item }}"
+    with_items: "{{ sysctl_settings }}"
+    notify: reload sysctl
+  
+  - name: set conntrack hashsize
+    command: echo 500000 > /sys/module/nf_conntrack/parameters/hashsize
