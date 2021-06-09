@@ -39,5 +39,7 @@ RUN set -x \
         tmux \
         mtr-tiny \
         tcpdump \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs
 
