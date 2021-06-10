@@ -62,12 +62,29 @@
       backup: yes
     notify: reload haproxy
 
-  - name: sysctl settings
-    lineinfile:
-      path: /etc/sysctl.d/99-sysctl.conf
-      line: "{{ item }}"
-    with_items: "{{ sysctl_settings }}"
-    notify: reload sysctl
+  - name: Increase max open files
+    ansible.posix.sysctl:
+      name: fs.file-max
+      value: '10240'
+      state: present
+
+  - name: Increase number of incoming connections
+    ansible.posix.sysctl:
+      name: net.core.somaxconn
+      value: '2048'
+      state: present
+
+  - name: Increase number of incoming connections backlog queue
+    ansible.posix.sysctl:
+      name: net.core.netdev_max_backlog
+      value: '2048'
+      state: present
+
+  - name: Increase swappiness
+    ansible.posix.sysctl:
+      name: vm.swappiness
+      value: '20'
+      state: present
   
   - name: set conntrack hashsize
     command: echo 500000 > /sys/module/nf_conntrack/parameters/hashsize

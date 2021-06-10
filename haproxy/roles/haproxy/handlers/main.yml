@@ -1,7 +1,4 @@
 ---
-  - name: reload sysctl
-    command: /usr/sbin/sysctl -p
-    
   - name: reload haproxy
     service:
       name: haproxy
