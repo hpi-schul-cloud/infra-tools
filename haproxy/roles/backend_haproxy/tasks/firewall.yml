@@ -1,0 +1,24 @@
+---
+  - name: Create privatelan zone
+    ansible.posix.firewalld:
+      zone: privatelan
+      state: present
+      permanent: yes
+    notify: reload firewall
+
+  - name: Open port 80 in privatelan
+    ansible.posix.firewalld:
+      port: 80/tcp
+      zone: privatelan
+      permanent: yes
+      state: enabled
+    notify: reload firewall
+
+  - name: Add network interfaces to privatelan
+    ansible.posix.firewalld:
+      zone: privatelan
+      interface: "{{ item }}"
+      permanent: yes
+      state: enabled
+    notify: reload firewall
+    with_items: "{{  privatelan_network_interfaces  }}"

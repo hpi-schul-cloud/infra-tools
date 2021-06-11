@@ -79,6 +79,7 @@
       name: net.core.netdev_max_backlog
       value: '2048'
       state: present
+    tags: molecule-notest
 
   - name: Increase swappiness
     ansible.posix.sysctl:
@@ -88,3 +89,4 @@
   
   - name: set conntrack hashsize
     command: echo 500000 > /sys/module/nf_conntrack/parameters/hashsize
+
