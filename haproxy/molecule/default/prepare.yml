@@ -1,0 +1,20 @@
+---
+- name: Prepare
+  hosts: instance
+  tasks:
+    - name: Install firewalld
+      yum:
+        name: firewalld
+        state: present
+    - name: Start firewalld
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+    - name: Create frontend private lan dummy interface
+      command: ip link add dummy0 type dummy
+    - name: Set frontend private lan IP
+      command: ip addr add 10.0.4.10 dev dummy0
+    - name: Interface dummy0 in zone public
+      command: firewall-cmd --zone=public --change-interface=dummy0
+      

@@ -1,0 +1,22 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: haproxy enabled and running
+    service:
+      name: haproxy
+      state: started
+      enabled: yes
+  - name: privatelan zone created
+    shell: firewall-cmd --get-zones | grep -q privatelan
+  - name: privatelan has dummy0 interface
+    shell: firewall-cmd --zone=privatelan --list-interfaces | grep -q '^dummy0$'
+  - name: privatelan has port 80 open
+    shell: firewall-cmd --zone=privatelan --list-ports | grep -q '^80/tcp$'
+  - name: privatelan has no services
+    shell: firewall-cmd --zone=privatelan --list-services | grep -q '^$'
+  - name: privatelan has no protocols
+    shell: firewall-cmd --zone=privatelan --list-protocols | grep -q '^$'
+  - name: privatelan has no rich rules
+    shell: firewall-cmd --zone=privatelan --list-rich-rules | grep -q '^$'
