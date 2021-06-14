@@ -3,3 +3,6 @@
     service:
       name: haproxy
       state: reloaded
+  
+  - name: reboot
+    reboot:

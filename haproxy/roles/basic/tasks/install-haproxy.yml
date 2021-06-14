@@ -88,8 +88,9 @@
       state: present
 
   - name: set conntrack hashsize
-    community.general.modprobe:
-      name: nf_conntrack
-      state: present
-      params: nf_conntrack hashsize=500000
+    lineinfile:
+      path: /etc/modprobe.d/nf_conntrack-hashsize.conf
+      line: options nf_conntrack hashsize=500000
+      create: yes
+    notify: reboot
 
