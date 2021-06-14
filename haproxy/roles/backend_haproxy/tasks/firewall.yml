@@ -19,10 +19,6 @@
       immediate: true
 
   - name: Add network interfaces to privatelan
-    ansible.posix.firewalld:
-      zone: privatelan
-      interface: "{{ item }}"
-      state: enabled
-      permanent: true
-      immediate: true
+    command: firewall-cmd --permanent --zone=privatelan --change-interface={{ item }}
     with_items: "{{  privatelan_network_interfaces  }}"
+    when: create_privatelan.changed
