@@ -86,7 +86,10 @@
       name: vm.swappiness
       value: '20'
       state: present
-  
+
   - name: set conntrack hashsize
-    command: echo 500000 > /sys/module/nf_conntrack/parameters/hashsize
+    community.general.modprobe:
+      name: nf_conntrack
+      state: present
+      params: nf_conntrack hashsize=500000
 
