@@ -1,2 +1,4 @@
 haproxy_exporter_version: 0.10.0
 haproxy_config_template: haproxy.cfg.j2
+frontend_ips: []
+k8s_node_ips: []
