@@ -93,4 +93,6 @@
       line: options nf_conntrack hashsize=500000
       create: yes
     notify: reboot
+    # molecule can't reboot when using docker containers
+    tags: molecule-notest
 

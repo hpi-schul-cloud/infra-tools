@@ -1,4 +1,2 @@
-vm: true
-ipv4only: 1
 haproxy_exporter_version: 0.10.0
 haproxy_config_template: haproxy.cfg.j2
