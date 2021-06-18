@@ -35,6 +35,7 @@ frontend_network_interfaces: []
 frontend_open_ports: [ "80" ]
 backend_network_interfaces: []
 backend_open_ports: [ "9100", "9101" ]
+frontend_ips: []
 k8s_node_ips: []
 # optional variables
 # maxsslconn: 180000

@@ -6,7 +6,7 @@
 namespace: schulcloud
 
 # The name of the collection. Has the same character restrictions as 'namespace'
-name: haproxy
+name: infra
 
 # The version of the collection. Must be compatible with semantic versioning
 version: 1.0.0
