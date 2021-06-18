@@ -9,15 +9,30 @@
       name: haproxy
       state: started
       enabled: yes
-  - name: privatelan zone created
-    shell: firewall-cmd --get-zones | grep -q privatelan
-  - name: privatelan has dummy0 interface
-    shell: firewall-cmd --zone=privatelan --list-interfaces | grep -q '^dummy0$'
-  - name: privatelan has port 80 open
-    shell: firewall-cmd --zone=privatelan --list-ports | grep -q '^80/tcp$'
-  - name: privatelan has no services
-    shell: firewall-cmd --zone=privatelan --list-services | grep -q '^$'
-  - name: privatelan has no protocols
-    shell: firewall-cmd --zone=privatelan --list-protocols | grep -q '^$'
-  - name: privatelan has no rich rules
-    shell: firewall-cmd --zone=privatelan --list-rich-rules | grep -q '^$'
+  # On IONOS VMs change-interface works immediately but in docker containers firewalld must first be restarted
+  - name: restart firewalld
+    service:
+      name: firewalld
+      state: restarted
+  - name: zones created
+    shell: firewall-cmd --get-zones | grep -q {{ item }}
+    with_items: [ frontend, backend ]
+  - name: frontend has correct interface
+    shell: firewall-cmd --zone=frontend --list-interfaces | grep -q '^{{ frontend_network_interfaces[0] }}$'
+  - name: backend has correct interface
+    shell: firewall-cmd --zone=backend --list-interfaces | grep -q '^{{ backend_network_interfaces[0] }}$'
+  - name: frontend has correct port open
+    shell: firewall-cmd --zone=frontend --list-ports | grep -q '{{ item }}/tcp'
+    with_items: "{{ frontend_open_ports }}"
+  - name: frontend has correct port open
+    shell: firewall-cmd --zone=backend --list-ports | grep -q '{{ item }}/tcp'
+    with_items: "{{ backend_open_ports }}"
+  - name: zones have no services
+    shell: firewall-cmd --zone={{ item }} --list-services | grep -q '^$'
+    with_items: [ frontend, backend ]
+  - name: zones have no protocols
+    shell: firewall-cmd --zone={{ item }} --list-protocols | grep -q '^$'
+    with_items: [ frontend, backend ]
+  - name: zones have no rich rules
+    shell: firewall-cmd --zone={{ item }} --list-rich-rules | grep -q '^$'
+    with_items: [ frontend, backend ]

@@ -6,3 +6,6 @@
   
   - name: reboot
     reboot:
+
+  - name: reload firewall
+    command: firewall-cmd --reload

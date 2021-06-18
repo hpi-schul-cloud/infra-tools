@@ -10,6 +10,7 @@
     copy:
       src: rpm/haproxy-debuginfo-2.1.3-1.el7.x86_64.rpm
       dest: /root/
+    when: install_haproxy_debuginfo
       
   - name: copy haproxy halog rpm
     tags: [ haproxy_install ]
@@ -22,6 +23,7 @@
     copy:
       src: rpm/haproxy-tools-2.1.3-1.el7.x86_64.rpm
       dest: /root/
+    when: install_haproxy_tools
       
   - name: install haproxy
     tags: [ haproxy_install ]
@@ -40,11 +42,14 @@
     yum:
       name: /root/haproxy-tools-2.1.3-1.el7.x86_64.rpm
       state: present
+    when: install_haproxy_tools
       
-#  - name: install haproxy-debuginfo 
-#    yum:
-#      name: /root/haproxy-debuginfo-2.1.3-1.el7.x86_64.rpm
-#      state: present
+  - name: install haproxy-debuginfo
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-debuginfo-2.1.3-1.el7.x86_64.rpm
+      state: present
+    when: install_haproxy_debuginfo
     
   - name: enable haproxy
     service:
@@ -65,32 +70,32 @@
   - name: Increase max open files
     ansible.posix.sysctl:
       name: fs.file-max
-      value: '10240'
+      value: "{{ fs_file_max }}"
       state: present
 
   - name: Increase number of incoming connections
     ansible.posix.sysctl:
       name: net.core.somaxconn
-      value: '2048'
+      value: "{{ net_core_somaxconn }}"
       state: present
 
   - name: Increase number of incoming connections backlog queue
     ansible.posix.sysctl:
       name: net.core.netdev_max_backlog
-      value: '2048'
+      value: "{{ net_core_netdev_max_backlog }}"
       state: present
     tags: molecule-notest
 
   - name: Increase swappiness
     ansible.posix.sysctl:
       name: vm.swappiness
-      value: '20'
+      value: "{{ vm_swappiness }}"
       state: present
 
   - name: set conntrack hashsize
     lineinfile:
       path: /etc/modprobe.d/nf_conntrack-hashsize.conf
-      line: options nf_conntrack hashsize=500000
+      line: options nf_conntrack hashsize={{ nf_conntrack_hashsize }}
       create: yes
     notify: reboot
     # molecule can't reboot when using docker containers

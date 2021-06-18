@@ -5,6 +5,3 @@
     - name: "Include basic"
       include_role:
         name: "basic"
-    - name: "Include backend_haproxy"
-      include_role:
-        name: "backend_haproxy"

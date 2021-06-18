@@ -18,6 +18,12 @@ provisioner:
   inventory:
     host_vars:
       instance:
-        privatelan_network_interfaces: [ dummy0 ]
+        frontend_ips: [ 10.0.4.8 ]
+        frontend_network_interfaces: [ frontend ]
+        frontend_open_ports: [ "80" ]
+        backend_ips: [ 10.0.6.8 ]
+        backend_network_interfaces: [ backend ]
+        backend_open_ports: [ "9100" ]
+        haproxy_config_template: backend-haproxy.cfg.j2
 verifier:
   name: ansible

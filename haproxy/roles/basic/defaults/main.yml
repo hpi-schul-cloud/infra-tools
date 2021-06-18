@@ -1,4 +1,53 @@
 haproxy_exporter_version: 0.10.0
+# Default haproxy config
 haproxy_config_template: haproxy.cfg.j2
-frontend_ips: []
+# Backend haproxy config
+#haproxy_config_template: backend-haproxy.cfg.j2
+install_haproxy_tools: true
+install_haproxy_debuginfo: false
+
+# haproxy settings
+maxconn: 180000
+maxsessrate: 2048
+
+# backend-haproxy.cfg.j2 variables
+strict_limits: true
+haproxy_mode: http
+haproxy_log: global
+options:
+  - dontlognull
+  - dontlog-normal
+  - httplog
+  - http-server-close
+  - redispatch
+retries: 3
+timeouts:
+  http_request: 10s
+  queue: 5s
+  connect: 10s
+  client: 30s
+  server: 30s
+  http_keep_alive: 2s
+  check: 10s
+  client_fin: 1s
+  server_fin: 1s
+frontend_network_interfaces: []
+frontend_open_ports: [ "80" ]
+backend_network_interfaces: []
+backend_open_ports: [ "9100", "9101" ]
 k8s_node_ips: []
+# optional variables
+# maxsslconn: 180000
+# tune_ssl_cachesize: 1000000
+# tune_ssl_default_dh_param: 2048
+# ssl_default_bind_ciphers: ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+# ssl_default_bind_options: no-sslv3 no-tlsv10 no-tlsv11 no-tls-tickets
+# ssl_default_server_ciphers: ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+# ssl_default_server_options: no-sslv3 no-tlsv10 no-tlsv11 no-tls-tickets
+
+# sysctl settings
+fs_file_max: "10240"
+net_core_somaxconn: "2048"
+net_core_netdev_max_backlog: "2048"
+vm_swappiness:  "20"
+nf_conntrack_hashsize: "500000"
