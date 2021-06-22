@@ -3,16 +3,16 @@ global
 
     chroot      /var/lib/haproxy
     pidfile     /var/run/haproxy.pid
-    maxconn 	{{ maxconn }}   
-    maxsessrate {{ maxsessrate }}
-{% if maxsslconn is defined %}
-    maxsslconn 	{{ maxsslconn }}
+    maxconn 	{{ haproxy.maxconn }}   
+    maxsessrate {{ haproxy.maxsessrate }}
+{% if haproxy.maxsslconn is defined %}
+    maxsslconn 	{{ haproxy.maxsslconn }}
 {% endif %}
-{% if tune_ssl_cachesize is defined %}
-    tune.ssl.cachesize {{ tune_ssl_cachesize }}
+{% if haproxy.tune_ssl_cachesize is defined %}
+    tune.ssl.cachesize {{ haproxy.tune_ssl_cachesize }}
 {% endif %}
-{% if tune_ssl_default_dh_param is defined %}
-    tune.ssl.default-dh-param {{ tune_ssl_default_dh_param }}
+{% if haproxy.tune_ssl_default_dh_param is defined %}
+    tune.ssl.default-dh-param {{ haproxy.tune_ssl_default_dh_param }}
 {% endif %}
 
     user        haproxy
@@ -23,20 +23,20 @@ global
     stats socket /var/lib/haproxy/stats
     stats timeout 30s
 
-{% if ssl_default_bind_ciphers is defined %}
-    ssl-default-bind-ciphers {{ ssl_default_bind_ciphers }}
+{% if haproxy.ssl_default_bind_ciphers is defined %}
+    ssl-default-bind-ciphers {{ haproxy.ssl_default_bind_ciphers }}
 {% endif %}
-{% if ssl_default_bind_options is defined %}
-    ssl-default-bind-options {{ ssl_default_bind_options }}
+{% if haproxy.ssl_default_bind_options is defined %}
+    ssl-default-bind-options {{ haproxy.ssl_default_bind_options }}
 {% endif %}
-{% if ssl_default_server_ciphers is defined %}
-    ssl-default-server-ciphers {{ ssl_default_server_ciphers }}
+{% if haproxy.ssl_default_server_ciphers is defined %}
+    ssl-default-server-ciphers {{ haproxy.ssl_default_server_ciphers }}
 {% endif %}
-{% if ssl_default_server_options is defined %}
-    ssl-default-server-options {{ ssl_default_server_options }}
+{% if haproxy.ssl_default_server_options is defined %}
+    ssl-default-server-options {{ haproxy.ssl_default_server_options }}
 {% endif %}
     
-{% if strict_limits %}
+{% if haproxy.strict_limits %}
     # Crash when setrlimits fails
     strict-limits
 {% endif %}
@@ -46,25 +46,25 @@ global
 # use if not designated in their block
 #---------------------------------------------------------------------
 defaults
-    mode                    {{ haproxy_mode }}
-    log                     {{ haproxy_log}}
-{% for option in options %}
+    mode                    {{ haproxy.default_mode }}
+    log                     {{ haproxy.default_log}}
+{% for option in haproxy.options %}
     option                  {{ option }}
 {% endfor %}
-    retries                 {{ retries }}
-    timeout http-request    {{ timeouts.http_request }}
-    timeout queue           {{ timeouts.queue }}
-    timeout connect         {{ timeouts.connect }}
-    timeout client          {{ timeouts.client }}
-    timeout server          {{ timeouts.server }}
-    timeout http-keep-alive {{ timeouts.http_keep_alive }}
-    timeout check           {{ timeouts.check }}
-    timeout client-fin      {{ timeouts.client_fin }}
-    timeout server-fin      {{ timeouts.server_fin }}
+    retries                 {{ haproxy.retries }}
+    timeout http-request    {{ haproxy.timeouts.http_request }}
+    timeout queue           {{ haproxy.timeouts.queue }}
+    timeout connect         {{ haproxy.timeouts.connect }}
+    timeout client          {{ haproxy.timeouts.client }}
+    timeout server          {{ haproxy.timeouts.server }}
+    timeout http-keep-alive {{ haproxy.timeouts.http_keep_alive }}
+    timeout check           {{ haproxy.timeouts.check }}
+    timeout client-fin      {{ haproxy.timeouts.client_fin }}
+    timeout server-fin      {{ haproxy.timeouts.server_fin }}
 
 frontend haproxy
-{% for ip in frontend_ips %}
-{% for port in frontend_open_ports %}
+{% for ip in haproxy.frontend_ips %}
+{% for port in haproxy.frontend_open_ports %}
     bind {{ ip }}:{{ port }} v4v6 transparent
 {% endfor %}
 {% endfor %}
@@ -73,6 +73,6 @@ frontend haproxy
 backend cluster
     mode http
     balance static-rr
-{% for ip in k8s_node_ips %}
+{% for ip in haproxy.k8s_node_ips %}
     server worker-{{ loop.index }} {{ ip }}:80 check inter 10s fall 2 maxconn 12000
 {% endfor %}

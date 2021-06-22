@@ -13,14 +13,19 @@ global
         crt-base /etc/ssl/private
 
         # See: https://ssl-config.mozilla.org/#server=haproxy&server-version=2.0.3&config=intermediate
-        ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
-        ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+{% if haproxy.ssl_default_bind_ciphers is defined %}
+        ssl-default-bind-ciphers {{ haproxy.ssl_default_bind_ciphers }}
+{% endif %}
+{% if haproxy.ssl_default_bind_options is defined %}
+        ssl-default-bind-options {{ haproxy.ssl_default_bind_options }}
+{% endif %}
 
 defaults
-        log        global
-        mode        http
-        option        httplog
-        option        dontlognull
-        timeout connect 5000
-        timeout client  50000
-        timeout server  50000
+        log         {{ haproxy.default_mode }}
+        mode        {{ haproxy.default_log}}
+{% for option in haproxy.options %}
+        option      {{ option }}
+{% endfor %}
+        timeout connect {{ haproxy.timeouts.connect }}
+        timeout client  {{ haproxy.timeouts.client }}
+        timeout server  {{ haproxy.timeouts.server }}

@@ -4,4 +4,4 @@
   tasks:
     - name: "Include basic"
       include_role:
-        name: "basic"
+        name: "haproxy"
