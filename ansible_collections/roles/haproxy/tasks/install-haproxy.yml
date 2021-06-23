@@ -1,0 +1,103 @@
+---
+  - name: copy haproxy rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+      
+  - name: copy haproxy debuginfo rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-debuginfo-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+    when: install_haproxy_debuginfo
+      
+  - name: copy haproxy halog rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-halog-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+      
+  - name: copy haproxy tools rpm
+    tags: [ haproxy_install ]
+    copy:
+      src: rpm/haproxy-tools-2.1.3-1.el7.x86_64.rpm
+      dest: /root/
+    when: install_haproxy_tools
+      
+  - name: install haproxy
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-2.1.3-1.el7.x86_64.rpm
+      state: present
+      
+  - name: install haproxy-halog 
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-halog-2.1.3-1.el7.x86_64.rpm
+      state: present
+      
+  - name: install haproxy-tools 
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-tools-2.1.3-1.el7.x86_64.rpm
+      state: present
+    when: install_haproxy_tools
+      
+  - name: install haproxy-debuginfo
+    tags: [ haproxy_install ]
+    yum:
+      name: /root/haproxy-debuginfo-2.1.3-1.el7.x86_64.rpm
+      state: present
+    when: install_haproxy_debuginfo
+    
+  - name: enable haproxy
+    service:
+      name: haproxy
+      enabled: true
+      state: started
+      
+  - name: copy haproxy.cfg
+    tags: [ haproxy_update ]
+    template:
+      src: "{{ haproxy_config_template }}"
+      dest: /etc/haproxy/haproxy.cfg
+      owner: root
+      group: root
+      backup: yes
+    notify: reload haproxy
+
+  - name: Increase max open files
+    ansible.posix.sysctl:
+      name: fs.file-max
+      value: "{{ sysctl.fs_file_max }}"
+      state: present
+
+  - name: Increase number of incoming connections
+    ansible.posix.sysctl:
+      name: net.core.somaxconn
+      value: "{{ sysctl.net_core_somaxconn }}"
+      state: present
+
+  - name: Increase number of incoming connections backlog queue
+    ansible.posix.sysctl:
+      name: net.core.netdev_max_backlog
+      value: "{{ sysctl.net_core_netdev_max_backlog }}"
+      state: present
+    tags: molecule-notest
+
+  - name: Increase swappiness
+    ansible.posix.sysctl:
+      name: vm.swappiness
+      value: "{{ sysctl.vm_swappiness }}"
+      state: present
+
+  - name: set conntrack hashsize
+    lineinfile:
+      path: /etc/modprobe.d/nf_conntrack-hashsize.conf
+      line: options nf_conntrack hashsize={{ sysctl.nf_conntrack_hashsize }}
+      create: yes
+    notify: reboot
+    # molecule can't reboot when using docker containers
+    tags: molecule-notest
+

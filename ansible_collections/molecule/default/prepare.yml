@@ -1,0 +1,28 @@
+---
+- name: Prepare
+  hosts: instance
+  tasks:
+    - name: Install firewalld
+      yum:
+        name: firewalld
+        state: present
+    - name: Start firewalld
+      service:
+        name: firewalld
+        enabled: true
+        state: started
+    - name: Create frontend dummy interface
+      command: ip link add {{ frontend_network_interfaces[0] }} type dummy
+    - name: Create backend dummy interface
+      command: ip link add {{ backend_network_interfaces[0] }} type dummy
+    - name: Set frontend IP
+      command: ip addr add {{ item }} dev {{ frontend_network_interfaces[0] }}
+      with_items: "{{ frontend_ips }}"
+    - name: Set backend IP
+      command: ip addr add {{ item }} dev {{ backend_network_interfaces[0] }}
+      with_items: "{{ backend_ips }}"
+    - name: Interface {{ frontend_network_interfaces[0] }} in zone public
+      command: firewall-cmd --zone=public --change-interface={{ frontend_network_interfaces[0] }}
+    - name: Interface {{ backend_network_interfaces[0] }} in zone public
+      command: firewall-cmd --zone=public --change-interface={{ backend_network_interfaces[0] }}
+      

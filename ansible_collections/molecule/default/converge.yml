@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: instance
+  tasks:
+    - name: "Include basic"
+      include_role:
+        name: "haproxy"
