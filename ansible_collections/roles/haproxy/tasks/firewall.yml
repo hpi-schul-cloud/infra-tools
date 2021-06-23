@@ -38,6 +38,7 @@
 
   - name: Check frontend interfaces
     command: firewall-cmd --zone=frontend --list-interfaces
+    check_mode: false
     changed_when: false
     register: frontend_interfaces
 
@@ -48,6 +49,7 @@
 
   - name: Check backend interfaces
     command: firewall-cmd --zone=backend --list-interfaces
+    check_mode: false
     changed_when: false
     register: backend_interfaces
 
