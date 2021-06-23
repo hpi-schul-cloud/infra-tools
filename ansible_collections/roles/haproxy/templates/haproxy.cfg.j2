@@ -13,19 +13,19 @@ global
         crt-base /etc/ssl/private
 
         # See: https://ssl-config.mozilla.org/#server=haproxy&server-version=2.0.3&config=intermediate
-{% if haproxy.ssl_default_bind_ciphers is defined %}
-        ssl-default-bind-ciphers {{ haproxy.ssl_default_bind_ciphers }}
+{% if haproxy_ssl_default_bind_ciphers is defined %}
+        ssl-default-bind-ciphers {{ haproxy_ssl_default_bind_ciphers }}
 {% endif %}
-{% if haproxy.ssl_default_bind_options is defined %}
-        ssl-default-bind-options {{ haproxy.ssl_default_bind_options }}
+{% if haproxy_ssl_default_bind_options is defined %}
+        ssl-default-bind-options {{ haproxy_ssl_default_bind_options }}
 {% endif %}
 
 defaults
-        log         {{ haproxy.default_mode }}
-        mode        {{ haproxy.default_log}}
-{% for option in haproxy.options %}
+        log         {{ haproxy_default_mode }}
+        mode        {{ haproxy_default_log}}
+{% for option in haproxy_options %}
         option      {{ option }}
 {% endfor %}
-        timeout connect {{ haproxy.timeouts.connect }}
-        timeout client  {{ haproxy.timeouts.client }}
-        timeout server  {{ haproxy.timeouts.server }}
+        timeout connect {{ haproxy_timeout_connect }}
+        timeout client  {{ haproxy_timeout_client }}
+        timeout server  {{ haproxy_timeout_server }}
