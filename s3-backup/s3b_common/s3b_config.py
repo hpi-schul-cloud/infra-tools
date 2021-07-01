@@ -18,7 +18,7 @@ def read_configuration(configuration_file):
     '''
 
     configuration_file = get_absolute_path(configuration_file)
-    a_yaml_file = open(configuration_file)
+    a_yaml_file = open(configuration_file, encoding="utf-8")
     data = load(a_yaml_file, Loader=Loader)['s3_backup_configuration']
     # convert into objects
     configuration = BackupConfiguration()
