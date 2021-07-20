@@ -257,6 +257,12 @@ def generate_secrets_file(op, items, file, instance=None, disable_empty=False, p
             document=op.get_document(i['uuid'])
             sname=item["overview"]["title"]
             svalue=document
+        if item["templateUuid"]=='112': # JSON Web Token
+            for s in item["details"]["sections"]:
+              for f in s["fields"]:
+                if f["n"]=="credential":
+                  sname=f["n"]
+                  svalue=f["v"]
         if disable_empty:
             if svalue:
                 subdict=convert_dot_notation(sname, svalue)
@@ -282,6 +288,11 @@ def get_single_secret(op, item_name, instance=None, vault=None):
     elif item["templateUuid"]=='006': # File template type
         document=op.get_document(item['uuid'])
         svalue=document.replace("\n\n","\n")
+    elif item["templateUuid"]=='112': # JSON Web Token
+        for s in item["details"]["sections"]:
+          for f in s["fields"]:
+            if f["n"]=="credential":
+              svalue=f["v"]
     return svalue
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
