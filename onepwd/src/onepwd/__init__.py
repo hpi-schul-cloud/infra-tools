@@ -240,7 +240,7 @@ def yaml_str_presenter(dumper, data):
     return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
   return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
-def generate_secrets_file(op, items, file, instance=None, disable_empty=False, permissions=0o600):
+def generate_secrets_file(op, items, file, field=None, disable_empty=False, permissions=0o600):
     secrets={}
     sname=""
     svalue=""
@@ -249,10 +249,10 @@ def generate_secrets_file(op, items, file, instance=None, disable_empty=False, p
         if item["templateUuid"]=='005': # Password template type
             sname=item["overview"]["title"]
             svalue=item["details"]["password"]
-            if instance and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-                for inst in item["details"]["sections"][0]["fields"]:
-                    if inst["t"]==instance:
-                        svalue=inst["v"]
+            if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
+                for f in item["details"]["sections"][0]["fields"]:
+                    if f["t"]==field:
+                        svalue=f["v"]
         if item["templateUuid"]=='006': # File template type
             document=op.get_document(i['uuid'])
             sname=item["overview"]["title"]
@@ -276,15 +276,15 @@ def generate_secrets_file(op, items, file, instance=None, disable_empty=False, p
          f.write(yaml.dump(secrets, width=1000, allow_unicode=True, default_flow_style=False).replace("\n\n","\n"))
          os.chmod(file, permissions)
 
-def get_single_secret(op, item_name, instance=None, vault=None):
+def get_single_secret(op, item_name, field=None, vault=None):
     item=op.get('item', item_name, vault=vault)
     svalue=""
     if item["templateUuid"]=='005': # Password template type
         svalue=item["details"]["password"]
-        if instance and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-            for inst in item["details"]["sections"][0]["fields"]:
-                if inst["t"]==instance:
-                    svalue=inst["v"]
+        if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
+            for f in item["details"]["sections"][0]["fields"]:
+                if f["t"]==field:
+                    svalue=f["v"]
     elif item["templateUuid"]=='006': # File template type
         document=op.get_document(item['uuid'])
         svalue=document.replace("\n\n","\n")
@@ -302,7 +302,7 @@ def oct2int(x):
 def main():
     parser=argparse.ArgumentParser(description="Generate secrets yaml file")
     parser.add_argument('--vault', type=str, required=True)
-    parser.add_argument('--instance', type=str, default=None)
+    parser.add_argument('--field', type=str, default=None)
     parser.add_argument('--secrets-file', type=str, required=True)
     parser.add_argument('--secrets-file-permissions', type=oct2int, default=0o600, required=False)
     parser.add_argument('--session-shorthand', type=str, required=False)
@@ -313,10 +313,10 @@ def main():
     login_secret=get_op_login()
     op = OnePwd(secret=login_secret, shorthand=args.session_shorthand, session_timeout=args.session_timeout)
     if args.get_single_secret:
-        secret_value=get_single_secret(op, args.get_single_secret, instance=args.instance, vault=args.vault)
+        secret_value=get_single_secret(op, args.get_single_secret, field=args.field, vault=args.vault)
         with open(args.secrets_file, 'w') as f:
             f.write(secret_value)
             os.chmod(args.secrets_file, args.secrets_file_permissions)
     else:
         items = op.list("items", args.vault)
-        generate_secrets_file(op, items, args.secrets_file, args.instance, args.disable_empty, args.secrets_file_permissions)
+        generate_secrets_file(op, items, args.secrets_file, args.field, args.disable_empty, args.secrets_file_permissions)
