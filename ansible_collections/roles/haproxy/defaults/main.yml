@@ -31,9 +31,11 @@ haproxy_timeout_check: 10s
 haproxy_timeout_client_fin: 1s
 haproxy_timeout_server_fin: 1s
 haproxy_frontend_network_interfaces: []
-haproxy_frontend_open_ports: [ "80" ]
+firewall_frontend_open_ports: [ "22","80" ]
+haproxy_frontend_ports: [ "80" ]
 haproxy_backend_network_interfaces: []
-haproxy_backend_open_ports: [ "9100", "9101" ]
+firewall_backend_open_ports: [ "9100", "9101" ]
+haproxy_backend_ports: [ "9100", "9101" ]
 haproxy_frontend_ips: []
 haproxy_k8s_node_ips: []
 # optional variables

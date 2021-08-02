@@ -3,7 +3,7 @@ global
 
     chroot      /var/lib/haproxy
     pidfile     /var/run/haproxy.pid
-    maxconn 	{{ haproxy_maxconn }}   
+    maxconn 	{{ haproxy_maxconn }}
     maxsessrate {{ haproxy_maxsessrate }}
 {% if haproxy_maxsslconn is defined %}
     maxsslconn 	{{ haproxy_maxsslconn }}
@@ -35,7 +35,7 @@ global
 {% if haproxy_ssl_default_server_options is defined %}
     ssl-default-server-options {{ haproxy_ssl_default_server_options }}
 {% endif %}
-    
+
 {% if haproxy_strict_limits %}
     # Crash when setrlimits fails
     strict-limits
@@ -64,7 +64,7 @@ defaults
 
 frontend haproxy
 {% for ip in haproxy_frontend_ips %}
-{% for port in haproxy_frontend_open_ports %}
+{% for port in haproxy_frontend_ports %}
     bind {{ ip }}:{{ port }} v4v6 transparent
 {% endfor %}
 {% endfor %}

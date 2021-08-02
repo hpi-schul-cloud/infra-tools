@@ -13,7 +13,7 @@
       state: enabled
       permanent: true
     register: open_frontend_ports
-    with_items: "{{ haproxy_frontend_open_ports }}"
+    with_items: "{{ firewall_frontend_open_ports }}"
 
   - name: Create backend zone
     ansible.posix.firewalld:
@@ -29,7 +29,7 @@
       state: enabled
       permanent: true
     register: open_backend_ports
-    with_items: "{{ haproxy_backend_open_ports }}"
+    with_items: "{{ firewall_backend_open_ports }}"
 
   # We need to reload the firewall before adding the interface to frontend
   - name: reload firewall
