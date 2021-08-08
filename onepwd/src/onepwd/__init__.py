@@ -279,7 +279,17 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
 def get_single_secret(op, item_name, field=None, vault=None):
     item=op.get('item', item_name, vault=vault)
     svalue=""
-    if item["templateUuid"]=='005': # Password template type
+    if item["templateUuid"]=='001': # Login template type
+        if field:
+          if field=="password":
+            for f in item["details"]["fields"]:
+                if f["name"]==field:
+                    svalue=f["value"]
+          elif item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
+            for f in item["details"]["sections"][0]["fields"]:
+                if f["t"]==field:
+                    svalue=f["v"]
+    elif item["templateUuid"]=='005': # Password template type
         svalue=item["details"]["password"]
         if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
             for f in item["details"]["sections"][0]["fields"]:
