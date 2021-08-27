@@ -4,17 +4,17 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="s3b",
+    name="sct",
     version="1.0",
-    author="Markus Bartels",
-    author_email="markus.bartls@capgemini.com",
-    description="S3 backup for the HPI Schul-Cloud",
+    author="Lars Dahlke",
+    author_email="lars.dahlke@capgemini.com",
+    description="Dynamic tunnel to access IONOS Kubernets Cluster via jump host",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/hpi-schul-cloud/infra-tools/tree/master/s3-backup",
+    url="https://github.com/hpi-schul-cloud/infra-tools/tree/master/sc-tunnel",
     packages=setuptools.find_packages(),
-    install_requires=['pyyaml'],
-    scripts=['s3-backup.py'],
+    install_requires=['sshtunnel', 'pyyaml', 'ionoscloud'],
+    scripts=['sct.py'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
