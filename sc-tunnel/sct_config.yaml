@@ -1,0 +1,5 @@
+sc_tunnel_configuration:
+  #
+  # Default configuration, can be overwritten by config in current users home .config folder, environment variables or parameters
+  jumphost: whatchamacallit@schul-cloud.org
+  
