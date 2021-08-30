@@ -11,6 +11,8 @@ import logging
 import argparse
 import traceback
 from contextlib import redirect_stdout
+from sct_common.sct_config import read_configuration
+from sct_data.configuration import SCTConfiguration
 
 def parseArguments():
     '''
@@ -51,8 +53,8 @@ if __name__ == '__main__':
         #initLogging()
         logging.debug('Call arguments given: %s' % sys.argv[1:])
         parsedArgs = parseArguments()
-        #configuration_file = parsedArgs.configuration
-        #s3_backup_config = read_configuration(configuration_file)
+        configuration_file = 'sct_config.yaml'
+        sct_tunnel_config = read_configuration(configuration_file)
         exit(0)
     except Exception as ex:
         logging.exception(ex)
