@@ -13,6 +13,7 @@ import traceback
 from contextlib import redirect_stdout
 from sct_common.sct_config import read_configuration
 from sct_data.configuration import SCTConfiguration
+from sct_logic.tunnel import openTunnel
 
 def parseArguments():
     '''
@@ -34,14 +35,7 @@ def parseArguments():
     args = parser.parse_args()
     return args
 
-def logWhatIfHeader():
-    logging.info("====================================================")
-    logging.info("====================================================")
-    logging.info("====================================================")
-    logging.info("====== Simulation only! No backup performed. =======")
-    logging.info("====================================================")
-    logging.info("====================================================")
-    logging.info("====================================================")
+
 
 if __name__ == '__main__':
     sc_tunnel_config = None
@@ -55,8 +49,9 @@ if __name__ == '__main__':
         parsedArgs = parseArguments()
         configuration_file = 'sct_config.yaml'
         sct_tunnel_config = read_configuration(configuration_file)
+        api_server = sct_tunnel_config.clusters['sc-prod-admin']
+        openTunnel(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, api_server.api_server_host, api_server.api_server_port)
         exit(0)
     except Exception as ex:
         logging.exception(ex)
-        logging.info("Backup failed.")
         exit(1)
