@@ -7,9 +7,8 @@ def listCluster(sct_tunnel_config):
     '''
     List all locally available cluster where teh Kubeconfig is store in the $(HOME)/.kube folder
     '''
+    print("\nClusterlist:\n")
     for cluster in sct_tunnel_config.clusters:
         myCluster: Dict[Cluster] = sct_tunnel_config.clusters[cluster]
-        print(cluster)
-        for item in myCluster:
-            print(item)
-    pass
+        print("Cluster: {} at {} on port {}".format(myCluster.clustername, myCluster.api_server_host, myCluster.api_server_port))
+    print("\n")

@@ -21,5 +21,3 @@ class Cluster:
         self.api_server_host = api_server_host
         self.api_server_port = api_server_port
 
-    def __str__(self):
-        return "clustername: " + self.clustername
