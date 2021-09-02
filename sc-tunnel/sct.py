@@ -14,6 +14,7 @@ from contextlib import redirect_stdout
 from sct_common.sct_config import read_configuration
 from sct_data.configuration import SCTConfiguration
 from sct_logic.tunnel import openTunnel
+from sct_logic.list import listCluster
 
 def parseArguments():
     '''
@@ -43,6 +44,9 @@ if __name__ == '__main__':
         parsedArgs = parseArguments()
         configuration_file = 'sct_config.yaml'
         sct_tunnel_config = read_configuration(configuration_file)
+        if 'list' in parsedArgs:
+            if parsedArgs.list is True:
+                listCluster(sct_tunnel_config)
         #api_server = sct_tunnel_config.clusters['sc-prod-admin']
         #openTunnel(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, api_server.api_server_host, api_server.api_server_port)
         exit(0)
