@@ -1,4 +1,3 @@
-from typing import Dict, List
 from python_hosts import Hosts, HostsEntry
 
 
@@ -39,4 +38,3 @@ if __name__ == '__main__':
     removeHost('hugo.egon.balder')
     removeHost('karl.dall')
     listHosts()
-    pass

@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 
 '''
-This script tunnels access to IONOS Kubernets cluster via a jump host. 
+This script tunnels access to IONOS Kubernets cluster via a jump host.
 '''
 
 import sys
-import os
-import subprocess
 import logging
 import argparse
-import traceback
-from contextlib import redirect_stdout
+import threading
+import random
 from sct_common.sct_config import read_configuration
 from sct_data.configuration import SCTConfiguration
-from sct_logic.tunnel import openTunnel
+from sct_logic.tunnel import TunnelThreading
 from sct_logic.list import listCluster
+from sct_logic.update import updateKubeconfigs
+
 
 def parseArguments():
     '''
@@ -26,7 +26,7 @@ def parseArguments():
     parser.add_argument("--list", action='store_true', help = "Lists the locally available IONOS K8S cluster to be used for tunneling.")
     parser.add_argument("--update", action='store_true', help = "Update the locally available IONOS K8S clusterin $(HOME)/.kube/.")
     #parser.add_argument("--cluster", dest='cluster_names', nargs='+', action='append', required=False, default='', help = "One or more cluster names to open  a tunnel for, e.g. sc-prod-admin.")
-    parser.add_argument("--cluster", required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
+    parser.add_argument("--connect", dest='cluster', required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
     args = parser.parse_args()
     return args
 
@@ -43,13 +43,31 @@ if __name__ == '__main__':
         logging.debug('Call arguments given: %s' % sys.argv[1:])
         parsedArgs = parseArguments()
         configuration_file = 'sct_config.yaml'
-        sct_tunnel_config = read_configuration(configuration_file)
+        sct_tunnel_config: SCTConfiguration = read_configuration(configuration_file)
+        if 'update' in parsedArgs:
+            if parsedArgs.update is True:
+                updateKubeconfigs(sct_tunnel_config.ionos_username, sct_tunnel_config.ionos_password)
         if 'list' in parsedArgs:
             if parsedArgs.list is True:
                 listCluster(sct_tunnel_config)
-        #api_server = sct_tunnel_config.clusters['sc-prod-admin']
-        #openTunnel(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, api_server.api_server_host, api_server.api_server_port)
-        exit(0)
+        if 'cluster' in parsedArgs:
+            if parsedArgs.cluster != '':
+                stop = threading.Event()
+                tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[parsedArgs.cluster], stopper=stop)
+                passcode = random.randint(1111,9999)
+                while True:
+                    try:
+                        name = input("Please enter {} to terminate tunneling: ".format(passcode))
+                        if name == str(passcode):
+                            stop.set()
+                            tr.join()
+                            print("Tunneling terminated")
+                            break
+                        continue
+                    except EOFError:
+                        print("Please input something....")
+                        continue
+        sys.exit(0)
     except Exception as ex:
         logging.exception(ex)
-        exit(1)
+        sys.exit(1)
