@@ -27,6 +27,7 @@ def parseArguments():
     parser.add_argument("--update", action='store_true', help = "Update the locally available IONOS K8S clusterin $(HOME)/.kube/.")
     #parser.add_argument("--cluster", dest='cluster_names', nargs='+', action='append', required=False, default='', help = "One or more cluster names to open  a tunnel for, e.g. sc-prod-admin.")
     parser.add_argument("--connect", dest='cluster', required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
+    parser.add_argument("--config", dest='configfile', required=False, default='sct_config.yaml', help = "Configfile location.")
     args = parser.parse_args()
     return args
 
@@ -42,7 +43,7 @@ if __name__ == '__main__':
         #initLogging()
         logging.debug('Call arguments given: %s' % sys.argv[1:])
         parsedArgs = parseArguments()
-        configuration_file = 'sct_config.yaml'
+        configuration_file = parsedArgs.configfile
         sct_tunnel_config: SCTConfiguration = read_configuration(configuration_file)
         if 'update' in parsedArgs:
             if parsedArgs.update is True:

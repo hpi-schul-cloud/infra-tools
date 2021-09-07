@@ -27,6 +27,7 @@ def read_configuration(configuration_file):
         global_data = None
 
     try:
+        #user_configuration_file = configuration_file
         user_configuration_file = os.path.join(Path.home(), user_config_dir ,os.path.basename(configuration_file))
         user_yaml_file = open(user_configuration_file, encoding="utf-8")
         user_data = load(user_yaml_file, Loader=Loader)['sc_tunnel_configuration']

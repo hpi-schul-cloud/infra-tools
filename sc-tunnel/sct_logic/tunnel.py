@@ -6,6 +6,7 @@ import threading
 import paramiko
 import sshtunnel
 from sct_logic.hostname import addHost, removeHost
+from sct_common.run_command import run_command, run_command_no_output
 
 
 class TunnelThreading(object):
@@ -24,21 +25,21 @@ class TunnelThreading(object):
             (jumphost, 22),
             ssh_username=jumphost_user,
             ssh_pkey=paramiko.agent.Agent().get_keys(),
-            #ssh_pkey="/var/ssh/rsa_key",
-            #ssh_private_key_password="secret",
             remote_bind_address=(api_server_host, api_server_port),
             local_bind_address=('0.0.0.0', api_server_port), 
             host_pkey_directories = []
         ) as server:
             def do_something():
                 # Here we have to wait
-                addHost(api_server_host)
+                run_command(['sudo', 'hostctl', 'add', 'domains', 'sc', api_server_host])
+                #addHost(api_server_host)
                 while True:
                     if not stopper.is_set():
                         stopper.wait(2)
                         sleep(self.interval)
                     else:
-                        removeHost(api_server_host)
+                        run_command(['sudo', 'hostctl', 'remove', 'domains', 'sc', api_server_host])
+                        #removeHost(api_server_host)
                         break
             do_something()
     def join(self):
