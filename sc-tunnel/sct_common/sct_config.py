@@ -56,7 +56,7 @@ def read_configuration(configuration_file):
         # ionos_password
         if 'ionos_password' in user_data: configuration.ionos_password = user_data['ionos_password']
     if os.environ.get('ionos_username'.upper()): configuration.ionos_username = os.environ.get('ionos_username'.upper())
-    if os.environ.get('ionos_password'.upper()): configuration.ionos_username = os.environ.get('ionos_password'.upper())
+    if os.environ.get('ionos_password'.upper()): configuration.ionos_password = os.environ.get('ionos_password'.upper())
 
     if '' == configuration.jumphost or '' == configuration.jumphost_user or '' == configuration.ionos_username or '' == configuration.ionos_password:
         raise RuntimeError('Necessary configuration parameters missing, check config')

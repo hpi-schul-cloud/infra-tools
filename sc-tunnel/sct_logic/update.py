@@ -30,6 +30,7 @@ def updateKubeconfigs(username, password):
         pretty = True # bool | Controls whether response is pretty-printed (with indentation and new lines) (optional) (default to True)
         depth = 1 # int | Controls the details depth of response objects.  Eg. GET /datacenters/[ID]  - depth=0: only direct properties are included. Children (servers etc.) are not included  - depth=1: direct properties and children references are included  - depth=2: direct properties and children properties are included  - depth=3: direct properties and children properties and children's children are included  - depth=... and so on (optional) (default to 0)
         x_contract_number = 0 # int | Users having more than 1 contract need to provide contract number, against which all API requests should be executed (optional)
+        print("Updating avaliable Kubeconfigs ...\n")
         try:
             # List Kubernetes Clusters
             api_response = k8s_api_instance.k8s_get(pretty=pretty, depth=depth, x_contract_number=x_contract_number)
@@ -38,6 +39,7 @@ def updateKubeconfigs(username, password):
                 k8sconfig = config_api_response.properties.kubeconfig
                 clustername = item.properties.name
                 k8sfile = open(os.path.join(kubeconfig_dir,clustername + ".yaml"), mode="w")
+                print("\twriting config for {}".format(clustername))
                 k8sfile.write(k8sconfig)
                 k8sfile.close()
                 pass
