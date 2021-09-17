@@ -500,6 +500,15 @@ s3_backup_configuration:
     - drivename: hidrivebrandenburg2
       bucketname: bucket-5ee75b60846c1d00295e504e
       filename: "1606423400473-https-/"
+    # OPS-2560
+    # special signs
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5ee75b60846c1d00295e504e
+      filename: 
+    # corrupted meta data 
+    - drivename: hidrivebrandenburg2
+      bucketname: bucket-5ee75b60846c1d00295e504e
+      filename: "1628498230811-sitzplan-8b-2021_22.xlsx"
   # Settings for the mailer
   mail:
     # mail address for error reporting
