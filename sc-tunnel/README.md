@@ -2,7 +2,7 @@
 
 [sc-tunnel](https://github.com/hpi-schul-cloud/infra-tools/tree/master/sc-tunnel)
 
-A tool for the HPI-schul-cloud to backup multiple STRATO S3 Hidrives to a backup STRATO S3 Hidrive using rclone.
+A tool, that can download IONOS Kubeconfig for available K8S cluster and open a tunnel for accessing the K8S API server
 
 # Prerequisites
 
