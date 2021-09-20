@@ -40,15 +40,16 @@ help:
 	@echo "    requirements                   install all requirements"
 
 requirements:
+ifneq ($(OS),Windows_NT)
 ifeq ("$(wildcard $(TMPDIR))", "")
-    $(MKDIR_P) $(TMPDIR)
+	$(MKDIR_P) $(TMPDIR)
 endif
 ifeq ("$(wildcard $(LOCALBIN))", "")
-    $(MKDIR_P) $(LOCALBIN)
+	$(MKDIR_P) $(LOCALBIN)
 endif
 	python3 -m pip install -r s3-backup/requirements.txt
 	python3 -m pip install -r sc-tunnel/requirements.txt
 	$(HOSTCTLGET)
 	$(HOSTCTLUNARCHIVE)
 	$(HOSTCTLCOPY)
-
+endif
