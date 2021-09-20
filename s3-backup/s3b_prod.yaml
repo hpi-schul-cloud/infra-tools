@@ -502,13 +502,9 @@ s3_backup_configuration:
       filename: "1606423400473-https-/"
     # OPS-2560
     # special signs
-    - drivename: hidrivebrandenburg2
-      bucketname: bucket-5ee75b60846c1d00295e504e
-      filename: 
-    # corrupted meta data 
-    - drivename: hidrivebrandenburg2
-      bucketname: bucket-5ee75b60846c1d00295e504e
-      filename: "1628498230811-sitzplan-8b-2021_22.xlsx"
+    - drivename: hidrive2
+      bucketname: bucket-5ea1469df7b5190029fd8482
+      filename: "1589110335136-ab-titelblatt-von-thomas-hobbes‛‛-leviathan.pdf"
   # Settings for the mailer
   mail:
     # mail address for error reporting
