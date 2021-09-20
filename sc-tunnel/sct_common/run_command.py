@@ -21,13 +21,14 @@ def run_command(popenargs):
     logger = logging.getLogger()
     with subprocess.Popen(popenargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
         (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
+        proc.wait()
         (cmd_stdout, cmd_stderr) = (cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
         if (len(cmd_stdout) > 0):
             logger.log(logging.INFO, cmd_stdout)
         if (len(cmd_stderr) > 0):
             logger.log(logging.ERROR, cmd_stderr)
-        if proc.returncode != 0:
-            raise SCTException("The process has exited with errorcode '%s'." % proc.returncode)
+        #if proc.returncode != 0:
+        #    raise SCTException("The process has exited with errorcode '%s'." % proc.returncode)
 
 def run_command_get_output_debug_edition(popenargs):
     print(sys.stdout.encoding)

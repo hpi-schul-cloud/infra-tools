@@ -10,6 +10,7 @@ import argparse
 import threading
 import multiprocessing
 import random
+from time import sleep
 from typing import Dict, List
 from sct_common.sct_config import read_configuration
 from sct_data.configuration import SCTConfiguration
@@ -38,6 +39,7 @@ def parseArguments():
 if __name__ == '__main__':
     sc_tunnel_config = None
     connectThreads: List = []
+    openedPorts: Dict = {}
     try:
         if sys.version_info[0] < 3 or sys.version_info[1] < 6:
             print("This script requires Python version 3.6")
@@ -56,15 +58,24 @@ if __name__ == '__main__':
                 listCluster(sct_tunnel_config)
         if 'cluster' in parsedArgs:
             if parsedArgs.cluster != '' or parsedArgs.connectall is True:
-                stop = multiprocessing.Event()
+                stop = threading.Event()
                 if parsedArgs.connectall is False:
-                    tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[parsedArgs.cluster], stopper=stop)
+                    tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[parsedArgs.cluster], stopper=stop, reuse_connection=False)
                     connectThreads.append(tr)
+                    while not tr.isUp():
+                        sleep(2)
                 else:
                     # Open a tunnel for all cluster with looping over all available cluster
                     for cluster in sct_tunnel_config.clusters:
-                        tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[cluster], stopper=stop)
+                        if sct_tunnel_config.clusters[cluster].api_server_port in openedPorts.keys():
+                            reuse_connection = True
+                        else:
+                            reuse_connection = False
+                        tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[cluster], stop, reuse_connection)
+                        openedPorts[sct_tunnel_config.clusters[cluster].api_server_port] = sct_tunnel_config.clusters[cluster].api_server_host
                         connectThreads.append(tr)
+                        while not tr.isUp():
+                            sleep(2)
                 passcode = random.randint(1111,9999)
                 while True:
                     try:
@@ -73,6 +84,8 @@ if __name__ == '__main__':
                             stop.set()
                             for cThread in connectThreads:
                                 #cThread.stop()
+                                while cThread.isUp():
+                                    continue
                                 cThread.join()
                             print("Tunneling terminated")
                             break
