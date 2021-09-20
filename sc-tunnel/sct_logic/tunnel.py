@@ -2,21 +2,25 @@
 Modul for a class that opens a ssh tunnel, Setting a stop event gracefully terminates the thread.
 '''
 from time import sleep
+from multiprocessing import Process
 import threading
+import os
 import paramiko
 import sshtunnel
 from sct_logic.hostname import addHost, removeHost
-from sct_common.run_command import run_command, run_command_no_output
-
+from sct_common.run_command import run_command
 
 class TunnelThreading(object):
     '''
     '''
     def __init__(self, jumphost, jumphost_user, api_server, stopper, interval=1):
         self.interval = interval
-        self.thread = threading.Thread(target=self.run, args=(jumphost, jumphost_user, api_server.api_server_host,api_server.api_server_port,stopper))
+        self.thread = Process(target=self.run, args=(jumphost, jumphost_user, api_server.api_server_host,api_server.api_server_port,stopper))
         self.thread.daemon = True
         self.thread.start()
+        print('parent process:', os.getppid())
+        print('process id:', os.getpid())
+        print('child pid: ',self.thread.pid)
 
     def run(self, jumphost, jumphost_user, api_server_host, api_server_port, stopper):
         '''
@@ -43,4 +47,7 @@ class TunnelThreading(object):
                         break
             do_something()
     def join(self):
+        '''
+        Called from outside to wait until the thread has gracefully teminated
+        '''
         self.thread.join()
