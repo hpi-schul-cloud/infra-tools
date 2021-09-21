@@ -48,7 +48,7 @@ ifeq ("$(wildcard $(LOCALBIN))", "")
 	$(MKDIR_P) $(LOCALBIN)
 endif
 	python3 -m pip install -r s3-backup/requirements.txt
-	python3 -m pip install -r sc-tunnel/requirements.txt
+	python3 -m pip install -r sct/requirements.txt
 	$(HOSTCTLGET)
 	$(HOSTCTLUNARCHIVE)
 	$(HOSTCTLCOPY)

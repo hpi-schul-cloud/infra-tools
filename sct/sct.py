@@ -17,6 +17,7 @@ from sct_data.configuration import SCTConfiguration
 from sct_logic.tunnel import TunnelThreading
 from sct_logic.list import listCluster
 from sct_logic.update import updateKubeconfigs
+from sct_common.run_command import run_command, run_command_no_output
 
 
 def parseArguments():
@@ -45,7 +46,7 @@ if __name__ == '__main__':
             print("This script requires Python version 3.6")
             sys.exit(1)
 
-        #initLogging()
+
         logging.debug('Call arguments given: %s' % sys.argv[1:])
         parsedArgs = parseArguments()
         configuration_file = parsedArgs.configfile
@@ -68,10 +69,9 @@ if __name__ == '__main__':
                     # Open a tunnel for all cluster with looping over all available cluster
                     for cluster in sct_tunnel_config.clusters:
                         if sct_tunnel_config.clusters[cluster].api_server_port in openedPorts.keys():
-                            reuse_connection = True
-                        else:
-                            reuse_connection = False
-                        tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[cluster], stop, reuse_connection)
+                            # Tunneling to the same port is not possible so we just add a host entry
+                            print("Tunneling to {} not possible, port {} already in use!".format(sct_tunnel_config.clusters[cluster].api_server_host, sct_tunnel_config.clusters[cluster].api_server_port))
+                        tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[cluster], stop)
                         openedPorts[sct_tunnel_config.clusters[cluster].api_server_port] = sct_tunnel_config.clusters[cluster].api_server_host
                         connectThreads.append(tr)
                         while not tr.isUp():
@@ -87,6 +87,7 @@ if __name__ == '__main__':
                                 while cThread.isUp():
                                     continue
                                 cThread.join()
+                            run_command(['sudo', 'hostctl', 'remove', 'sc'])
                             print("Tunneling terminated")
                             break
                         continue
