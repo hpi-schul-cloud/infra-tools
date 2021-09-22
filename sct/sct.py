@@ -61,7 +61,7 @@ if __name__ == '__main__':
             if parsedArgs.cluster != '' or parsedArgs.connectall is True:
                 stop = threading.Event()
                 if parsedArgs.connectall is False:
-                    tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[parsedArgs.cluster], stopper=stop, reuse_connection=False)
+                    tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[parsedArgs.cluster], stopper=stop)
                     connectThreads.append(tr)
                     while not tr.isUp():
                         sleep(2)
