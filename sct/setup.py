@@ -11,7 +11,7 @@ setuptools.setup(
     description="Dynamic tunnel to access IONOS Kubernets Cluster via jump host",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/hpi-schul-cloud/infra-tools/tree/master/sc-tunnel",
+    url="https://github.com/hpi-schul-cloud/infra-tools/tree/master/sct",
     packages=setuptools.find_packages(),
     install_requires=['sshtunnel', 'pyyaml', 'ionoscloud'],
     scripts=['sct.py'],
