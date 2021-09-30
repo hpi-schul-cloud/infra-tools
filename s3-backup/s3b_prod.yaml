@@ -505,6 +505,20 @@ s3_backup_configuration:
     - drivename: hidrive2
       bucketname: bucket-5ea1469df7b5190029fd8482
       filename: "1589110335136-ab-titelblatt-von-thomas-hobbes‛‛-leviathan.pdf"
+    # OPS-2752 corrupted metadata Failed to copy: failed to open source object: NoSuchKey: The specified key does not exist.
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ea6c728f67e2f00297e88d0
+      filename: "1611659008682-wochenplan-5-klasse-2-kerstin.docx"
+    # OPS-2752 Failed to copy: s3 upload: 500 Internal Server Error:
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ef5a085c00a0e0029667e9d
+      filename: "1632727958158-5-konsum-ppp-siegel-bewertungen-.pdf"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ef5a085c00a0e0029667e9d
+      filename: "1632729833892-2021-09-27-10-00-2.pdf"
+    - drivename: hidrivethueringen3
+      bucketname: bucket-5ef5a085c00a0e0029667e9d
+      filename: "1632735890518-sinnbilder.pptx"
   # Settings for the mailer
   mail:
     # mail address for error reporting
