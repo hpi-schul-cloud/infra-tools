@@ -1,21 +1,24 @@
 import sys, locale, os
 import subprocess
 import logging
+from types import TracebackType
 from s3b_common.s3bexception import S3bException
+from s3b_common.s3b_mail import send_error_mail_to_multiple_receivers
+from s3b_data.configuration import BackupConfiguration
 
 def run_command_get_output(popenargs):
     with subprocess.Popen(popenargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
         (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
         (cmd_stdout, cmd_stderr) = (cmd_stdout_bytes.decode('utf-8'), cmd_stderr_bytes.decode('utf-8'))
         if proc.returncode != 0:
-            raise S3bException("The process has exited with errorcode '%s'." % proc.returncode)
+            send_error_mail_to_multiple_receivers(s3_backup_config.receiver_mail_addresses, TracebackType.format_exc(), get_logfile_name())
     return (cmd_stdout, cmd_stderr)
 
 def run_command_no_output(popenargs):
     with subprocess.Popen(popenargs) as proc:
         proc.communicate()
         if proc.returncode != 0:
-            raise S3bException("The process has exited with errorcode '%s'." % proc.returncode)
+            send_error_mail_to_multiple_receivers(s3_backup_config.receiver_mail_addresses, TracebackType.format_exc(), get_logfile_name())
 
 def run_command(popenargs):
     logger = logging.getLogger()
@@ -27,7 +30,7 @@ def run_command(popenargs):
         if (len(cmd_stderr) > 0):
             logger.log(logging.ERROR, cmd_stderr)
         if proc.returncode != 0:
-            raise S3bException("The process has exited with errorcode '%s'." % proc.returncode)
+            send_error_mail_to_multiple_receivers(s3_backup_config.receiver_mail_addresses, TracebackType.format_exc(), get_logfile_name())
 
 def run_command_get_output_debug_edition(popenargs):
     print(sys.stdout.encoding)
@@ -45,7 +48,7 @@ def run_command_get_output_debug_edition(popenargs):
         if (len(cmd_stderr) > 0):
             logger.log(logging.ERROR, cmd_stderr)
         if proc.returncode != 0:
-            raise S3bException("The process has exited with errorcode '%s'." % proc.returncode)
+            send_error_mail_to_multiple_receivers(s3_backup_config.receiver_mail_addresses, TracebackType.format_exc(), get_logfile_name())
     return (cmd_stdout, cmd_stderr)
 
 def run_command_legacy(popenargs):
@@ -69,4 +72,4 @@ def run_command_legacy(popenargs):
 
     logging.debug("runCommand returncode: '%s'" % process.returncode)
     if process.returncode != 0:
-        raise S3bException("The process has exited with errorcode '%s'." % process.returncode)
+        send_error_mail_to_multiple_receivers(s3_backup_config.receiver_mail_addresses, TracebackType.format_exc(), get_logfile_name())
