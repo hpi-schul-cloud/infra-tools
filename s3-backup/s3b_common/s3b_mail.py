@@ -7,7 +7,7 @@ from email.mime.text import MIMEText
 
 # Prerequisites:
 # - postfix server installed and configured to send mails.
-# To test it, logon to the host and send an e-mail with: mail -s "Testmail" ralf.nelles@guest.hpi.de <<< 'Testmail'
+# To test it, logon to the host and send an e-mail with: mail -s "Testmail" markus.bartels@guest.hpi.de <<< 'Testmail'
 def send_test_mail():
     '''
     Message to test the Python e-mailing options.
@@ -18,7 +18,7 @@ def send_test_mail():
     hostname = socket.gethostname()
     username = getpass.getuser()
     sender_mail_address = username + "@" + hostname
-    receiver_mail_address = "ralf.nelles@guest.hpi.de"
+    receiver_mail_address = "markus.bartels@guest.hpi.de"
 
     msg = MIMEMultipart()
     msg['From'] = sender_mail_address
@@ -32,11 +32,8 @@ def send_test_mail():
     server.quit()
 
 def send_error_mail_to_multiple_receivers(receiver_mail_addresses, error_message, logfilename):
-    now = datetime.now()
-    timestamp = now.strftime("%d.%m.%Y %H:%M:%S")
-
     for receiver_mail_address in receiver_mail_addresses:
-        send_error_mail(receiver_mail_address, timestamp + error_message + "\nLogfile: " + logfilename)
+        send_error_mail(receiver_mail_address, error_message + "\nLogfile: " + logfilename)
 
 def send_error_mail(receiver_mail_address, error_message):
     '''
