@@ -59,7 +59,7 @@ def run_backup(s3_backup_config, instance_names_to_backup, dailyincrement, syncf
     if validate:
         run_backup_validate(s3_backup_config, instance_names_to_backup, current_day_of_month, force, whatif)
     logging.info("Running backup finished. Instances: '%s', syncfull: '%s', dailyincrement: '%s', validate: '%s', force: '%s', whatif: '%s'" % (instance_names_to_backup, syncfull, dailyincrement, validate, force, whatif))
-    
+
 def run_backup_syncfull(s3_backup_config, instance_names_to_backup, current_day_of_month, force, whatif):
     '''
     Starts a syncfull backup.
@@ -99,7 +99,11 @@ def run_backup_syncfull(s3_backup_config, instance_names_to_backup, current_day_
                     logging.info("Skipping bucket '%s' on '%s'. The bucket is marked as defective in the configuration." % (current_bucket_to_backup, current_s3drive_name))
                     continue
                 defective_file_list = s3_backup_config.get_defective_file_list(current_s3drive_name, current_bucket_to_backup)
-                run_backup_syncfull_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_id, defective_file_list, whatif)
+                try:
+                    run_backup_syncfull_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_id, defective_file_list, whatif)
+                except S3bException as ex:
+                    logging.exception(ex)
+                    logging.error("Backup failed for '%s'" % current_instance.instancename)
             current_drive_number += 1
     logging.info("===== Syncfull finished ==============================================")
 
@@ -130,7 +134,11 @@ def run_backup_dailyincrement(s3_backup_config, instance_names_to_backup, whatif
                     logging.info("Skipping bucket '%s' on '%s'. The bucket is marked as defective in the configuration." % (current_bucket_to_backup, current_s3drive_name))
                     continue
                 defective_file_list = s3_backup_config.get_defective_file_list(current_s3drive_name, current_bucket_to_backup)
-                run_backup_dailyincrement_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_datestamp, backup_set_datestamp_as_path, defective_file_list, whatif)
+                try:
+                    run_backup_dailyincrement_for_single_bucket(current_s3drive.drivename, current_bucket_to_backup, current_instance.s3_target_drive.drivename, current_instance.s3_target_backup_bucket, current_instance.instancename, backup_set_datestamp, backup_set_datestamp_as_path, defective_file_list, whatif)
+                except S3bException as ex:
+                    logging.exception(ex)
+                    logging.error("Backup failed for '%s'" % current_instance.instancename)
             current_drive_number += 1
     logging.info("===== Daily Increment finished =======================================")
 
@@ -296,7 +304,7 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, current_day_
         validation_result = ValidationResult()
         validation_results[current_instance.instancename] = validation_result
 
-        # On the source side, we look just on the bucket that are configured. 
+        # On the source side, we look just on the bucket that are configured.
         # So we can reuse evaluate_source_bucket_list, which delivers the buckets to backup.
         # For each drive of the instance
         current_drive_number = 1
@@ -399,7 +407,7 @@ def run_restore_all(s3_backup_config, restore_instance_name, backup_set, whatif)
     is copied from which drive.
 
     Prerequisites:
-    - The source drive must be empty. 
+    - The source drive must be empty.
 
     restore_instance_name: The name of the instance to restore. The instance definition
     contains all relevant data like the drive where the instance data is stored.
