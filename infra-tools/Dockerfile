@@ -1,5 +1,4 @@
-ARG DEBIAN_IMAGE_TAG="stable-20200607"
-FROM debian:${DEBIAN_IMAGE_TAG} as release
+FROM debian:bullseye as release
 
 ARG BUILD_BRANCH
 ARG BUILD_HASH
@@ -32,7 +31,7 @@ RUN set -x \
         mc \
         gpg \
         duply \
-        python-boto \
+        python3-boto3 \
         postgresql-client \
         procps \
         screen \
@@ -40,7 +39,13 @@ RUN set -x \
         mtr-tiny \
         tcpdump \
         gettext-base \
-    && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
-    && apt-get install -y nodejs \
     && apt-get clean -y
 
+
+# Install nvm with node and npm
+RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash \
+    && . /root/.nvm/nvm.sh \
+    && nvm install --lts
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/v$NODE_VERSION/bin:$PATH
