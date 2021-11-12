@@ -1,5 +1,7 @@
 *_backupsizes/
 /log/
+/logs/
 *.log
 __pycache__/
 *.py[co]
+credentials
