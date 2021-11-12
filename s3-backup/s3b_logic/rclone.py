@@ -331,7 +331,11 @@ def run_backup_validate(s3_backup_config, instance_names_to_backup, current_day_
         for current_bucket_to_backup in target_bucket_list:
             defective_file_list = []
             target_bucket_info = read_bucket_info(current_instance.s3_target_drive.drivename, backup_path, current_bucket_to_backup, defective_file_list, whatif)
-            validation_result.add_target_bucket_info(target_bucket_info)
+            try:
+                validation_result.add_target_bucket_info(target_bucket_info)
+            except S3bException as ex:
+                logging.exception(ex)
+                logging.warning("WARNING: Cannot set target bucket. The target bucket is already set. Bucket: '%s'" % (target_bucket_info))
 
         # Compare the collected bucket information.
         logging.info("===== Validation Statistics %s =====" % current_instance.instancename)
