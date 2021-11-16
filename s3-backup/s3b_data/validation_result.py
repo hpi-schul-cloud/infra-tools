@@ -196,7 +196,7 @@ class ValidationResult:
             self.bucket_infos[target_bucket_info.bucket_to_backup] = bucket_compare
         else:
             if bucket_compare.target_bucket_info != None:
-                raise S3bException('Cannot set target bucket. The target bucket is already set.')
+                raise S3bException("WARNING: Cannot set target bucket. The target bucket is already set. Bucket: '%s'" % (target_bucket_info))
             bucket_compare.target_bucket_info = target_bucket_info
     
     def compare(self):
