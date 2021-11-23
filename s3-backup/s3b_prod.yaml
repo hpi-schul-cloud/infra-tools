@@ -83,7 +83,7 @@ s3_backup_configuration:
       instancename_short: terra
       s3_source_drives: [ "ionoss3terraformstate" ]
       s3_source_bucket_patterns: ['*']
-      s3_target_drive: hidrivebayernbackup
+      s3_target_drive: ionoss3backup
       s3_target_backup_bucket: s3-backup-terraform-brvkge7
       backup_day_of_month: 6
 
@@ -183,7 +183,7 @@ s3_backup_configuration:
       backupdrive: True
     - drivename: hidrivewebcontent
       backupdrive: False
-    - drivename: hidrivebayernbackup
+    - drivename: ionoss3backup
       backupdrive: True
     - drivename: hidrivebayern1
       backupdrive: False
