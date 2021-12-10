@@ -55,7 +55,7 @@ jobs:
         git-push-user-email: ${{ inputs.email }}
         git-push-user-name: ${{ inputs.name }}
     - name: Render Helm-Docs
-      uses: .github/actions/helm-docs
+      uses: ./.github/actions/helm-docs
       with:
         # provide name of dirs to run helm-docs on, separate by comma without space
         src_path: ${{ inputs.src_path_helm}}
