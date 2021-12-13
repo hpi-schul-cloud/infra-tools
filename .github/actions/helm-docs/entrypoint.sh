@@ -26,12 +26,16 @@ fi
 
 echo "----.helmdocsignore Status:----------------"
 
-FILE=$(pwd)/.helmdocsignore
+
+HELMDOCSIGNORE_EXISTED=""
+FILE=$BASE_PATH/.helmdocsignore
 if test -f "$FILE"; then
     echo "$FILE exists."
+    HELMDOCSIGNORE_EXISTED="true"
 else 
     echo "Creating .helmdocsignore file"
     touch .helmdocsignore
+    HELMDOCSIGNORE_EXISTED="false"
 fi
 
 # Updating .helmdocsignore file
@@ -67,6 +71,14 @@ else
     done
 fi 
 
+
+# delete helmignore file if it didn't existed prior
+if [ "${HELMDOCSIGNORE_EXISTED}" == "false" ]
+then 
+    rm -f $BASE_PATH/.helmdocsignore
+fi
+
+
 git config --global user.name "${USERNAME}"
 git config --global user.email "${EMAIL}"
 
@@ -80,12 +92,12 @@ else
     if [ "${GIT_PUSH}" == "true" ]
     then 
         # commit and push changes
-        echo "Changes detected - will commit and push"
+        echo "Changes detected - will commit and push generated README.md's"
         git add -A
         git commit --message "${COMMIT_MESSAGE}"
         git push origin 
     else
-        echo "Changes detected - will not commit or push"
+        echo "Changes detected - will not commit or push changes"
 
     fi
 fi

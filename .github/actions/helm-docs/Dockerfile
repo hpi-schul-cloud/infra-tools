@@ -1,5 +1,5 @@
 
-FROM jnorwood/helm-docs:latest
+FROM jnorwood/helm-docs:v1.2.0
 
 RUN apk add --no-cache bash
 RUN apk add --no-cache git
