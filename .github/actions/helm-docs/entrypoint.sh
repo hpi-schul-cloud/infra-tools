@@ -93,7 +93,7 @@ else
     then 
         # commit and push changes
         echo "Changes detected - will commit and push generated README.md's"
-        git add -A
+        git add \*.md
         git commit --message "${COMMIT_MESSAGE}"
         git push origin 
     else
