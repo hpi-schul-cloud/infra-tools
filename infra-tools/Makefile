@@ -8,8 +8,8 @@ SHELL := /bin/bash
 GIT_REMOTE_URL ?= $(shell git remote get-url origin)
 GIT_SHA ?= $(shell git rev-parse HEAD)
 GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD | tr -s "[:punct:]" "-" | tr -s "[:upper:]" "[:lower:]")
-GIT_CURRENT_VERSION_TAG ?= $(shell git tag --list "[0-9]*" --sort="-version:refname" --points-at HEAD | head -n 1)
-GIT_LATEST_VERSION_TAG ?= $(shell git tag --list "[0-9]*" --sort="-version:refname" | head -n 1)
+GIT_CURRENT_VERSION_TAG ?= $(shell git tag --list "infra-tools-[0-9]*" --sort="-version:refname" --points-at HEAD | head -n 1)
+GIT_LATEST_VERSION_TAG ?= $(shell git tag --list "infra-tools-[0-9]*" --sort="-version:refname" | head -n 1)
 
 ifeq ($(GIT_BRANCH),head)
 ifneq ($(GIT_CURRENT_VERSION_TAG),)

@@ -4,7 +4,8 @@ name: Build and push Docker image
 on:
   push:
     tags:
-      - '[0-9]*'
+      - 'infra-tools-[0-9]*'
+    
 jobs:
   build_and_push:
     runs-on: ubuntu-18.04
