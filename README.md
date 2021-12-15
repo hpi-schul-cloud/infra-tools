@@ -6,7 +6,7 @@
 
 ## Docker image build & push Tag
 
-Naming conventoin: `infra-tools-[0-9]*` <br>
+Naming convention: `infra-tools-[0-9]*` <br>
 Example tag: `infra-tools-2.0.1`
 
 ## Reuseable workflow Tag 
