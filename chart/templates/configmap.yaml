@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-configmap
+  labels:
+    app: mymetrics-app
+data:
+  config.yaml: |
+    ---
+    develop:
+      clamd:
+        type: network
+        host: clamav.schul-cloud.org
+        port: 3310
+        directory: /shared
+      webserver:
+        auth_users:
+          - av-schulcloud:YCpudssc6fm8HPk4bc7c54f6
+      virustotal:
+        api_key: 424f7fc30e7fc7c49750ef7975bdaea8d9663b088c17b169cd7fef664f8948b6
+      amqp:
+        url: amqp://av-schulcloud:YCpudssc6fm8HPk4bc7c54f6@rabbitmq-svc/antivirus
+        scan_file:
+          queue: scan_file
+          routing_key: scan_file
+        scan_url:
+          queue: scan_url
+          routing_key: scan_url
