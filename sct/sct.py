@@ -31,6 +31,7 @@ def parseArguments():
     parser.add_argument("--update", action='store_true', help = "Update the locally available IONOS K8S clusterin $(HOME)/.kube/.")
     parser.add_argument("--connect-all", dest='connectall', action='store_true', help = "Open a tunnel to all clusters")
     parser.add_argument("--connect", dest='cluster', required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
+    parser.add_argument("--gitssh", dest='gitssh', required=False, default='git.dbildungscloud.de:2222', help = "Git server to tunnle, <host>:<port>, e.g. gitea.example.com:2345.")
     parser.add_argument("--config", dest='configfile', required=False, default='sct_config.yaml', help = "Configfile location.")
     args = parser.parse_args()
     return args
