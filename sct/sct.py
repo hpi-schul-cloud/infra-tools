@@ -32,8 +32,8 @@ def parseArguments():
     parser.add_argument("--list", action='store_true', help = "Lists the locally available IONOS K8S cluster to be used for tunneling.")
     parser.add_argument("--update", action='store_true', help = "Update the locally available IONOS K8S clusterin $(HOME)/.kube/.")
     parser.add_argument("--connect-all", dest='connectall', action='store_true', help = "Open a tunnel to all clusters")
-    parser.add_argument("--connect", dest='cluster', required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
-    parser.add_argument("--tunnel", dest='tunnel', type=str, required=False, default='', help = "Server to tunnel, <host>:<port>, e.g. gitea.example.com:2345.")
+    parser.add_argument("--connect", dest='clusters', type=str, nargs='+', required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
+    parser.add_argument("--tunnel", dest='tunnels', type=str, nargs='+', required=False, default='', help = "Server to tunnel, <host>:<port>, e.g. gitea.example.com:2345.")
     parser.add_argument("--config", dest='configfile', required=False, default='sct_config.yaml', help = "Configfile location.")
     args = parser.parse_args()
     return args
@@ -60,35 +60,46 @@ if __name__ == '__main__':
         if 'list' in parsedArgs:
             if parsedArgs.list is True:
                 listCluster(sct_tunnel_config)
-        if parsedArgs.cluster != '' or parsedArgs.connectall is True or parsedArgs.tunnel != '':
+        if parsedArgs.clusters != '' or parsedArgs.connectall is True or parsedArgs.tunnels != '':
             stop = threading.Event()
-            if parsedArgs.tunnel != '':
-                # Adding "https://" is just to satisfy the urlparse function and ist not used further
-                url = 'https://' + parsedArgs.tunnel
-                parsed_url = urlparse(url)
-                cluster = Cluster('tunnel', parsed_url.hostname, parsed_url.port)
-                tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, cluster, stopper=stop)
-                openedPorts[cluster.api_server_port] = cluster.api_server_host
-                connectThreads.append(tr)
-                while not tr.isUp():
-                    sleep(2)
-            if parsedArgs.cluster != '':
-                tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[parsedArgs.cluster], stopper=stop)
-                openedPorts[sct_tunnel_config.clusters[parsedArgs.cluster].api_server_port] = sct_tunnel_config.clusters[parsedArgs.cluster].api_server_host
-                connectThreads.append(tr)
-                while not tr.isUp():
-                    sleep(2)
+            if parsedArgs.tunnels != '':
+                for tunnel in parsedArgs.tunnels:
+                    # Adding "https://" is just to satisfy the urlparse function and ist not used further
+                    url = 'https://' + tunnel
+                    parsed_url = urlparse(url)
+                    cluster = Cluster('tunnel', parsed_url.hostname, parsed_url.port)
+                    if parsed_url.port in openedPorts.keys():
+                        # Tunneling to the same port is not possible so we just add a host entry
+                        print("Tunneling to {} not possible, port {} already in use!".format(parsed_url.hostname, parsed_url.port))
+                    else:
+                        tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, cluster, stopper=stop)
+                        openedPorts[cluster.api_server_port] = cluster.api_server_host
+                        connectThreads.append(tr)
+                        while not tr.isUp():
+                            sleep(2)
+            if parsedArgs.clusters != '':
+                for cluster in parsedArgs.clusters:
+                    if sct_tunnel_config.clusters[cluster].api_server_port in openedPorts.keys():
+                        # Tunneling to the same port is not possible so we just add a host entry
+                        print("Tunneling to {} not possible, port {} already in use!".format(sct_tunnel_config.clusters[cluster].api_server_host, sct_tunnel_config.clusters[cluster].api_server_port))
+                    else:
+                        tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[cluster], stopper=stop)
+                        openedPorts[sct_tunnel_config.clusters[cluster].api_server_port] = sct_tunnel_config.clusters[cluster].api_server_host
+                        connectThreads.append(tr)
+                        while not tr.isUp():
+                            sleep(2)
             if parsedArgs.connectall is True:
                 # Open a tunnel for all cluster with looping over all available cluster
                 for cluster in sct_tunnel_config.clusters:
                     if sct_tunnel_config.clusters[cluster].api_server_port in openedPorts.keys():
                         # Tunneling to the same port is not possible so we just add a host entry
                         print("Tunneling to {} not possible, port {} already in use!".format(sct_tunnel_config.clusters[cluster].api_server_host, sct_tunnel_config.clusters[cluster].api_server_port))
-                    tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[cluster], stop)
-                    openedPorts[sct_tunnel_config.clusters[cluster].api_server_port] = sct_tunnel_config.clusters[cluster].api_server_host
-                    connectThreads.append(tr)
-                    while not tr.isUp():
-                        sleep(2)
+                    else:
+                        tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, sct_tunnel_config.clusters[cluster], stop)
+                        openedPorts[sct_tunnel_config.clusters[cluster].api_server_port] = sct_tunnel_config.clusters[cluster].api_server_host
+                        connectThreads.append(tr)
+                        while not tr.isUp():
+                            sleep(2)
             passcode = random.randint(1111,9999)
             while True:
                 try:

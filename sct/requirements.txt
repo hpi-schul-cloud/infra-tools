@@ -1,4 +1,4 @@
 pyyaml
 sshtunnel
 python-hosts
-ionoscloud
+ionoscloud=5.0.5
