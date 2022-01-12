@@ -33,7 +33,7 @@ def parseArguments():
     parser.add_argument("--update", action='store_true', help = "Update the locally available IONOS K8S clusterin $(HOME)/.kube/.")
     parser.add_argument("--connect-all", dest='connectall', action='store_true', help = "Open a tunnel to all clusters")
     parser.add_argument("--connect", dest='cluster', required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
-    parser.add_argument("--gitssh", dest='gitssh', required=False, default='', help = "Git server to tunnle, <host>:<port>, e.g. gitea.example.com:2345.")
+    parser.add_argument("--tunnel", dest='tunnel', type=str, required=False, default='', help = "Server to tunnel, <host>:<port>, e.g. gitea.example.com:2345.")
     parser.add_argument("--config", dest='configfile', required=False, default='sct_config.yaml', help = "Configfile location.")
     args = parser.parse_args()
     return args
@@ -60,13 +60,13 @@ if __name__ == '__main__':
         if 'list' in parsedArgs:
             if parsedArgs.list is True:
                 listCluster(sct_tunnel_config)
-        if parsedArgs.cluster != '' or parsedArgs.connectall is True or parsedArgs.gitssh != '':
+        if parsedArgs.cluster != '' or parsedArgs.connectall is True or parsedArgs.tunnel != '':
             stop = threading.Event()
-            if parsedArgs.gitssh != '':
+            if parsedArgs.tunnel != '':
                 # Adding "https://" is just to satisfy the urlparse function and ist not used further
-                url = 'https://' + parsedArgs.gitssh
+                url = 'https://' + parsedArgs.tunnel
                 parsed_url = urlparse(url)
-                cluster = Cluster('gitssh', parsed_url.hostname, parsed_url.port)
+                cluster = Cluster('tunnel', parsed_url.hostname, parsed_url.port)
                 tr = TunnelThreading(sct_tunnel_config.jumphost, sct_tunnel_config.jumphost_user, cluster, stopper=stop)
                 openedPorts[cluster.api_server_port] = cluster.api_server_host
                 connectThreads.append(tr)
