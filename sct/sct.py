@@ -63,6 +63,7 @@ if __name__ == '__main__':
         if parsedArgs.cluster != '' or parsedArgs.connectall is True or parsedArgs.gitssh != '':
             stop = threading.Event()
             if parsedArgs.gitssh != '':
+                # Adding "https://" is just to satisfy the urlparse function and ist not used further
                 url = 'https://' + parsedArgs.gitssh
                 parsed_url = urlparse(url)
                 cluster = Cluster('gitssh', parsed_url.hostname, parsed_url.port)
