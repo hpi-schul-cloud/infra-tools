@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "dbcmetrics.fullname" . }}
+  # Change this to the namespace the Prometheus instance is running in
+  # namespace: default
+  labels:
+    {{- include "dbcmetrics.labels" . | nindent 4 }}
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      {{- include "dbcmetrics.selectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: metrics
+    interval: 15s

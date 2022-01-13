@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Chart.Name }}-configmap
+  name: {{ include "dbcmetrics.fullname" . }}
   labels:
-    app: mymetrics-app
+    {{- include "dbcmetrics.labels" . | nindent 4 }}
 data:
   config.yaml: |
     ---
