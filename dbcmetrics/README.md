@@ -1,13 +1,11 @@
-# sct
+# dbcmetrics
 
-[sct](https://github.com/hpi-schul-cloud/infra-tools/tree/master/sct)
+[dbcmetrics](https://github.com/hpi-schul-cloud/infra-tools/tree/master/dbcmetrics)
 
-A tool, that can download IONOS Kubeconfig for available K8S cluster and open a tunnel for accessing the K8S API server
+A containerized Python application which exposes sepcial dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application verision of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes
 
 # Prerequisites
 
-* An account to IONOS datacenter or preloaded Kubernetes config files from IONOS clusters
-* SSH Access to a jump host which can connectto th eIONOS clusters
 * Python 3.6++
 
 # Installation
@@ -16,8 +14,3 @@ A tool, that can download IONOS Kubeconfig for available K8S cluster and open a 
 
 # Configuration
 
-* 
-
-# First run
-
-* Run 'sct.py --help' to print out the command line help.
