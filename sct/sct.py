@@ -115,8 +115,8 @@ if __name__ == '__main__':
                         print("Tunneling terminated")
                         break
                     continue
-                except EOFError:
-                    print("Please input something....")
+                except KeyboardInterrupt or EOFError:
+                    print("\t Please input the passcode to terminate ....")
                     continue
         sys.exit(0)
     except Exception as ex:
