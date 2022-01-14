@@ -5,24 +5,31 @@ metadata:
   labels:
     {{- include "dbcmetrics.labels" . | nindent 4 }}
 data:
-  config.yaml: |
+  dbcm_config.yaml: |
     ---
-    develop:
-      clamd:
-        type: network
-        host: clamav.schul-cloud.org
-        port: 3310
-        directory: /shared
-      webserver:
-        auth_users:
-          - av-schulcloud:YCpudssc6fm8HPk4bc7c54f6
-      virustotal:
-        api_key: 424f7fc30e7fc7c49750ef7975bdaea8d9663b088c17b169cd7fef664f8948b6
-      amqp:
-        url: amqp://av-schulcloud:YCpudssc6fm8HPk4bc7c54f6@rabbitmq-svc/antivirus
-        scan_file:
-          queue: scan_file
-          routing_key: scan_file
-        scan_url:
-          queue: scan_url
-          routing_key: scan_url
+    features:
+      version_metrics: enabled
+    instances:
+      - Brandenburg:
+        url: "https://brandenburg.cloud"
+        shortname: "brb"
+      - Niedersachsen:
+        url: "https://niedersachsen.cloud"
+        shortname: "nbc"
+      - Thueringen:
+        url: "https://schulcloud-thueringen.de"
+        shortname: "thr"
+      - International:
+        url: "https://international.hpi-schul-cloud.de"
+        shortname: "int"
+      - dBildungscloud:
+        url: "https://dbildungscloud.de"
+        shortname: "dbc"
+      - Demo:
+        url: "https://demo.hpi-schul-cloud.de"
+        shortname: "demo"
+    version_metrics:
+      url_suffix:
+        server: /api/v1/version
+        client: /version
+        nuxt: /nuxtversion
