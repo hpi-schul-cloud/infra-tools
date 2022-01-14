@@ -6,17 +6,16 @@ from urllib.parse import urlparse
 from typing import Dict
 from typing import List
 
-from sct_common.sctexception import SCTException
-from sct_common.sct_tools import get_absolute_path
-from sct_data.cluster import Cluster
-from sct_data.configuration import SCTConfiguration
+from dbcm_common.dbcmexception import DBCMException
+from dbcm_common.dbcm_tools import get_absolute_path
+from dbcm_data.configuration import DBCMConfiguration
 
 user_config_dir: str = '.config'
 user_kube_dir: str = '.kube'
 
 def read_configuration(configuration_file):
     '''
-    Reads an sct_config.yaml configuration file into a SCTConfiguration object and returns the filled data object.
+    Reads an dbcm_config.yaml configuration file into a DBCMConfiguration object and returns the filled data object.
     '''
     try:
         global_configuration_file = get_absolute_path(configuration_file)
@@ -36,7 +35,7 @@ def read_configuration(configuration_file):
         user_data = None
 
     # convert into objects
-    configuration = SCTConfiguration()
+    configuration = DBCMConfiguration()
 
     if global_data != None:
         # jumphost
@@ -75,7 +74,7 @@ def get_cluster_k8s_api_server_from_cluster_name(cluster_name):
     cluster_k8s_api_server_port: int = 0
     return cluster_k8s_api_server_name, cluster_k8s_api_server_port
 
-def read_available_clusters(configuration: SCTConfiguration):
+def read_available_clusters(configuration: DBCMConfiguration):
     '''
     Read from user kube directory the available cluster and the name, api_server_host and api_server_port
     into the configuration

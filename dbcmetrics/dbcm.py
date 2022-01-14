@@ -19,7 +19,7 @@ def getVersions(instance):
 
 if __name__ == '__main__':
     start_http_server(9000)
-    i.info({'Server': '1.0.0', 'Client': '{}'.format(getVersions('Brandenburg')), 'Nuxt': '1.0.0'})
+    i.info({'Server': '1.0.0', 'Client': '{}'.format(getVersions('Brandenburg')), 'Nuxt': '1.0.0', 'app_instance': 'brandenburg'})
 
     while True:
         process_request(random.random())

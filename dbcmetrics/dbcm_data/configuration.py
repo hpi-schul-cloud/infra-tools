@@ -1,9 +1,7 @@
 from typing import Dict
 from typing import List
 
-from sct_data.cluster import Cluster
-
-class SCTConfiguration:
+class DBCMConfiguration:
     '''
     Dataclass that stores the full backup configuration.
     The data contained here is usually read from a s3b.yaml configuration file.
@@ -18,7 +16,6 @@ class SCTConfiguration:
         self.jumphost_user: str = ""
         self.ionos_username: str = ""
         self.ionos_password: str = ""
-
 
     def __str__(self):
         '''

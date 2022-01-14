@@ -1,7 +1,5 @@
-rest:
-  url: "https://example.org/primenumbers/v1"
-  port: 8443
-prime_numbers: [2, 3, 5, 7, 11, 13, 17, 19]
+features:
+  version_metrics: enabled
 instances:
   - Brandenburg:
     url: "https://brandenburg.cloud"
@@ -9,3 +7,20 @@ instances:
   - Niedersachsen:
     url: "https://niedersachsen.cloud"
     shortname: "nbc"
+  - Thueringen:
+    url: "https://schulcloud-thueringen.de"
+    shortname: "thr"
+  - International:
+    url: "https://international.hpi-schul-cloud.de"
+    shortname: "int"
+  - dBildungscloud:
+    url: "https://dbildungscloud.de"
+    shortname: "dbc"
+  - Demo:
+    url: "https://demo.hpi-schul-cloud.de"
+    shortname: "demo"
+version_metrics:
+  url_suffix:
+    server: /api/v1/version
+    client: /version
+    nuxt: /nuxtversion
