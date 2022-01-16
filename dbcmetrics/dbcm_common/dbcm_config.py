@@ -1,6 +1,7 @@
+import logging
 import os, sys, glob
 import yaml
-from yaml import load, dump, Loader, FullLoader, Dumper
+from yaml import safe_load, load, dump, Loader, FullLoader, Dumper
 from pathlib import Path
 from urllib.parse import urlparse
 from typing import Dict
@@ -9,93 +10,64 @@ from typing import List
 from dbcm_common.dbcmexception import DBCMException
 from dbcm_common.dbcm_tools import get_absolute_path
 from dbcm_data.configuration import DBCMConfiguration
+from dbcm_data.dbcm_instance import DBCMInstance
+from dbcm_data.dbcm_version import DBCMVersion, DBCMVersionService, DBCMVersionServices
 
-user_config_dir: str = '.config'
-user_kube_dir: str = '.kube'
+CONFIGFILE_NAME = "dbcm_config.yaml"
+GLOBAL_CONFIGDIR = "/etc/dbcmetrics/"
 
-def read_configuration(configuration_file):
+def read_configuration():
     '''
     Reads an dbcm_config.yaml configuration file into a DBCMConfiguration object and returns the filled data object.
+        Try first to read from global configuration location, in case it does not exist or does not contain data 
+        read from scriptdirectory else terminate with error
     '''
-    try:
-        global_configuration_file = get_absolute_path(configuration_file)
-        global_yaml_file = open(global_configuration_file, encoding="utf-8")
-        global_data = load(global_yaml_file, Loader=Loader)['sc_tunnel_configuration']
-    except:
-        # No global config file
-        global_data = None
-
-    try:
-        #user_configuration_file = configuration_file
-        user_configuration_file = os.path.join(Path.home(), user_config_dir ,os.path.basename(configuration_file))
-        user_yaml_file = open(user_configuration_file, encoding="utf-8")
-        user_data = load(user_yaml_file, Loader=Loader)['sc_tunnel_configuration']
-    except:
-        # no local config file
-        user_data = None
-
-    # convert into objects
-    configuration = DBCMConfiguration()
-
-    if global_data != None:
-        # jumphost
-        if 'jumphost' in global_data: configuration.jumphost = global_data['jumphost']
-        # jumphost_user
-        if 'jumphost_user' in global_data: configuration.jumphost_user = global_data['jumphost_user']
-        # ionos_username
-        if 'ionos_username' in global_data: configuration.ionos_username = global_data['ionos_username']
-        # ionos_password
-        if 'ionos_password' in global_data: configuration.ionos_password = global_data['ionos_password']
-    if user_data != None:
-        # jumphost
-        if 'jumphost' in user_data: configuration.jumphost = user_data['jumphost']
-        # jumphost_user
-        if 'jumphost_user' in user_data: configuration.jumphost_user = user_data['jumphost_user']
-        # ionos_username
-        if 'ionos_username' in user_data: configuration.ionos_username = user_data['ionos_username']
-        # ionos_password
-        if 'ionos_password' in user_data: configuration.ionos_password = user_data['ionos_password']
-    if os.environ.get('ionos_username'.upper()): configuration.ionos_username = os.environ.get('ionos_username'.upper())
-    if os.environ.get('ionos_password'.upper()): configuration.ionos_password = os.environ.get('ionos_password'.upper())
-
-    if '' == configuration.jumphost or '' == configuration.jumphost_user or '' == configuration.ionos_username or '' == configuration.ionos_password:
-        raise RuntimeError('Necessary configuration parameters missing, check config')
+    global_configuration_file = get_absolute_path(os.path.join(GLOBAL_CONFIGDIR, CONFIGFILE_NAME))
+    local_configuration_file = get_absolute_path(CONFIGFILE_NAME)
+    feature_data = None
+    version_data = None
+    instances_data = None
     
-    configuration = read_available_clusters(configuration)
-
-    return configuration
-
-def get_cluster_k8s_api_server_from_cluster_name(cluster_name):
-    '''
-    Returns a list of Instance objects where the instance names match the names in the given instance_names list.
-    The Instance objects are taken from the given configuration.
-    '''
-    cluster_k8s_api_server_name: str = ""
-    cluster_k8s_api_server_port: int = 0
-    return cluster_k8s_api_server_name, cluster_k8s_api_server_port
-
-def read_available_clusters(configuration: DBCMConfiguration):
-    '''
-    Read from user kube directory the available cluster and the name, api_server_host and api_server_port
-    into the configuration
-    '''
-    kubeconfig_dir = os.path.join(Path.home(), user_kube_dir)
-    for file in glob.glob(kubeconfig_dir + "**/*.yaml", recursive=False):
+    if os.path.exists(global_configuration_file):
+        config_yaml_file = open(global_configuration_file, encoding="utf-8")
+    elif os.path.exists(local_configuration_file):
+        config_yaml_file = open(local_configuration_file, encoding="utf-8")
+    else:
+        # no config file
+        raise DBCMException
+    all_data = safe_load(config_yaml_file)
+    try:
+        feature_data = all_data['features']
+    except:
+        logging.error("No features found in configuration file: {}".format(config_yaml_file))
+        raise DBCMException
+    if feature_data['version_metrics'] == 'enabled':
         try:
-            kubeconfig = get_absolute_path(file)
-            kubeconfig_file = open(kubeconfig, encoding="utf-8")
-            kubeconfig_data = load(kubeconfig_file, Loader=Loader)['clusters']
+            version_data = all_data['version_metrics']
         except:
-            # No global config file
-            kubeconfig_data = None    
-        if kubeconfig_data != None:
-            if 'name' in kubeconfig_data[0]: 
-                clustername = kubeconfig_data[0] ['name']
-                if 'cluster' in kubeconfig_data[0]: 
-                    if 'server' in kubeconfig_data[0] ['cluster']: 
-                        api_server = kubeconfig_data[0] ['cluster'] ['server']
-                        url = urlparse(api_server)
-                        configuration.clusters[clustername] = Cluster(clustername, url.hostname, url.port)
+            logging.error("Feature 'version_metrics' enabled, but no config specified in configuration file {}".format(config_yaml_file))
+            raise DBCMException
+    try:
+        instances_data = all_data['instances']
+    except:
+        logging.error("No instances found in configuration file: {}".format(config_yaml_file))
+        raise DBCMException
 
+    # new configuration object
+    # Here are at leats the features an dinstances defined
+    configuration = DBCMConfiguration()
+    configuration.features = feature_data
+    if configuration.features['version_metrics'] == 'enabled':
+        try:
+            dbcmVersion: DBCMVersion = DBCMVersion(version_data['services'],version_data['intervall'])
+            configuration.version = dbcmVersion
+        except:
+            logging.error("Missing or wrong 'version_metrics' value in configuration file: {}".format(config_yaml_file))
 
+    for instance in instances_data:
+        dbcmInstance: DBCMInstance = DBCMInstance(instance['name'], instance['url'], instance['shortname'])
+        configuration.instances.append(dbcmInstance) 
+    for instance in configuration.instances:
+        logging.info(instance)
+    # configuration.versionservices = services_data
     return configuration
