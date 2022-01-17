@@ -48,17 +48,17 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-          - name: {{ .Chart.Name }}-myconfigyml
+          - name: {{ .Chart.Name }}-configyml
             mountPath: /etc/dbcmetrics/dbcm_config.yaml
             subPath: dbcm_config.yaml
             readOnly: true
       volumes:
-      - name: {{ .Chart.Name }}-myconfigyml
+      - name: {{ .Chart.Name }}-configyml
         configMap:
           name: {{ include "dbcmetrics.fullname" . }}
           items:
-          - key: config.yaml
-            path: config.yaml
+          - key: dbcm_config.yaml
+            path: dbcm_config.yaml
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
