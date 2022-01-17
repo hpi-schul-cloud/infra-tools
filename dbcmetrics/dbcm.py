@@ -25,8 +25,9 @@ if __name__ == '__main__':
             sys.exit(1)
         dbcm_config: DBCMConfiguration = read_configuration()
         start_http_server(9000)
-        tr = VersionMetricsThreading(dbcm_config)
-        dbcmThreads.append(tr)
+        if dbcm_config.features['version_metrics'] == 'enabled':
+            tr = VersionMetricsThreading(dbcm_config)
+            dbcmThreads.append(tr)
         while True:
             #while not tr.isUp():
             #    sleep(2)
