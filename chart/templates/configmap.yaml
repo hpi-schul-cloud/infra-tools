@@ -10,26 +10,27 @@ data:
     features:
       version_metrics: enabled
     instances:
-      - Brandenburg:
+      - name: "brandenburg"
         url: "https://brandenburg.cloud"
         shortname: "brb"
-      - Niedersachsen:
+      - name: "niedersachsen"
         url: "https://niedersachsen.cloud"
         shortname: "nbc"
-      - Thueringen:
+      - name: "thueringen"
         url: "https://schulcloud-thueringen.de"
         shortname: "thr"
-      - International:
+      - name: "international"
         url: "https://international.hpi-schul-cloud.de"
         shortname: "int"
-      - dBildungscloud:
+      - name: "dbildungscloud"
         url: "https://dbildungscloud.de"
         shortname: "dbc"
-      - Demo:
+      - name: "demo"
         url: "https://demo.hpi-schul-cloud.de"
         shortname: "demo"
     version_metrics:
-      url_suffix:
-        server: /api/v1/version
-        client: /version
-        nuxt: /nuxtversion
+      intervall: 1800
+      services:
+        - server: /api/v1/version
+        - client: /version
+        - nuxt: /nuxtversion
