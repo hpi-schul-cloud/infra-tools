@@ -60,9 +60,12 @@ class VersionMetricsThreading(object):
                 vservice: DBCMVersionService = DBCMVersionService(skey, service[skey])
             instance_url = self.configuration.getInstance(name).url
             fvurl = urllib.parse.urljoin(instance_url, vservice.suffix)
-            url = requests.get(fvurl)
-            text = url.text
-            data = json.loads(text)
-            logging.info("{} version of {} is: {}".format(vservice.name, name, data['version']))
-            labels[vservice.name] = data['version']
+            try:
+                url = requests.get(fvurl)
+                text = url.text
+                data = json.loads(text)
+                logging.info("{} version of {} is: {}".format(vservice.name, name, data['version']))
+                labels[vservice.name] = data['version']
+            except:
+                logging.error("Get {} version of {} failed!".format(vservice.name, name))
         return labels

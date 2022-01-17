@@ -28,6 +28,7 @@ if __name__ == '__main__':
         if dbcm_config.features['version_metrics'] == 'enabled':
             tr = VersionMetricsThreading(dbcm_config)
             dbcmThreads.append(tr)
+            logging.info("Version metrics started")
         while True:
             #while not tr.isUp():
             #    sleep(2)
