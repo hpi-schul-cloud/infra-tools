@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: registry.localhost:5000/dbcmetrics
+  repository: schulcloud/dbcmetrics
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "local"
+  tag: "latest"
 
 containerPort: 9000
 imagePullSecrets: []
@@ -50,7 +50,7 @@ ingress:
   hosts:
     - host: chart-example.local
       paths:
-        - path: /
+        - path: /metrics
           pathType: ImplementationSpecific
   tls: []
   #  - secretName: chart-example-tls
