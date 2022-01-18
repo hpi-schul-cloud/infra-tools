@@ -4,30 +4,30 @@ name: BAP Docker Image on Tag
 on:
   push:
     tags:
-      - 'hugo-[0-9]*'
-      - 'egon-[0-9]*'
+      - 'infra-tools-[0-9]*'
+      - 'dbcmetrics-[0-9]*'
 
 jobs:
   build_and_push_docker:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: olegtarasov/get-tag@v2.1
+      - name: Filter Tag name 
+        uses: olegtarasov/get-tag@v2.1
         id: tagName
         with:
-          tagRegex: "(?<package>.*)-(?<version>.*)" 
-      - name: Some other step # Output usage example
-        with:
-          dirname: ${{ steps.tagName.outputs.package }}
-          tagname: ${{ steps.tagName.outputs.version }}
-        run: echo ${{ dirname }}
+          tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name 
+          tagRegexGroup: 1 
+          
 
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img_hub
         uses: docker/metadata-action@v3
         with:
-          images: schulcloud/schulcloud-avcheck
+          images: schulcloud/${{ steps.tagName.outputs.tag }} 
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}            
