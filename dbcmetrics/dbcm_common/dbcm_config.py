@@ -19,11 +19,12 @@ GLOBAL_CONFIGDIR = "/etc/dbcmetrics/"
 def read_configuration():
     '''
     Reads an dbcm_config.yaml configuration file into a DBCMConfiguration object and returns the filled data object.
-        Try first to read from global configuration location, in case it does not exist or does not contain data 
-        read from scriptdirectory else terminate with error
+        Try first to read from global configuration location, in case it does not exist  
+        read from the config file specified in th eenvironment vbvariable DBMCCONFIG else terminate with error
     '''
     global_configuration_file = get_absolute_path(os.path.join(GLOBAL_CONFIGDIR, CONFIGFILE_NAME))
-    local_configuration_file = get_absolute_path(CONFIGFILE_NAME)
+
+    local_configuration_file = os.environ.get("DBCMCONFIG")
     feature_data = None
     version_data = None
     instances_data = None
