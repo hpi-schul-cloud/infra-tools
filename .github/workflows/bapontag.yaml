@@ -4,8 +4,8 @@ name: BAP Docker Image on Tag
 on:
   push:
     tags:
-      - 'infra-tools-[0-9]*'
-      - 'dbcmetrics-[0-9]*'
+      - 'infra-tools-[0-9]+.[0-9]+.[0-9]+'
+      - 'dbcmetrics-[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build_and_push_docker:
@@ -18,6 +18,7 @@ jobs:
         with:
           tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name 
           tagRegexGroup: 1 
+
       - name: Filter Version name 
         uses: olegtarasov/get-tag@v2.1
         id: versionName
@@ -37,7 +38,6 @@ jobs:
             type=semver,pattern={{version}},value=${{ steps.versionName.outputs.tag }} 
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.versionName.outputs.tag }}  
    
-
       - name: Log into registry
         uses: docker/login-action@v1
         with:
