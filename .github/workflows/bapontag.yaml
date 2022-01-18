@@ -18,8 +18,13 @@ jobs:
         with:
           tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name 
           tagRegexGroup: 1 
+      - name: Filter Version name 
+        uses: olegtarasov/get-tag@v2.1
+        id: versionName
+        with:
+          tagRegex: "${{ steps.tagName.outputs.tag }}-(.*)"   # unabhängig von dbmetrics und infra-tools gives name 
+          tagRegexGroup: 1 
           
-
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -28,10 +33,12 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: schulcloud/${{ steps.tagName.outputs.tag }} 
+          flavor: |
+            latest=false
           tags: |
-            type=semver,pattern={{version}},value=v1.2.3 
-            type=semver,pattern={{major}}.{{minor}},value=v1.6.9      
-            type=match,pattern=v(.*),group=1,value=v1.0.0       
+            type=semver,pattern={{version}},value=${{ steps.versionName.outputs.tag }} 
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.versionName.outputs.tag }}  
+            type=match,pattern=v(.*),group=1,value=${{ steps.versionName.outputs.tag }}      
 
       # - name: Log into registry
       #   uses: docker/login-action@v1
