@@ -20,6 +20,8 @@ jobs:
         with:
           dirname: ${{ steps.tagName.outputs.package }}
           tagname: ${{ steps.tagName.outputs.version }}
+        run: echo ${{ dirname }}
+
       - uses: actions/checkout@v2
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img_hub
