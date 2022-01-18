@@ -33,8 +33,6 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: schulcloud/${{ steps.tagName.outputs.tag }} 
-          flavor: |
-            latest=false
           tags: |
             type=semver,pattern={{version}},value=${{ steps.versionName.outputs.tag }} 
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.versionName.outputs.tag }}  
