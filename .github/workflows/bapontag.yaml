@@ -49,7 +49,7 @@ jobs:
       - name: Build and push ${{ github.repository }}
         uses: docker/build-push-action@v2
         with:
-          context: ./infra-tools/${{ steps.tagName.outputs.tag }} 
+          context: ./${{ steps.tagName.outputs.tag }}/
           platforms: linux/amd64
           push: true
           tags: ${{ steps.docker_meta_img_hub.outputs.tags }}
