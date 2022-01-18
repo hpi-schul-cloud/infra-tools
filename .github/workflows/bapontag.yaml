@@ -18,6 +18,12 @@ jobs:
         with:
           tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name 
           tagRegexGroup: 1 
+      - name: Filter Tag name 
+        uses: olegtarasov/get-tag@v2.1
+        id: VersionName
+        with:
+          tagRegex: "([^a-z-])"   # unabhängig von dbmetrics und infra-tools gives name 
+          tagRegexGroup: 1 
           
 
       - name: Checkout Code
@@ -28,8 +34,8 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: schulcloud/${{ steps.tagName.outputs.tag }} 
-          # tags: |
-          #   type=semver,pattern={{version}}
+            tags: |
+              type=semver,pattern=${{ steps.VersionName.outputs.version }}
           #   type=semver,pattern={{major}}.{{minor}}            
 
       # - name: Log into registry
