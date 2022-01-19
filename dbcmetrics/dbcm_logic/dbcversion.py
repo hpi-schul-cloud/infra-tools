@@ -21,7 +21,6 @@ class VersionMetricsThreading(object):
         instance: DBCMInstance
         for instance in self.configuration.instances:
             self.pmc_infos[instance.name] = Info(instance.name, 'Version Information')
-        self.g = Gauge('BrandenburgGauge', 'Version Information', ['app_instance', 'version'])
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
@@ -31,11 +30,6 @@ class VersionMetricsThreading(object):
         Function that opens the tunnel and wait in a loop until the stop event is send from the main thread
         '''
         def do_something():
-            #strversion: str = self.getVersions('Brandenburg')
-            #(vmajor, vminor, vpatch) = strversion.split('.')
-            #self.g.labels(app_instance='brandenburg')
-            #self.g.labels(app_instance='brandenburg',version=strversion).set(vminor)
-            #self.i.info({'Server': '1.0.0', 'Client': '{}'.format(self.getVersions('Brandenburg')), 'Nuxt': '1.0.0'})
             for i in self.pmc_infos:
                 labels: Dict = self.getInstanceVersions(i)
                 instance_info: Info = self.pmc_infos[i]
@@ -44,14 +38,7 @@ class VersionMetricsThreading(object):
             sleep(self.configuration.version.intervall)
         while True:
             do_something()
-    
-    def getVersions(self, instance):
-        url = requests.get("https://brandenburg.cloud/version")
-        text = url.text
-        data = json.loads(text)
-        print("Client verison of Brandenburg is: {}".format(data['version']))
-        return (data['version'])
-    
+        
     def getInstanceVersions(self, name):
         # Loop over all services of the give instance, gather the version and store them in the returned dictionary
         labels: Dict = {}
