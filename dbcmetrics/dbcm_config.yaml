@@ -1,0 +1,13 @@
+features:
+  # Key/value pais of features dbcmetrics supports
+  version_metrics: [enabled|disabled]
+instances:
+  # list of instances to be monitored
+  - name: "<name used as prefix for the metrics name, e.g. hugo -> hugo_info>"
+    url: "<Full quallified URL which should be monitored>"
+    shortname: "<abbreviated name of the naem>"
+version_metrics:
+  interval: <value in seconds, how often the version is polled>
+  services:
+    # list of services and URL suffixes as key/value pair of services to be checked for a version
+    - <service a>: <suffix a>
