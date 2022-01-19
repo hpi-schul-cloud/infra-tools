@@ -40,9 +40,9 @@ class DBCMVersion:
     Dataclass that stores the additional info to get dbc versions.
     '''
 
-    def __init__(self, services: List, intervall: float):
+    def __init__(self, services: List, interval: float):
         self.services: List  = services
-        self.intervall = intervall
+        self.interval = interval
 
     def __str__(self):
         '''

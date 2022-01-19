@@ -7,7 +7,7 @@ instances:
     url: "<Full quallified URL which should be monitored>"
     shortname: "<abbreviated name of the naem>"
 version_metrics:
-  intervall: <value in seconds, how often the version is polled>
+  interval: <value in seconds, how often the version is polled>
   services:
     # list of services and URL suffixes as key/value pair of services to be checked for a version
     - <service a>: <suffix a>

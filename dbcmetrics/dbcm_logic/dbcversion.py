@@ -35,7 +35,7 @@ class VersionMetricsThreading(object):
                 instance_info: Info = self.pmc_infos[i]
                 labels['app_instance'] = i
                 instance_info.info(labels)
-            sleep(self.configuration.version.intervall)
+            sleep(self.configuration.version.interval)
         while True:
             do_something()
         

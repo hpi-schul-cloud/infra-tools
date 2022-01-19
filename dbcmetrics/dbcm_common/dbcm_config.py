@@ -60,7 +60,7 @@ def read_configuration():
     configuration.features = feature_data
     if configuration.features['version_metrics'] == 'enabled':
         try:
-            dbcmVersion: DBCMVersion = DBCMVersion(version_data['services'],version_data['intervall'])
+            dbcmVersion: DBCMVersion = DBCMVersion(version_data['services'],version_data['interval'])
             configuration.version = dbcmVersion
         except:
             logging.error("Missing or wrong 'version_metrics' value in configuration file: {}".format(config_yaml_file))
