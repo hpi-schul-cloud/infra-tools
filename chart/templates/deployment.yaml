@@ -39,12 +39,12 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /metrics
+              port: {{ .Values.containerPort }}
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /metrics
+              port: {{ .Values.containerPort }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

@@ -29,7 +29,7 @@ data:
         url: "https://demo.hpi-schul-cloud.de"
         shortname: "demo"
     version_metrics:
-      intervall: 600
+      interval: 600
       services:
         - server: /api/v1/version
         - client: /version
