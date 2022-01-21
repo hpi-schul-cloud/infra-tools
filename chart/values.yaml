@@ -81,3 +81,32 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+dbcmconfig:
+  features:
+    version_metrics: enabled
+  instances:
+    - name: "brandenburg"
+      url: "https://brandenburg.cloud"
+      shortname: "brb"
+    - name: "niedersachsen"
+      url: "https://niedersachsen.cloud"
+      shortname: "nbc"
+    - name: "thueringen"
+      url: "https://schulcloud-thueringen.de"
+      shortname: "thr"
+    - name: "international"
+      url: "https://international.hpi-schul-cloud.de"
+      shortname: "int"
+    - name: "dbildungscloud"
+      url: "https://dbildungscloud.de"
+      shortname: "dbc"
+    - name: "demo"
+      url: "https://demo.hpi-schul-cloud.de"
+      shortname: "demo"
+  version_metrics:
+    interval: 600
+    services:
+      - server: /api/v1/version
+      - client: /version
+      - nuxt: /nuxtversion
