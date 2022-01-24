@@ -1,4 +1,4 @@
-# Default values for dbcmetrics.
+# -- Default values for dbcmetrics.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: schulcloud/dbcmetrics
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  # -- Overrides the image tag whose default is the chart appVersion.
   tag: 
 
 containerPort: 9000
@@ -16,21 +16,21 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # -- Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
+  # -- Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
+  # -- The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 podAnnotations: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+  # -- fsGroup: 2000
 
 securityContext: {}
-  # capabilities:
+  # -- capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
@@ -58,7 +58,7 @@ ingress:
   #      - chart-example.local
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
+  # -- We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
@@ -82,22 +82,22 @@ tolerations: []
 
 affinity: {}
 
-# The values below 'dbcnconfigwill be copied via the configmap into the file system of the dbcmetrics pod
+# -- The values below 'dbcnconfigwill be copied via the configmap into the file system of the dbcmetrics pod
 # below the mount point specified in the deployment template which is '/etc/dbcmetrics/dbcm_config.yaml'
 dbcmconfig:
   features:
-    # each supported feature can be disabled or enabled. In additon each feature has its own
+    # -- each supported feature can be disabled or enabled. In additon each feature has its own
     # configuration section with the same name below
     version_metrics: enabled
   instances:
-    # This part contains a list of instances which evrsions should be observed and provided as Prometheus metrics
+    # -- This part contains a list of instances which evrsions should be observed and provided as Prometheus metrics
     # - the name will be part of the Prometheus value, for the sample the Prometheus value will be 'myinstance_info'
     # - url is the base url of an existing dBildungscloud instance to be monitored
     # - shortname is for further filtering in  future scenarios
     - name: "myinstancename" 
       url: "https://myinstance.dbildungscloud.dev"
       shortname: "min"
-  # This part hold the feature specif configuration
+  # -- This part hold the feature specif configuration
   # - interval definces the cycle in seconds how often the version information is queried
   # - services contains a list of services the version will be queried with the parte that needs to be added 
   #   to the base url to receive the version information
