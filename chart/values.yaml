@@ -8,7 +8,7 @@ image:
   repository: schulcloud/dbcmetrics
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: 
 
 containerPort: 9000
 imagePullSecrets: []
@@ -86,24 +86,9 @@ dbcmconfig:
   features:
     version_metrics: enabled
   instances:
-    - name: "brandenburg"
-      url: "https://brandenburg.cloud"
-      shortname: "brb"
-    - name: "niedersachsen"
-      url: "https://niedersachsen.cloud"
-      shortname: "nbc"
-    - name: "thueringen"
-      url: "https://schulcloud-thueringen.de"
-      shortname: "thr"
-    - name: "international"
-      url: "https://international.hpi-schul-cloud.de"
-      shortname: "int"
-    - name: "dbildungscloud"
-      url: "https://dbildungscloud.de"
-      shortname: "dbc"
-    - name: "demo"
-      url: "https://demo.hpi-schul-cloud.de"
-      shortname: "demo"
+    - name: "myinstancename"
+      url: "https://myinstance.dbildungscloud.dev"
+      shortname: "min"
   version_metrics:
     interval: 600
     services:
