@@ -38,18 +38,14 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | containerPort | int | `9000` |  |
-| dbcmconfig.features.version_metrics | string | `"enabled"` |  |
-| dbcmconfig.instances[0].name | string | `"myinstancename"` |  |
-| dbcmconfig.instances[0].shortname | string | `"min"` |  |
-| dbcmconfig.instances[0].url | string | `"https://myinstance.dbildungscloud.dev"` |  |
-| dbcmconfig.version_metrics.interval | int | `600` |  |
-| dbcmconfig.version_metrics.services[0].server | string | `"/api/v1/version"` |  |
-| dbcmconfig.version_metrics.services[1].client | string | `"/version"` |  |
-| dbcmconfig.version_metrics.services[2].nuxt | string | `"/nuxtversion"` |  |
+| dbcmconfig | object | `{"features":{"version_metrics":"enabled"},"instances":[{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}],"version_metrics":{"interval":600,"services":[{"server":"/api/v1/version"},{"client":"/version"},{"nuxt":"/nuxtversion"}]}}` | The values below 'dbcnconfigwill be copied via the configmap into the file system of the dbcmetrics pod below the mount point specified in the deployment template which is '/etc/dbcmetrics/dbcm_config.yaml' |
+| dbcmconfig.features.version_metrics | string | `"enabled"` | each supported feature can be disabled or enabled. In additon each feature has its own configuration section with the same name below |
+| dbcmconfig.instances[0] | object | `{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}` | This part contains a list of instances which evrsions should be observed and provided as Prometheus metrics - the name will be part of the Prometheus value, for the sample the Prometheus value will be 'myinstance_info' - url is the base url of an existing dBildungscloud instance to be monitored - shortname is for further filtering in  future scenarios |
+| dbcmconfig.version_metrics | object | `{"interval":600,"services":[{"server":"/api/v1/version"},{"client":"/version"},{"nuxt":"/nuxtversion"}]}` | This part hold the feature specif configuration - interval definces the cycle in seconds how often the version information is queried - services contains a list of services the version will be queried with the parte that needs to be added    to the base url to receive the version information |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"schulcloud/dbcmetrics"` |  |
-| image.tag | string | `nil` |  |
+| image.tag | string | `nil` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` |  |
 | ingress.annotations | object | `{}` |  |
 | ingress.className | string | `""` |  |
@@ -67,8 +63,8 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | securityContext | object | `{}` |  |
 | service.port | int | `80` |  |
 | service.type | string | `"ClusterIP"` |  |
-| serviceAccount.annotations | object | `{}` |  |
-| serviceAccount.create | bool | `true` |  |
-| serviceAccount.name | string | `""` |  |
+| serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
+| serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
+| serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | tolerations | list | `[]` |  |
 
