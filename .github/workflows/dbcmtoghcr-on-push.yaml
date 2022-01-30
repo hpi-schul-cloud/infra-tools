@@ -9,7 +9,20 @@ on:
       - "dbcmetrics"
 
 jobs:
+  skip_ci:
+    runs-on: ubuntu-latest
+    # Map the output to the job's outputs
+    outputs:
+      canSkip: ${{ steps.check.outputs.canSkip }}
+    steps:
+      - id: check
+        uses: Legorooj/skip-ci@main
+
   build_and_push_docker_to_ghcr:
+    # Wait for the skip_ci job to run
+    needs: skip_ci
+    # And only run the build if canSkip isn't 'true'.
+    if: ${{ needs.skip_ci.outputs.canSkip != 'true' }}
     runs-on: ubuntu-latest
 
     steps:
