@@ -4,9 +4,9 @@ name: dbcmetrics Docker Image on Push to GHCR
 on:
   push:
     branches-ignore:
-      - "master"
+      - master
     paths:
-      - "dbcmetrics"
+      - 'dbcmetrics/**'
 
 jobs:
   skip_ci:
