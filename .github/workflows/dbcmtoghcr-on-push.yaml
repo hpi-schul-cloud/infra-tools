@@ -35,7 +35,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/dbcmetrics
           tags: |
-            type=raw,value={{branch}},pattern=.*[0-9],suffix=-latest
+            type=match,value={{branch}},pattern=.*\d,suffix=-latest
 
       - name: Log into registry
         uses: docker/login-action@v1

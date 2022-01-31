@@ -57,4 +57,3 @@ class VersionMetricsThreading(object):
             except:
                 logging.error("Get {} version of {} failed!".format(vservice.name, name))
         return labels
-
