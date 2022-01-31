@@ -41,6 +41,9 @@ RUN set -x \
         gettext-base \
     && apt-get clean -y
 
+run curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.3/bin/linux/amd64/kubectl && \
+    chmod +x ./kubectl && \
+    mv ./kubectl /usr/local/bin/kubectl
 
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash \
