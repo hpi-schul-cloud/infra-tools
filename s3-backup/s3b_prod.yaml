@@ -22,13 +22,13 @@ s3_backup_configuration:
       s3_target_backup_bucket: s3-backup-international-put9ai
       backup_day_of_month: 18
  
-    - instancename: open
-      instancename_short: open
-      s3_source_drives: [ "hidriveopen", "hidriveopen2" ]
-      s3_source_bucket_patterns: ['bucket-*']
-      s3_target_drive: hidriveopenbackup
-      s3_target_backup_bucket: s3-backup-open-naem9f
-      backup_day_of_month: 21
+    # - instancename: open
+    #   instancename_short: open
+    #   s3_source_drives: [ "hidriveopen", "hidriveopen2" ]
+    #   s3_source_bucket_patterns: ['bucket-*']
+    #   s3_target_drive: hidriveopenbackup
+    #   s3_target_backup_bucket: s3-backup-open-naem9f
+    #   backup_day_of_month: 21
       
     - instancename: brandenburg
       instancename_short: brb
@@ -63,13 +63,13 @@ s3_backup_configuration:
       s3_target_backup_bucket: s3-backup-thueringen-cee2ae
       backup_day_of_month: 23
 
-    - instancename: demo
-      instancename_short: demo
-      s3_source_drives: [ "demo" ]
-      s3_source_bucket_patterns: ['bucket-*']
-      s3_target_drive: demobackup
-      s3_target_backup_bucket: s3-backup-demo-dcf44i
-      backup_day_of_month: 27
+    # - instancename: demo
+    #   instancename_short: demo
+    #   s3_source_drives: [ "demo" ]
+    #   s3_source_bucket_patterns: ['bucket-*']
+    #   s3_target_drive: demobackup
+    #   s3_target_backup_bucket: s3-backup-demo-dcf44i
+    #   backup_day_of_month: 27
 
 #    - instancename: bayern
 #      instancename_short: bay
@@ -93,12 +93,12 @@ s3_backup_configuration:
   # drivename: The name as it is set in rclone.conf
   # backupdrive True/False. Prevents to accidently add backupdrives as source or vice versa.
   s3drives:
-    - drivename: hidriveopen
-      backupdrive: False
-    - drivename: hidriveopen2
-      backupdrive: False
-    - drivename: hidriveopenbackup
-      backupdrive: True
+    # - drivename: hidriveopen
+    #   backupdrive: False
+    # - drivename: hidriveopen2
+    #   backupdrive: False
+    # - drivename: hidriveopenbackup
+    #   backupdrive: True
     - drivename: hidrivebrandenburg
       backupdrive: False
     - drivename: hidrivebrandenburg2
@@ -177,10 +177,10 @@ s3_backup_configuration:
       backupdrive: False
     - drivename: hidriveinternationalbackup
       backupdrive: True
-    - drivename: demo
-      backupdrive: False
-    - drivename: demobackup
-      backupdrive: True
+    # - drivename: demo
+    #   backupdrive: False
+    # - drivename: demobackup
+    #   backupdrive: True
     - drivename: hidrivewebcontent
       backupdrive: False
     - drivename: ionoss3backup
@@ -523,5 +523,5 @@ s3_backup_configuration:
   mail:
     # mail address for error reporting
     # receiver_mail_addresses: [ markus.bartels@guest.hpi.de ]
-    receiver_mail_addresses: [ devops@hpi-schul-cloud.de ]
-    
+    # receiver_mail_addresses: [ devops@hpi-schul-cloud.de ]
+    receiver_mail_addresses: [ devops@dbildungscloud.de ]
