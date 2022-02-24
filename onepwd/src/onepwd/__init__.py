@@ -162,7 +162,10 @@ class OnePwd(object):
             twofact_digits=input("Enter your six-digit authentication code: ")
         child.sendline(twofact_digits)
         child.readline()
-        return child.readline().decode('UTF-8').strip()
+        token = child.readline().decode('UTF-8').strip()
+        if token.startswith('[ERROR]'):
+            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
+        return token
 
     def get_version(self):
         return run_op_command_in_shell(f"{self.op} --version")
