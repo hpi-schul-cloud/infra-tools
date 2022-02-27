@@ -1,0 +1,19 @@
+{
+  "fields": [
+    {
+      "designation": "username",
+      "name": "username",
+      "type": "T",
+      "value": "aimee123"
+    },
+    {
+      "designation": "password",
+      "name": "password",
+      "type": "P",
+      "value": "thisismystrongpassword123"
+    }
+  ],
+  "notesPlain": "",
+  "passwordHistory": [],
+  "sections": []
+}
