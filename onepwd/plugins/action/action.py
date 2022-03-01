@@ -41,6 +41,7 @@ class ActionModule(ActionBase):
         encoded_item = url64.encode(template)      
         # Upload Secret
         # onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
+        print(onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url))
         command = onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
         return command
 
