@@ -25,7 +25,7 @@ import url64
 
 class ActionModule(ActionBase):
 
-    def run(self, **kwargs):
+    def run(self, tmp=None, task_vars=None, **kwargs):
         # Log into OnePassword
         login_secret=onepwd.get_op_login()
         session_shorthand=kwargs.get('session_shorthand', os.getenv('USER'))

@@ -34,7 +34,7 @@ class LookupModule(LookupBase):
         title=kwargs.get('secret_name', None)
         vault=kwargs.get('vault', None)
         url=kwargs.get('url')
-        content=kwargs.get('content', None)
+        content=kwargs.get('content', '')
         template = '{"fields":[],"notesPlain":"","passwordHistory":[],"sections":[{"fields":[' + str(content) +  ']}]}'
         encoded_item = url64.encode(template)      
         # Upload Secret
