@@ -23,7 +23,7 @@ import url64
 
 class LookupModule(LookupBase):
 
-    def run(self,  variables=None, **kwargs):
+    def run(self, terms, variables=None, **kwargs):
         # Log into OnePassword
         login_secret=onepwd.get_op_login()
         session_shorthand=kwargs.get('session_shorthand', os.getenv('USER'))
@@ -44,4 +44,4 @@ class LookupModule(LookupBase):
         return command
 
 
-# LookupModule.run('schulcloud.onepwd.onepwd.OnePwd', secret_name='TestItem239', vault='infra-dev', url='ionos@mail.com', content='{"k":"string","n":"Bucket-ID","t":"Bucket-id","v":"NBC-Test"},{"k":"concealed","n":"password","t":"Access-Key","v":"489570283475"},{"k":"concealed","n":"password2","t":"Access-Secret","v":"102947019"}')
+# LookupModule.run('schulcloud.onepwd.onepwd.OnePwd', secret_name='TestItem239', vault='infra-dev', url='ionos@mail.com, content='{"k":"string","n":"Bucket-ID","t":"Bucket-id","v":"NBC-Test"},{"k":"concealed","n":"password","t":"Access-Key","v":"489570283475"},{"k":"concealed","n":"password2","t":"Access-Secret","v":"102947019"}')
