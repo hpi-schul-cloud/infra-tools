@@ -40,8 +40,7 @@ class ActionModule(ActionBase):
         template = '{"fields":[],"notesPlain":"","passwordHistory":[],"sections":[{"fields":[' + str(content) +  ']}]}'
         encoded_item = url64.encode(template)      
         # Upload Secret
-        command = onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
-        return command
+        onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
+        # return command
 
 
-#ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', secret_name='TestItem239', vault='infra-dev', url="ionos@mail.com", content='{"k":"string","n":"Bucket-ID","t":"Bucket-id","v":"NBC-Test"},{"k":"concealed","n":"password","t":"Access-Key","v":"489570283475"},{"k":"concealed","n":"password2","t":"Access-Secret","v":"102947019"}' )
