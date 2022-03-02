@@ -35,7 +35,7 @@ class LookupModule(LookupBase):
         vault=kwargs.get('vault', None)
         url=kwargs.get('url')
         content=kwargs.get('content', '')
-        template = '{"fields":[],"notesPlain":"","passwordHistory":[],"sections":[{"fields":[' + str(content) +  ']}]}'
+        template = '{"sections":[{"fields":[' + str(content) +  ']}]}'
         encoded_item = url64.encode(template)      
         # Upload Secret
         # onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
