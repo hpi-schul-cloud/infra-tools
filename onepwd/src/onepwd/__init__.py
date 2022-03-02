@@ -85,7 +85,9 @@ class OnePwd(object):
             --session={self.session_token} \
             {vault_flag} {url_flag}
         """
+        print(command)
         return json.loads(run_op_command_in_shell(command))
+        #return command
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
