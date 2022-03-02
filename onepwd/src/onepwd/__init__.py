@@ -82,10 +82,10 @@ class OnePwd(object):
         command = f"""
             {self.op} create item {category} '{encoded_item}' \
             --title='{title}' \
-            --session={self.session_token} \
             {vault_flag} {url_flag}
         """
         return json.loads(run_op_command_in_shell(command))
+        #    --session={self.session_token} \
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
