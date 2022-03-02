@@ -34,10 +34,10 @@ class ActionModule(ActionBase):
         # Get/Set Values
 
         # works local
-        category = task_vars['category']
-        title = task_vars['secret_name']
-        vault = task_vars['vault']
-        content = task_vars['content']
+        category = self._task.args['category']
+        title = self._task.args['secret_name']
+        vault = self._task.args['vault']
+        content = self._task.args['content']
         # category=kwargs.get('category', 'password')
         # title=kwargs.get('secret_name', None)
         # vault=kwargs.get('vault', None)
