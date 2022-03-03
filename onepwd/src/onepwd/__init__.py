@@ -85,9 +85,24 @@ class OnePwd(object):
             --session={self.session_token} \
             {vault_flag} {url_flag}
         """
-        print(command)
         return json.loads(run_op_command_in_shell(command))
-        #return command
+
+    def update_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
+        vault_flag = get_optional_flag(vault=vault)
+
+        fields_to_change = ""
+        if BUCKET_NAME is not None: 
+            fields_to_change += f"BUCKET_NAME={BUCKET_NAME},"
+        if ACCESS_KEY is not None: 
+            fields_to_change += f"ACCESS_KEY={ACCESS_KEY},"
+        if ACCESS_SECRET is not None: 
+            fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET},"
+        # get rid of the comma at the end
+        fields_to_change = fields_to_change[:-1]
+
+        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
+        print(command)
+        return run_op_command_in_shell(command)
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
