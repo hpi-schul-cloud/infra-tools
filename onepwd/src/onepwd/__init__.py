@@ -87,21 +87,19 @@ class OnePwd(object):
         """
         return json.loads(run_op_command_in_shell(command))
 
+    # used in the ansible action 'update_s3_secret' 
     def update_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""
         if BUCKET_NAME is not None: 
-            fields_to_change += f"BUCKET_NAME={BUCKET_NAME},"
+            fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
         if ACCESS_KEY is not None: 
-            fields_to_change += f"ACCESS_KEY={ACCESS_KEY},"
+            fields_to_change += f"ACCESS_KEY={ACCESS_KEY} "
         if ACCESS_SECRET is not None: 
-            fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET},"
-        # get rid of the comma at the end
-        fields_to_change = fields_to_change[:-1]
+            fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
-        print(command)
         return run_op_command_in_shell(command)
 
     def delete_item(self, item_name, vault=None):
@@ -325,6 +323,16 @@ def get_single_secret(op, item_name, field=None, vault=None):
           for f in s["fields"]:
             if f["n"]=="credential":
               svalue=f["v"]
+    return svalue
+
+# used in the ansible action 'update_s3_secret' 
+def get_secret_values_list(op, item_name,  vault=None):
+    item=op.get('item', item_name, vault=vault)
+    svalue=""
+    if item["templateUuid"]=='005': # Password template type
+        svalue=item["details"]["sections"][0]["fields"] 
+    else:
+        print("Error - is the template a password template?")      
     return svalue
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
