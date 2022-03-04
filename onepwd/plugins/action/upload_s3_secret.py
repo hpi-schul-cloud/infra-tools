@@ -18,9 +18,9 @@ import os
 import onepwd
 import url64
 
-# Provides the ability to load a secret named s3 to the vault  
-# action: schulcloud.onepwd.upload_secret category='password' vault='infra-dev' secret_name='TestHello' content='{\"k\":\"string\",\"n\":\"Bucket-ID\",\"t\":\"Bucket-id\",\"v\":\"NBC-Test\"}'
-# See example for content in Docs: https://docs.hpi-schul-cloud.org/display/PROD/1Password
+# Provides the ability to upload a secret named 's3' to the vault  
+# How to use in Ansible: 
+# action: schulcloud.onepwd.upload_s3_secret vault=infra-dev  ACCESS_KEY=my-access-key BUCKET_NAME=my-bucket-name ACCESS_SECRET=my-access-secret
 
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#action-plugins
 class ActionModule(ActionBase):
@@ -32,18 +32,29 @@ class ActionModule(ActionBase):
         session_timeout=kwargs.get('session_timeout', 30)
         op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
 
-
-        # Getting Vars from Ansible 
-        vault = self._task.args['vault']
-        BUCKET_NAME = self._task.args['BUCKET_NAME']
-        ACCESS_KEY = self._task.args['ACCESS_KEY']
-        ACCESS_SECRET = self._task.args['ACCESS_SECRET']
+        # # Getting Vars from Ansible 
+        # vault = self._task.args['vault']
+        # try: 
+        #     BUCKET_NAME = self._task.args['BUCKET_NAME']
+        #     ACCESS_KEY = self._task.args['ACCESS_KEY']
+        #     ACCESS_SECRET = self._task.args['ACCESS_SECRET']
+        # except: 
+        #     print("""
+        #     ERROR! Could't upload s3 secret.
+        #     Please provide a BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
+        #     """)
         
-        # # Getting Vars for local testing (Python)
-        # vault = task_vars['vault']
-        # BUCKET_NAME = task_vars['BUCKET_NAME']
-        # ACCESS_KEY = task_vars['ACCESS_KEY']
-        # ACCESS_SECRET = task_vars['ACCESS_SECRET']
+        # Getting Vars for local testing (using Python)
+        vault = task_vars['vault']
+        try: 
+            BUCKET_NAME = task_vars['BUCKET_NAME']
+            ACCESS_KEY = task_vars['ACCESS_KEY']
+            ACCESS_SECRET = task_vars['ACCESS_SECRET']
+        except: 
+            print("""
+            ERROR! Could't upload s3 secret.
+            Please provide a BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
+            """)
 
         # Hardcoded Vars
         category = 'password' 
@@ -58,8 +69,8 @@ class ActionModule(ActionBase):
         # Test if secret already exists 
         try: 
             onepwd.get_single_secret(op, item_name=title, vault=vault)
-            print("Secret s3 alreay exists in the specified vault! Secret not uploaded to 1Password. You may want to create an Item with a different name or use the update action.")  
-            return None
+            print("Secret s3 alreay exists in the specified vault! Secret not uploaded to 1Password. You may want to create an Item with a different name or use the update_s3_secret action.")  
+            return {}
         except:
             print("Secret doesn't exist yet")
 
@@ -72,7 +83,7 @@ class ActionModule(ActionBase):
 
             
 
-# When run like this set Getting Vars, to local ones
+# When run locally with python: Use getting Vars to local ones (using python)
 # ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', task_vars={'secret_name': 's3as', 'vault': 'infra-dev', 'BUCKET_NAME': 'my-bucket-name', 'ACCESS_SECRET': 'my-access-secret', 'ACCESS_KEY': 'my-access-key'})
 
 
