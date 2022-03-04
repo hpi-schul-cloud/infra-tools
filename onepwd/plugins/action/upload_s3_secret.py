@@ -32,29 +32,29 @@ class ActionModule(ActionBase):
         session_timeout=kwargs.get('session_timeout', 30)
         op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
 
-        # # Getting Vars from Ansible 
-        # vault = self._task.args['vault']
-        # try: 
-        #     BUCKET_NAME = self._task.args['BUCKET_NAME']
-        #     ACCESS_KEY = self._task.args['ACCESS_KEY']
-        #     ACCESS_SECRET = self._task.args['ACCESS_SECRET']
-        # except: 
-        #     print("""
-        #     ERROR! Could't upload s3 secret.
-        #     Please provide a BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
-        #     """)
-        
-        # Getting Vars for local testing (using Python)
-        vault = task_vars['vault']
+        # Getting Vars from Ansible 
+        vault = self._task.args['vault']
         try: 
-            BUCKET_NAME = task_vars['BUCKET_NAME']
-            ACCESS_KEY = task_vars['ACCESS_KEY']
-            ACCESS_SECRET = task_vars['ACCESS_SECRET']
+            BUCKET_NAME = self._task.args['BUCKET_NAME']
+            ACCESS_KEY = self._task.args['ACCESS_KEY']
+            ACCESS_SECRET = self._task.args['ACCESS_SECRET']
         except: 
             print("""
             ERROR! Could't upload s3 secret.
             Please provide a BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
             """)
+        
+        # # Getting Vars for local testing (using Python)
+        # vault = task_vars['vault']
+        # try: 
+        #     BUCKET_NAME = task_vars['BUCKET_NAME']
+        #     ACCESS_KEY = task_vars['ACCESS_KEY']
+        #     ACCESS_SECRET = task_vars['ACCESS_SECRET']
+        # except: 
+        #     print("""
+        #     ERROR! Could't upload s3 secret.
+        #     Please provide a BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
+        #     """)
 
         # Hardcoded Vars
         category = 'password' 
