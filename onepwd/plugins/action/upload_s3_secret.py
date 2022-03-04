@@ -20,7 +20,7 @@ import url64
 
 # Provides the ability to upload a secret named 's3' to the vault  
 # How to use in Ansible: 
-# action: schulcloud.onepwd.upload_s3_secret vault=infra-dev  ACCESS_KEY=my-access-key BUCKET_NAME=my-bucket-name ACCESS_SECRET=my-access-secret OVERWRITE=False/True
+# action: schulcloud.onepwd.upload_s3_secret vault=infra-dev  ACCESS_KEY=my-access-key BUCKET_NAME=my-bucket-name ACCESS_SECRET=my-access-secret OVERWRITE=True
 
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#action-plugins
 class ActionModule(ActionBase):
@@ -49,7 +49,9 @@ class ActionModule(ActionBase):
         # optional values
         overwrite = False
         try: 
-            overwrite = eval(self._task.args['OVERWRITE'])
+            overwrite = self._task.args['OVERWRITE']
+            if overwrite in ['True', 'true', 'TRUE']:
+                overwrite = eval('True')
         except: 
             pass
 
@@ -88,10 +90,10 @@ class ActionModule(ActionBase):
             print("Secret s3 alreay exists in the specified vault!") 
             s3_secret_exists = True
             if overwrite == True: 
-                print("However since overwrite is set to 'True', values will be overwritten if they differ")
+                print("However since overwrite is set to True, values will be overwritten if they differ")
                 pass
             else: 
-                print("Overwrite is set to 'False'. No action taken.")
+                print("Overwrite is set to False. No action taken.")
                 return {}
         except:
             print("Secret doesn't exist yet")
@@ -130,7 +132,7 @@ class ActionModule(ActionBase):
                 onepwd.OnePwd.update_item(op, title, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET )
                 print("Secret updated...") 
                 return {'changed': 'true',
-                'exectued' : 'update item command'}
+                'executed' : 'update item command'}
             else: 
                 print("Nothing new to update") 
             return {}
@@ -147,6 +149,6 @@ class ActionModule(ActionBase):
 
             
 # When run locally with python: Use getting Vars to local ones (using python)
-# ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', task_vars={'secret_name': 's3as', 'vault': 'infra-dev', 'BUCKET_NAME': 'my-bucket-name', 'ACCESS_SECRET': 'my-access-secret', 'ACCESS_KEY': 'my-access-key'})
+# ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', task_vars={ 'vault': 'infra-dev', 'BUCKET_NAME': 'my-bucket-name', 'ACCESS_SECRET': 'my-access-secret', 'ACCESS_KEY': 'my-access-key'})
 
 
