@@ -18,7 +18,7 @@ import os
 import onepwd
 import url64
 
-# Provides the ability to upload a secret named 's3' to the vault  
+# Provides the ability to upload a secret named 's3' to a vault (if secret does not exist), and to update the values of the secret if they differ from the requested ones (set OVERWRITE=True) 
 # How to use in Ansible: 
 # action: schulcloud.onepwd.upload_s3_secret vault=infra-dev  ACCESS_KEY=my-access-key BUCKET_NAME=my-bucket-name ACCESS_SECRET=my-access-secret OVERWRITE=True
 
@@ -69,21 +69,17 @@ class ActionModule(ActionBase):
         # # optinal values
         # overwrite = False
         # try: 
-        #     overwrite = eval(task_vars['OVERWRITE'])
+            # overwrite = task_vars['OVERWRITE']
+            # if overwrite in ['True', 'true', 'TRUE']:
+            #     overwrite = eval('True')
         # except: 
         #     pass
 
-
-        # Hardcoded Vars
-        category = 'password' 
+        # Hardcoded Vars 
+        category = 'password'
         url = 'https://dcd.ionos.com/latest'
         title = 's3'
-
-        # Template creation - BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET
-        content = f'{{"k":"string","n":"bucket_name","t":"BUCKET_NAME","v":"{BUCKET_NAME}"}},{{"k":"concealed","n":"access_key","t":"ACCESS_KEY","v":"{ACCESS_KEY}"}},{{"k":"concealed","n":"access_secret","t":"ACCESS_SECRET","v":"{ACCESS_SECRET}"}}'
-        template = '{"sections":[{"fields":[' + str(content) +  ']}]}'
-        encoded_item = url64.encode(template)      
-
+   
         # Test if secret already exists 
         try: 
             onepwd.get_single_secret(op, item_name=title, vault=vault)
@@ -99,8 +95,23 @@ class ActionModule(ActionBase):
             print("Secret doesn't exist yet")
             s3_secret_exists = False
 
-        # Overwrite values      
+        # Template creation - BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET
+        content = f'{{"k":"string","n":"bucket_name","t":"BUCKET_NAME","v":"{BUCKET_NAME}"}},{{"k":"concealed","n":"access_key","t":"ACCESS_KEY","v":"{ACCESS_KEY}"}},{{"k":"concealed","n":"access_secret","t":"ACCESS_SECRET","v":"{ACCESS_SECRET}"}}'
+        template = '{"sections":[{"fields":[' + str(content) +  ']}]}'
+        encoded_item = url64.encode(template)   
+        
+        # Upload Secret if no 's3' secret exists
+        if s3_secret_exists == False: 
+            print("Uploading secret as requested...")
+            command = onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
+            print("Secret uploaded")
+
+            return {'changed': 'true',
+                    'exectued' : command}
+
+        # Overwrite wanted? Update Values   
         if overwrite == True and s3_secret_exists == True: 
+            
             # Test if values are alredy configured as requested
             # svalue is a list with the secret fields [{'k':'string','n':'bucket_name','t':'BUCKET_NAME','v':'My-Bucket-name'}, ...]
             svalue = onepwd.get_secret_values_list(op, item_name=title, vault=vault)
@@ -137,15 +148,6 @@ class ActionModule(ActionBase):
                 print("Nothing new to update") 
             return {}
 
-
-        # Upload Secret if no s3_secret exists
-        if s3_secret_exists == False: 
-            print("Uploading secret as requested...")
-            command = onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
-            print("Secret uploaded")
-
-            return {'changed': 'true',
-                    'exectued' : command}
 
             
 # When run locally with python: Use getting Vars to local ones (using python)
