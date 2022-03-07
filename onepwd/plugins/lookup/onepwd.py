@@ -18,6 +18,8 @@ from ansible.plugins.lookup import LookupBase
 import os
 import onepwd
 
+# https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#lookup-plugins
+
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):

@@ -12,6 +12,8 @@ import argparse
 import yaml
 import pyotp
 
+# Quelle: https://github.com/lettdigital/onepassword-python/blob/master/onepassword.py
+
 class DeletionFailure(Exception):
     def __init__(self, item_name, vault):
         message = f"Unable to delete item '{item_name}' from vault '{vault}'"
@@ -84,6 +86,21 @@ class OnePwd(object):
             {vault_flag} {url_flag}
         """
         return json.loads(run_op_command_in_shell(command))
+
+    # used in the ansible action 'upload_s3_secret' 
+    def update_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
+        vault_flag = get_optional_flag(vault=vault)
+
+        fields_to_change = ""
+        if BUCKET_NAME is not None: 
+            fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
+        if ACCESS_KEY is not None: 
+            fields_to_change += f"ACCESS_KEY={ACCESS_KEY} "
+        if ACCESS_SECRET is not None: 
+            fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
+
+        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
+        return run_op_command_in_shell(command)
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -306,6 +323,16 @@ def get_single_secret(op, item_name, field=None, vault=None):
           for f in s["fields"]:
             if f["n"]=="credential":
               svalue=f["v"]
+    return svalue
+
+# used in the ansible action 'upload_s3_secret' 
+def get_secret_values_list(op, item_name,  vault=None):
+    item=op.get('item', item_name, vault=vault)
+    svalue=""
+    if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
+        svalue=item["details"]["sections"][0]["fields"] 
+    else:
+         raise Exception('The secret has not the password or login template type!')
     return svalue
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
