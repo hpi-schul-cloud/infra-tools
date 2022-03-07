@@ -87,7 +87,7 @@ class OnePwd(object):
         """
         return json.loads(run_op_command_in_shell(command))
 
-    # used in the ansible action 'update_s3_secret' 
+    # used in the ansible action 'upload_s3_secret' 
     def update_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
         vault_flag = get_optional_flag(vault=vault)
 
@@ -325,14 +325,14 @@ def get_single_secret(op, item_name, field=None, vault=None):
               svalue=f["v"]
     return svalue
 
-# used in the ansible action 'update_s3_secret' 
+# used in the ansible action 'upload_s3_secret' 
 def get_secret_values_list(op, item_name,  vault=None):
     item=op.get('item', item_name, vault=vault)
     svalue=""
-    if item["templateUuid"]=='005': # Password template type
+    if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
         svalue=item["details"]["sections"][0]["fields"] 
     else:
-        print("Error - is the template a password template?")      
+         raise Exception('The secret has not the password or login template type!')
     return svalue
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod

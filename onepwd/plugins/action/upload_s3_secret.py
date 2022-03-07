@@ -45,15 +45,25 @@ class ActionModule(ActionBase):
             Please provide a vault, BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
             OVERWRITE is optional and set to 'False' per default. Set to 'True' if you wish to overwrite. 
             """) 
-            return PLEASE_SET_REQUIRED_VALUES
+            raise Exception("PLEASE_SET_REQUIRED_VALUES - vault, BUCKET_NAME, ACCESS_KEY, ACCESS_SECRET")
         # optional values
         overwrite = False
+        throw_error = False
         try: 
             overwrite = self._task.args['OVERWRITE']
             if overwrite in ['True', 'true', 'TRUE']:
-                overwrite = eval('True')
+                overwrite = True
+            elif overwrite in ['False', 'false', 'FALSE']:
+                overwrite = False
+            elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE']:
+                throw_error = True
+                print("Error - Set OVERWRITE to 'True', 'true', 'TRUE', 'False', 'false', 'FALSE'")
+                raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
         except: 
-            pass
+            if throw_error == True: 
+                raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
+            else: 
+                pass
 
         # Getting Vars for local testing (using Python)
         # vault = task_vars['vault']
@@ -69,11 +79,22 @@ class ActionModule(ActionBase):
         # # optinal values
         # overwrite = False
         # try: 
-            # overwrite = task_vars['OVERWRITE']
-            # if overwrite in ['True', 'true', 'TRUE']:
-            #     overwrite = eval('True')
+        # throw_error = False
+        # try: 
+        #     overwrite = task_vars['OVERWRITE']
+        #     if overwrite in ['True', 'true', 'TRUE']:
+        #         overwrite = True
+        #     elif overwrite in ['False', 'false', 'FALSE']:
+        #         overwrite = False
+        #     elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE']:
+        #         throw_error = True
+        #         print("Error - Set OVERWRITE to 'True', 'true', 'TRUE', 'False', 'false', 'FALSE'")
+        #         return {error}
         # except: 
-        #     pass
+        #     if throw_error == True: 
+        #         return {OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE}
+        #     else: 
+        #         pass
 
         # Hardcoded Vars 
         category = 'password'
@@ -89,7 +110,7 @@ class ActionModule(ActionBase):
                 print("However since overwrite is set to True, values will be overwritten if they differ")
                 pass
             else: 
-                print("Overwrite is set to False. No action taken.")
+                print("Overwrite is not set to True. No action taken.")
                 return {}
         except:
             print("Secret doesn't exist yet")
@@ -105,7 +126,6 @@ class ActionModule(ActionBase):
             print("Uploading secret as requested...")
             command = onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
             print("Secret uploaded")
-
             return {'changed': 'true',
                     'exectued' : command}
 
@@ -143,7 +163,7 @@ class ActionModule(ActionBase):
                 onepwd.OnePwd.update_item(op, title, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET )
                 print("Secret updated...") 
                 return {'changed': 'true',
-                'executed' : 'update item command'}
+                'executed' : 's3 Secret updated'}
             else: 
                 print("Nothing new to update") 
             return {}
