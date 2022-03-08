@@ -82,13 +82,13 @@ class ActionModule(ActionBase):
         # throw_error = False
         # try: 
         #     overwrite = task_vars['OVERWRITE']
-        #     if overwrite in ['True', 'true', 'TRUE']:
+        #     if overwrite in ['True', 'true', 'TRUE', True]:
         #         overwrite = True
-        #     elif overwrite in ['False', 'false', 'FALSE']:
+        #     elif overwrite in ['False', 'false', 'FALSE', False]:
         #         overwrite = False
-        #     elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE']:
+        #     elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE', True, False]:
         #         throw_error = True
-        #         print("Error - Set OVERWRITE to 'True', 'true', 'TRUE', 'False', 'false', 'FALSE'")
+        #         print("Error - Set OVERWRITE to True or False")
         #         return {error}
         # except: 
         #     if throw_error == True: 
