@@ -51,13 +51,13 @@ class ActionModule(ActionBase):
         throw_error = False
         try: 
             overwrite = self._task.args['OVERWRITE']
-            if overwrite in ['True', 'true', 'TRUE']:
+            if overwrite in ['True', 'true', 'TRUE', True]:
                 overwrite = True
-            elif overwrite in ['False', 'false', 'FALSE']:
+            elif overwrite in ['False', 'false', 'FALSE', False]:
                 overwrite = False
-            elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE']:
+            elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE', True, False]:
                 throw_error = True
-                print("Error - Set OVERWRITE to 'True', 'true', 'TRUE', 'False', 'false', 'FALSE'")
+                print("Error - Set OVERWRITE to True or False")
                 raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
         except: 
             if throw_error == True: 
@@ -110,7 +110,7 @@ class ActionModule(ActionBase):
                 print("However since overwrite is set to True, values will be overwritten if they differ")
                 pass
             else: 
-                print("Overwrite is not set to True. No action taken.")
+                print("Overwrite is NOT set to True. No action taken.")
                 return {}
         except:
             print("Secret doesn't exist yet")
