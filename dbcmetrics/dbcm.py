@@ -7,6 +7,7 @@ from typing import Dict, List
 from prometheus_client import start_http_server, Summary
 from dbcm_data.configuration import DBCMConfiguration
 from dbcm_common.dbcm_config import read_configuration
+from dbcm_logic.dbcstorage import StorageMetricsThreading
 from dbcm_logic.dbcversion import VersionMetricsThreading
 
 REQUEST_TIME = Summary('request_my_processing_seconds', 'Time spent processing request')
@@ -26,9 +27,14 @@ if __name__ == '__main__':
         dbcm_config: DBCMConfiguration = read_configuration()
         start_http_server(9000)
         if dbcm_config.features['version_metrics'] == 'enabled':
-            tr = VersionMetricsThreading(dbcm_config)
-            dbcmThreads.append(tr)
+            vmtr = VersionMetricsThreading(dbcm_config)
+            dbcmThreads.append(vmtr)
             logging.info("Version metrics started")
+#        if dbcm_config.features['storage_metrics'] == 'enabled':
+        if os.getenv("STORAGE_METRICS_ENABLED").lower() == 'true':
+            smtr = StorageMetricsThreading()
+            dbcmThreads.append(smtr)
+            logging.info("Storage metrics started")
         while True:
             #while not tr.isUp():
             #    sleep(2)
