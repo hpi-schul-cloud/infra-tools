@@ -20,8 +20,8 @@ if __name__ == '__main__':
     dbcm_config = None
     dbcmThreads: List = []
     try:
-        if sys.version_info[0] < 3 or sys.version_info[1] < 6:
-            print("This script requires Python version 3.6")
+        if sys.version_info < (3,6):
+            print("This script requires at least Python version 3.6")
             sys.exit(1)
         dbcm_config: DBCMConfiguration = read_configuration()
         start_http_server(9000)
