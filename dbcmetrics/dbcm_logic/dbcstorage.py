@@ -9,9 +9,11 @@ import threading, requests, json, urllib.parse
 from typing import Dict
 from typing import List
 from prometheus_client import Gauge, Info
-from dbcm_data.configuration import DBCMConfiguration
-from dbcm_data.dbcm_instance import DBCMInstance
-from dbcm_data.dbcm_version import DBCMVersion, DBCMVersionService, DBCMVersionServices
+from dbcm_data.dbcm_bucket import DBCMBucket
+import boto3
+from botocore.config import Config
+
+
 class StorageMetricsThreading(object):
     '''
     Module to get metrics about an object storage
@@ -22,6 +24,16 @@ class StorageMetricsThreading(object):
         self.bucket_name = os.getenv("BUCKET_NAME")
         self.access_key = os.getenv("ACCESS_KEY")
         self.access_secret = os.getenv("ACCESS_SECRET")
+
+        self.s3_client = boto3.client(
+            's3',
+            region_name='s3-de-central',
+            aws_access_key_id=os.getenv("ACCESS_KEY"),
+            aws_secret_access_key=os.getenv("ACCESS_SECRET"),
+            endpoint_url=os.getenv("STORAGE_PROVIDER_URL")
+        )
+        buckets = self.s3_client.list_buckets()['Buckets']
+        logging.info("Available S3 Buckets: {}".format(buckets))
 
         self.bucket_size_gauge = Gauge('bucket_storage_size','The total bucket size',(self.bucket_name))
         self.file_number_gauge = Gauge('number_of_files','The total number of files in a bucket',(self.bucket_name))
