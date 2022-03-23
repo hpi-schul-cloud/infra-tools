@@ -37,7 +37,11 @@ class StorageMetricsThreading(object):
         logging.info("For Access Key {} available S3 Buckets: {}".format(self.access_key, buckets))
 
         self.bucket_size_gauge = Gauge('bucket_storage_size','The total bucket size')
-        self.file_number_gauge = Gauge('number_of_files','The total number of files in a bucket',['bucket', 'storage_provider_url'])
+        self.file_number_gauge = Gauge('number_of_files','The total number of files in a bucket',[
+            'bucket', 
+            'storage_provider_url',
+            'access_key',
+            ])
 
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
@@ -91,6 +95,7 @@ class StorageMetricsThreading(object):
         self.file_number_gauge.labels(
             bucket=self.bucket_name, 
             storage_provider_url=self.storage_provider_url,
+            access_key=self.access_key,
             ).set(totalKeys)
 
         return
