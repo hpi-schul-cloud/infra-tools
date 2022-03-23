@@ -16,7 +16,7 @@ def process_request(t):
     time.sleep(t)
 
 if __name__ == '__main__':
-    logging.basicConfig()
+    logging.basicConfig(format='%(asctime)s %(message)s')
     logging.getLogger().setLevel(logging.INFO)
     dbcm_config = None
     dbcmThreads: List = []
