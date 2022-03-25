@@ -28,9 +28,9 @@ class StorageMetricsThreading(object):
         self.s3_client = boto3.client(
             's3',
             region_name='s3-de-central',
-            aws_access_key_id=os.getenv("ACCESS_KEY"),
-            aws_secret_access_key=os.getenv("ACCESS_SECRET"),
-            endpoint_url=os.getenv("STORAGE_PROVIDER_URL")
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.access_secret,
+            endpoint_url=self.storage_provider_url,
         )
 
         buckets = self.s3_client.list_buckets()['Buckets']
@@ -80,7 +80,6 @@ class StorageMetricsThreading(object):
         '''
         Function that calls the S3 API to fetch all objects in a bucket and calculates the total number of objects and the total size for the whole bucket and for each folder
         '''
-        #TODO: Convert to methode that returns the objectlist for reusability
         incomplete = True
         marker = ""
         total_keys = 0
