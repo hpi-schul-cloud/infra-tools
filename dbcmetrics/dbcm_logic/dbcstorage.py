@@ -36,21 +36,31 @@ class StorageMetricsThreading(object):
         buckets = self.s3_client.list_buckets()['Buckets']
         logging.info("For Access Key {} available S3 Buckets: {}".format(self.access_key, buckets))
 
-        self.size_gauge = Gauge('storage_size','The total size in bytes',[
+        self.size_bucket_gauge = Gauge('storage_size_bucket','The total size in bytes of all files in a bucket',[
             'name',
-            'type',
+            'storage_provider_url',
+            'access_key',
+            ])
+
+        self.file_count_bucket_gauge = Gauge('storage_file_count_bucket','The total number of files in a bucket',[
+            'name',
+            'storage_provider_url',
+            'access_key',
+            ])
+
+        self.size_folder_gauge = Gauge('storage_size_folder','The total size in bytes of all files in a folder',[
+            'name',
             'bucket',
             'storage_provider_url',
             'access_key',
             ])
 
-        self.file_number_gauge = Gauge('storage_number_of_files','The total number of files',[
+        self.file_count_folder_gauge = Gauge('storage_file_count_folder','The total number of files in a folder',[
             'name',
-            'type',
-            'bucket',
+            'bucket',            
             'storage_provider_url',
             'access_key',
-            ])
+            ])            
 
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
@@ -73,10 +83,10 @@ class StorageMetricsThreading(object):
         #TODO: Convert to methode that returns the objectlist for reusability
         incomplete = True
         marker = ""
-        totalKeys = 0
-        totalSize = 0
+        total_keys = 0
+        total_size = 0
         objectlist = []
-        
+
         while incomplete:
             response = self.s3_client.list_objects_v2(
                 Bucket=self.bucket_name,
@@ -85,20 +95,18 @@ class StorageMetricsThreading(object):
                 FetchOwner=False,
                 #Prefix='foldername/',
                 )
-            totalKeys += response['KeyCount']
+            total_keys += response['KeyCount']
             marker = response.get('NextContinuationToken')
             incomplete = response['IsTruncated']
             objectlist = [*objectlist, *response['Contents']]
 
-        logging.debug("The total number of keys in the bucket {} is {}".format(self.bucket_name, totalKeys))
+        logging.debug("The total number of keys in the bucket {} is {}".format(self.bucket_name, total_keys))
         logging.info("The total number of objects in the bucket {} is {}".format(self.bucket_name, len(objectlist)))
-        self.file_number_gauge.labels(
+        self.file_count_bucket_gauge.labels(
             name=self.bucket_name,
-            type='bucket',
-            bucket=self.bucket_name,
             storage_provider_url=self.storage_provider_url,
             access_key=self.access_key,
-            ).set(totalKeys)
+            ).set(total_keys)
 
         folders = [object for object in objectlist if object['Key'].endswith('/')]
         logging.info("The total number of folders in the bucket {} is {}".format(self.bucket_name, len(folders)))
@@ -109,36 +117,32 @@ class StorageMetricsThreading(object):
             files = [object for object in objectlist if object['Key'].startswith(foldername)]
 
             logging.info("The total number of files in the folder {} is {}".format(foldername, len(files)))
-            self.file_number_gauge.labels(
+            self.file_count_folder_gauge.labels(
                 name=foldername,
-                type='folder',
                 bucket=self.bucket_name,
                 storage_provider_url=self.storage_provider_url,
                 access_key=self.access_key,
                 ).set(len(files))
 
-            folderSize = 0
+            folder_size = 0
             for file in files:
-                folderSize += file['Size']
+                folder_size += file['Size']
             
-            logging.info("The size of all files in the folder {} is {}".format(foldername, folderSize))
-            self.size_gauge.labels(
+            logging.info("The size of all files in the folder {} is {}".format(foldername, folder_size))
+            self.size_folder_gauge.labels(
                 name=foldername,
-                type='folder',
                 bucket=self.bucket_name,
                 storage_provider_url=self.storage_provider_url,
                 access_key=self.access_key,
-                ).set(folderSize)
+                ).set(folder_size)
 
-            totalSize += folderSize
+            total_size += folder_size
 
-        logging.debug("The total size of all objects in the bucket {} is {}".format(self.bucket_name, totalSize))
-        self.size_gauge.labels(
+        logging.debug("The total size of all objects in the bucket {} is {}".format(self.bucket_name, total_size))
+        self.size_bucket_gauge.labels(
             name=self.bucket_name,
-            type='bucket',
-            bucket=self.bucket_name,
             storage_provider_url=self.storage_provider_url,
             access_key=self.access_key,
-            ).set(totalSize)
+            ).set(total_size)
 
         return
