@@ -9,7 +9,6 @@ import threading, requests, json, urllib.parse
 from typing import Dict
 from typing import List
 from prometheus_client import Gauge, Info
-from dbcm_data.dbcm_bucket import DBCMBucket
 import boto3
 from botocore.config import Config
 
@@ -112,24 +111,25 @@ class StorageMetricsThreading(object):
         logging.info("The total number of files in the bucket {} is {}".format(self.bucket_name, len(objectlist) - len(folders)))
 
         for folder in folders:
-            foldername = folder['Key']
-            files = [object for object in objectlist if object['Key'].startswith(foldername)]
+            folder_name = folder['Key']
+            files = [object for object in objectlist if object['Key'].startswith(folder_name)]
+            folder_file_count = len(files)-1
 
-            logging.info("The total number of files in the folder {} is {}".format(foldername, len(files)))
+            logging.info("The total number of files in the folder {} is {}".format(folder_name, folder_file_count))
             self.file_count_folder_gauge.labels(
-                name=foldername,
+                name=folder_name,
                 bucket=self.bucket_name,
                 storage_provider_url=self.storage_provider_url,
                 access_key=self.access_key,
-                ).set(len(files))
+                ).set(folder_file_count)
 
             folder_size = 0
             for file in files:
                 folder_size += file['Size']
             
-            logging.info("The size of all files in the folder {} is {}".format(foldername, folder_size))
+            logging.info("The size of all files in the folder {} is {}".format(folder_name, folder_size))
             self.size_folder_gauge.labels(
-                name=foldername,
+                name=folder_name,
                 bucket=self.bucket_name,
                 storage_provider_url=self.storage_provider_url,
                 access_key=self.access_key,
