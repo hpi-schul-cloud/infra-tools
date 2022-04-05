@@ -16,8 +16,8 @@ def process_request(t):
     time.sleep(t)
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(message)s')
-    logging.getLogger().setLevel(logging.INFO)
+    loglevel = os.environ.get('LOGLEVEL', 'INFO').upper()
+    logging.basicConfig(format='%(asctime)s %(message)s', level=loglevel)
     dbcm_config = None
     dbcmThreads: List = []
     try:
@@ -30,7 +30,6 @@ if __name__ == '__main__':
             vmtr = VersionMetricsThreading(dbcm_config)
             dbcmThreads.append(vmtr)
             logging.info("Version metrics started")
-#        if dbcm_config.features['storage_metrics'] == 'enabled':
         if os.getenv("STORAGE_METRICS_ENABLED").lower() == 'true':
             smtr = StorageMetricsThreading()
             dbcmThreads.append(smtr)
