@@ -35,6 +35,12 @@ class StorageMetricsThreading(object):
         buckets = self.s3_client.list_buckets()['Buckets']
         logging.info("For Access Key {} available S3 Buckets: {}".format(self.access_key, buckets))
 
+        self.bucket_availability_gauge = Gauge('storage_bucket_availability','Indicates if the target bucket is available',[
+            'name',
+            'storage_provider_url',
+            'access_key',
+            ])
+
         self.size_bucket_gauge = Gauge('storage_size_bucket','The total size in bytes of all files in a bucket',[
             'name',
             'storage_provider_url',
@@ -59,7 +65,7 @@ class StorageMetricsThreading(object):
             'bucket',            
             'storage_provider_url',
             'access_key',
-            ])            
+            ])
 
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
@@ -86,17 +92,33 @@ class StorageMetricsThreading(object):
         objectlist = []
 
         while incomplete:
-            response = self.s3_client.list_objects_v2(
-                Bucket=self.bucket_name,
-                ContinuationToken=marker,
-                #StartAfter='string',
-                FetchOwner=False,
-                #Prefix='foldername/',
-                )
-            total_keys += response['KeyCount']
-            marker = response.get('NextContinuationToken')
-            incomplete = response['IsTruncated']
-            objectlist = [*objectlist, *response['Contents']]
+            try:
+                response = self.s3_client.list_objects_v2(
+                    Bucket=self.bucket_name,
+                    ContinuationToken=marker,
+                    #StartAfter='string',
+                    FetchOwner=False,
+                    #Prefix='foldername/',
+                    )
+                total_keys += response['KeyCount']
+                marker = response.get('NextContinuationToken')
+                incomplete = response['IsTruncated']
+                objectlist = [*objectlist, *response['Contents']]
+            except Exception as ex:
+                logging.error("The bucket {} is not available".format(self.bucket_name))
+                logging.exception(ex)
+                self.bucket_availability_gauge.labels(
+                    name=self.bucket_name,
+                    storage_provider_url=self.storage_provider_url,
+                    access_key=self.access_key,
+                    ).set(0.0)
+                return
+
+        self.bucket_availability_gauge.labels(
+            name=self.bucket_name,
+            storage_provider_url=self.storage_provider_url,
+            access_key=self.access_key,
+            ).set(1.0)
 
         logging.debug("The total number of keys in the bucket {} is {}".format(self.bucket_name, total_keys))
         logging.info("The total number of objects in the bucket {} is {}".format(self.bucket_name, len(objectlist)))
