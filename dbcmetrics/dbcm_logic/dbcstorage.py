@@ -20,20 +20,23 @@ class StorageMetricsThreading(object):
     def __init__(self):
         self.interval = int(os.getenv("STORAGE_INTERVAL"))
         self.storage_provider_url = os.getenv("STORAGE_PROVIDER_URL")
+        self.storage_provider_region = os.getenv("STORAGE_PROVIDER_REGION")
         self.bucket_name = os.getenv("BUCKET_NAME")
         self.access_key = os.getenv("ACCESS_KEY")
         self.access_secret = os.getenv("ACCESS_SECRET")
 
+        logging.info("Connecting with Access Key {} to S3 region {} by using the storage provider url: {}".format(self.access_key, self.storage_provider_region, self.storage_provider_url))
+
         self.s3_client = boto3.client(
             's3',
-            region_name='s3-de-central',
+            region_name=self.storage_provider_region,
             aws_access_key_id=self.access_key,
             aws_secret_access_key=self.access_secret,
             endpoint_url=self.storage_provider_url,
         )
 
         buckets = self.s3_client.list_buckets()['Buckets']
-        logging.info("For Access Key {} available S3 Buckets: {}".format(self.access_key, buckets))
+        logging.debug("For Access Key {} available S3 Buckets: {}".format(self.access_key, buckets))
 
         self.bucket_availability_gauge = Gauge('storage_bucket_availability','Indicates if the target bucket is available',[
             'name',
@@ -106,7 +109,6 @@ class StorageMetricsThreading(object):
                 objectlist = [*objectlist, *response['Contents']]
             except Exception as ex:
                 logging.error("The bucket {} is not available".format(self.bucket_name))
-                logging.exception(ex)
                 self.bucket_availability_gauge.labels(
                     name=self.bucket_name,
                     storage_provider_url=self.storage_provider_url,
@@ -159,7 +161,7 @@ class StorageMetricsThreading(object):
 
             total_size += folder_size
 
-        logging.debug("The total size of all objects in the bucket {} is {}".format(self.bucket_name, total_size))
+        logging.info("The total size of all objects in the bucket {} is {}".format(self.bucket_name, total_size))
         self.size_bucket_gauge.labels(
             name=self.bucket_name,
             storage_provider_url=self.storage_provider_url,
