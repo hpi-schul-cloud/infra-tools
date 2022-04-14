@@ -18,7 +18,8 @@ class StorageMetricsThreading(object):
     Module to get metrics about an object storage
     '''
     def __init__(self):
-        self.interval = int(os.getenv("STORAGE_INTERVAL"))
+        self.storage_interval = int(os.getenv("STORAGE_INTERVAL"))
+        self.storage_exclude_subfolders = os.getenv("STORAGE_EXCLUDE_SUBFOLDERS").lower()
         self.storage_provider_url = os.getenv("STORAGE_PROVIDER_URL")
         self.storage_provider_region = os.getenv("STORAGE_PROVIDER_REGION")
         self.bucket_name = os.getenv("BUCKET_NAME")
@@ -26,6 +27,7 @@ class StorageMetricsThreading(object):
         self.access_secret = os.getenv("ACCESS_SECRET")
 
         logging.info("Connecting with Access Key {} to S3 region {} by using the storage provider url: {}".format(self.access_key, self.storage_provider_region, self.storage_provider_url))
+        logging.info("Exclude subfolders when generating metrics: {}".format(self.storage_exclude_subfolders))
 
         self.s3_client = boto3.client(
             's3',
@@ -80,7 +82,7 @@ class StorageMetricsThreading(object):
         '''
         def do_something():
             self.fetchStorageMetrics()
-            sleep(self.interval)
+            sleep(self.storage_interval)
         while True:
             do_something()
 
@@ -130,7 +132,11 @@ class StorageMetricsThreading(object):
             access_key=self.access_key,
             ).set(total_keys)
 
-        folders = [object for object in objectlist if object['Key'].endswith('/')]
+        if(self.storage_exclude_subfolders == 'true'):
+            folders = [object for object in objectlist if object['Key'].endswith('/') and object['Key'].count('/') == 1]
+        else:
+            folders = [object for object in objectlist if object['Key'].endswith('/')]
+        
         logging.info("The total number of folders in the bucket {} is {}".format(self.bucket_name, len(folders)))
         logging.info("The total number of files in the bucket {} is {}".format(self.bucket_name, len(objectlist) - len(folders)))
 
