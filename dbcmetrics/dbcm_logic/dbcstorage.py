@@ -80,11 +80,9 @@ class StorageMetricsThreading(object):
         '''
         Function that calls metric functions and waits in a loop until the stop event is send from the main thread
         '''
-        def do_something():
+        while True:
             self.fetchStorageMetrics()
             sleep(self.storage_interval)
-        while True:
-            do_something()
 
     def fetchStorageMetrics(self):
         '''
