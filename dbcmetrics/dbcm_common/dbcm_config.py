@@ -20,7 +20,7 @@ def read_configuration():
     '''
     Reads an dbcm_config.yaml configuration file into a DBCMConfiguration object and returns the filled data object.
         Try first to read from global configuration location, in case it does not exist  
-        read from the config file specified in th eenvironment vbvariable DBMCCONFIG else terminate with error
+        read from the config file specified in the environment variable DBCMCONFIG else terminate with error
     '''
     global_configuration_file = get_absolute_path(os.path.join(GLOBAL_CONFIGDIR, CONFIGFILE_NAME))
 
