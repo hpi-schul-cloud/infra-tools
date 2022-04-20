@@ -21,9 +21,9 @@ The following environment variables are read by the dbcmetrics application:
 | STORAGE_INTERVAL | Number of seconds between cycles in which the storage metrics are fetched | `30` |
 | STORAGE_PROVIDER_URL | URL of the S3 storage provider | `http://s3-de-central.profitbricks.com` |
 | STORAGE_PROVIDER_REGION | Region of the S3 storage provider | `s3-de-central` |
-| BUCKET_NAME | The name of the bucket to monitor by the storage module (Secret in Kubernetes) | `infra-dev-bucket-0000` |
-| ACCESS_KEY | The Access Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
-| ACCESS_SECRET | The Secret Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
+| STORAGE_BUCKET_NAME | The name of the bucket to monitor by the storage module (Secret in Kubernetes) | `infra-dev-bucket-0000` |
+| STORAGE_ACCESS_KEY | The Access Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
+| STORAGE_ACCESS_SECRET | The Secret Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
 
 # Run dbcmetrics on your local machine
 
@@ -53,9 +53,9 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 "STORAGE_PROVIDER_URL": "http://s3-de-central.profitbricks.com",
                 "STORAGE_PROVIDER_REGION": "s3-de-central",
                 // Secrets in Kubernetes
-                "BUCKET_NAME": "<The Name of the Bucket to monitor>",
-                "ACCESS_KEY": "<The Access Key of your Object Storage Key with access to the Bucket>",
-                "ACCESS_SECRET": "<The Secret Key of your Object Storage Key with access to the Bucket>"
+                "STORAGE_BUCKET_NAME": "<The Name of the Bucket to monitor>",
+                "STORAGE_ACCESS_KEY": "<The Access Key of your Object Storage Key with access to the Bucket>",
+                "STORAGE_ACCESS_SECRET": "<The Secret Key of your Object Storage Key with access to the Bucket>"
             },
         }
     ]
@@ -79,9 +79,9 @@ docker run `
     -e STORAGE_METRICS_ENABLED="true" `
     -e STORAGE_INTERVAL="30" `
     -e STORAGE_PROVIDER_URL="http://s3-de-central.profitbricks.com" `
-    -e BUCKET_NAME="<The Name of the Bucket to monitor>" `
-    -e ACCESS_KEY="<The Access Key of your Object Storage Key with access to the Bucket>" `
-    -e ACCESS_SECRET="<The Secret Key of your Object Storage Key with access to the Bucket>" `
+    -e STORAGE_BUCKET_NAME="<The Name of the Bucket to monitor>" `
+    -e STORAGE_ACCESS_KEY="<The Access Key of your Object Storage Key with access to the Bucket>" `
+    -e STORAGE_ACCESS_SECRET="<The Secret Key of your Object Storage Key with access to the Bucket>" `
     dbcmetrics:latest
 ```
 
