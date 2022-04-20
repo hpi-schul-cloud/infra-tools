@@ -107,3 +107,9 @@ dbcmconfig:
       - server: /api/v1/version
       - client: /version
       - nuxt: /nuxtversion
+
+storage_metrics_enabled: true
+storage_exclude_subfolders: true
+storage_interval: 30
+storage_provider_url: "http://s3-de-central.profitbricks.com"
+storage_provider_region: "s3-de-central"

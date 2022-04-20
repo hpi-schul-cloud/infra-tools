@@ -1,9 +1,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "dbcmetrics.fullname" . }}
+  name: {{ include "dbcmetrics.fullname" . }}-configmap
   labels:
     {{- include "dbcmetrics.labels" . | nindent 4 }}
 data:
+  STORAGE_METRICS_ENABLED: {{ .Values.storage_metrics_enabled | quote }}
+  STORAGE_EXCLUDE_SUBFOLDERS: {{ .Values.storage_exclude_subfolders | quote }}
+  STORAGE_INTERVAL: {{ .Values.storage_interval | quote }}
+  STORAGE_PROVIDER_URL: {{ .Values.storage_provider_url }}
+  STORAGE_PROVIDER_REGION: {{ .Values.storage_provider_region }}
   dbcm_config.yaml: |
     {{- toYaml .Values.dbcmconfig | nindent 4 }}

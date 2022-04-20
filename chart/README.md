@@ -1,6 +1,6 @@
 # dbcmetrics
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.3](https://img.shields.io/badge/AppVersion-1.1.3-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.2.1](https://img.shields.io/badge/AppVersion-1.2.1-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -66,5 +66,10 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| storage_exclude_subfolders | bool | `true` |  |
+| storage_interval | int | `30` |  |
+| storage_metrics_enabled | bool | `true` |  |
+| storage_provider_region | string | `"s3-de-central"` |  |
+| storage_provider_url | string | `"http://s3-de-central.profitbricks.com"` |  |
 | tolerations | list | `[]` |  |
 
