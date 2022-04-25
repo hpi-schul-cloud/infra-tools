@@ -1,6 +1,6 @@
 # dbcmetrics
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.2.1](https://img.shields.io/badge/AppVersion-1.2.1-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.3.0](https://img.shields.io/badge/AppVersion-1.3.0-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -38,10 +38,10 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | containerPort | int | `9000` |  |
-| dbcmconfig | object | `{"features":{"version_metrics":"enabled"},"instances":[{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}],"version_metrics":{"interval":600,"services":[{"server":"/api/v1/version"},{"client":"/version"},{"nuxt":"/nuxtversion"}]}}` | The values below 'dbcnconfigwill be copied via the configmap into the file system of the dbcmetrics pod below the mount point specified in the deployment template which is '/etc/dbcmetrics/dbcm_config.yaml' |
+| dbcmconfig | object | `{"features":{"version_metrics":"enabled"},"instances":[{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}],"version_metrics":{"interval":600,"services":{"client":"/version","nuxt":"/nuxtversion","server":"/api/v1/version"}}}` | The values below 'dbcnconfigwill be copied via the configmap into the file system of the dbcmetrics pod below the mount point specified in the deployment template which is '/etc/dbcmetrics/dbcm_config.yaml' |
 | dbcmconfig.features.version_metrics | string | `"enabled"` | each supported feature can be disabled or enabled. In additon each feature has its own configuration section with the same name below |
 | dbcmconfig.instances[0] | object | `{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}` | This part contains a list of instances which evrsions should be observed and provided as Prometheus metrics - the name will be part of the Prometheus value, for the sample the Prometheus value will be 'myinstance_info' - url is the base url of an existing dBildungscloud instance to be monitored - shortname is for further filtering in  future scenarios |
-| dbcmconfig.version_metrics | object | `{"interval":600,"services":[{"server":"/api/v1/version"},{"client":"/version"},{"nuxt":"/nuxtversion"}]}` | This part hold the feature specif configuration - interval definces the cycle in seconds how often the version information is queried - services contains a list of services the version will be queried with the parte that needs to be added    to the base url to receive the version information |
+| dbcmconfig.version_metrics | object | `{"interval":600,"services":{"client":"/version","nuxt":"/nuxtversion","server":"/api/v1/version"}}` | This part hold the feature specif configuration - interval definces the cycle in seconds how often the version information is queried - services contains a list of services the version will be queried with the parte that needs to be added    to the base url to receive the version information |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"schulcloud/dbcmetrics"` |  |

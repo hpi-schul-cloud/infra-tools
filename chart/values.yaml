@@ -104,9 +104,9 @@ dbcmconfig:
   version_metrics:
     interval: 600
     services:
-      - server: /api/v1/version
-      - client: /version
-      - nuxt: /nuxtversion
+      server: /api/v1/version
+      client: /version
+      nuxt: /nuxtversion
 
 storage_metrics_enabled: true
 storage_exclude_subfolders: true
