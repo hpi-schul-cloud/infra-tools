@@ -10,4 +10,4 @@ version_metrics:
   interval: <value in seconds, how often the version is polled>
   services:
     # list of services and URL suffixes as key/value pair of services to be checked for a version
-    - <service a>: <suffix a>
+    <service a>: <suffix a>

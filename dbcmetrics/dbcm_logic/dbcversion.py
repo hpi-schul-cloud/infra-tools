@@ -16,11 +16,8 @@ class VersionMetricsThreading(object):
     '''
     def __init__(self, configuration: DBCMConfiguration):
         self.configuration = configuration
-        # Loop over instances create a Info metrics object for each and store them in a list
-        self.pmc_infos: Dict [Info] = {}
-        instance: DBCMInstance
-        for instance in self.configuration.instances:
-            self.pmc_infos[instance.name] = Info(instance.name, 'Version Information')
+        label_names = ['app_instance', 'dashboard'] + list(self.configuration.version.services.keys())
+        self.pmc_infos: Info = Info('version', 'Version Information', label_names)
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
@@ -30,12 +27,11 @@ class VersionMetricsThreading(object):
         Function that opens the tunnel and wait in a loop until the stop event is send from the main thread
         '''
         def do_something():
-            for i in self.pmc_infos:
-                labels: Dict = self.getInstanceVersions(i)
-                instance_info: Info = self.pmc_infos[i]
-                labels['app_instance'] = i
+            for i in self.configuration.instances:
+                labels: Dict = self.getInstanceVersions(i.name)
+                labels['app_instance'] = i.name
                 labels['dashboard'] = 'version_dashboard'
-                instance_info.info(labels)
+                self.pmc_infos.labels(**labels)
             sleep(self.configuration.version.interval)
         while True:
             do_something()
@@ -43,9 +39,8 @@ class VersionMetricsThreading(object):
     def getInstanceVersions(self, name):
         # Loop over all services of the give instance, gather the version and store them in the returned dictionary
         labels: Dict = {}
-        for service in self.configuration.version.services:
-            for skey in service.keys():
-                vservice: DBCMVersionService = DBCMVersionService(skey, service[skey])
+        for skey in self.configuration.version.services:
+            vservice: DBCMVersionService = DBCMVersionService(skey, self.configuration.version.services[skey])
             instance_url = self.configuration.getInstance(name).url
             fvurl = urllib.parse.urljoin(instance_url, vservice.suffix)
             try:
