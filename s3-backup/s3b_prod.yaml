@@ -21,14 +21,6 @@ s3_backup_configuration:
       s3_target_drive: hidriveinternationalbackup
       s3_target_backup_bucket: s3-backup-international-put9ai
       backup_day_of_month: 18
- 
-    # - instancename: open
-    #   instancename_short: open
-    #   s3_source_drives: [ "hidriveopen", "hidriveopen2" ]
-    #   s3_source_bucket_patterns: ['bucket-*']
-    #   s3_target_drive: hidriveopenbackup
-    #   s3_target_backup_bucket: s3-backup-open-naem9f
-    #   backup_day_of_month: 21
       
     - instancename: brandenburg
       instancename_short: brb
