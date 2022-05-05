@@ -19,7 +19,7 @@ class StorageMetricsThreading(object):
     '''
     def __init__(self):
         self.storage_interval = int(os.getenv("STORAGE_INTERVAL"))
-        self.storage_exclude_subfolders = os.getenv("STORAGE_EXCLUDE_SUBFOLDERS").lower()
+        self.storage_exclude_subfolders = True if os.getenv("STORAGE_EXCLUDE_SUBFOLDERS").lower() == 'true' else False
         self.storage_provider_url = os.getenv("STORAGE_PROVIDER_URL")
         self.storage_provider_region = os.getenv("STORAGE_PROVIDER_REGION")
         self.storage_bucket_name = os.getenv("STORAGE_BUCKET_NAME")
@@ -92,21 +92,20 @@ class StorageMetricsThreading(object):
         marker = ""
         total_keys = 0
         total_size = 0
-        objectlist = []
+        object_list = []
+        folder_list = []
 
         while incomplete:
             try:
                 response = self.s3_client.list_objects_v2(
                     Bucket=self.storage_bucket_name,
                     ContinuationToken=marker,
-                    #StartAfter='string',
                     FetchOwner=False,
-                    #Prefix='foldername/',
                     )
                 total_keys += response['KeyCount']
                 marker = response.get('NextContinuationToken')
                 incomplete = response['IsTruncated']
-                objectlist = [*objectlist, *response['Contents']]
+                object_list = [*object_list, *response['Contents']]
             except Exception as ex:
                 logging.error("The bucket {} is not available".format(self.storage_bucket_name))
                 self.bucket_availability_gauge.labels(
@@ -116,32 +115,49 @@ class StorageMetricsThreading(object):
                     ).set(0.0)
                 return
 
+        logging.debug("The total number of keys in the bucket {} is {}".format(self.storage_bucket_name, total_keys))
+        logging.info("The total number of objects in the bucket {} is {}".format(self.storage_bucket_name, len(object_list)))
         self.bucket_availability_gauge.labels(
             name=self.storage_bucket_name,
             storage_provider_url=self.storage_provider_url,
             access_key=self.storage_access_key,
             ).set(1.0)
 
-        logging.debug("The total number of keys in the bucket {} is {}".format(self.storage_bucket_name, total_keys))
-        logging.info("The total number of objects in the bucket {} is {}".format(self.storage_bucket_name, len(objectlist)))
+        # Remove folder objects from object_list because files can be in folders by adding a slash to the path without the folders themselfes existing as objects in the bucket
+        file_list = [obj for obj in object_list if obj['Key'].endswith('/') == False]
+
+        for file in file_list:
+            total_size += file['Size']
+            file_path_parts = file['Key'].split('/')
+
+            # if subfolders should be excluded, add just the top-level folder, else, add also every subfolder
+            deepest_folder_level = min(len(file_path_parts),2) - 2 if self.storage_exclude_subfolders == True else len(file_path_parts) - 2
+            for current_folder_level in range(deepest_folder_level, -1, -1):
+                folder_name = ""
+                for sub_current_folder_level in range(0, current_folder_level + 1):
+                    folder_name += file_path_parts[sub_current_folder_level] + "/"
+                if folder_name not in folder_list:
+                    folder_list.append(folder_name)
+
+        logging.info("The total number of folders in the bucket {} is {}".format(self.storage_bucket_name, len(folder_list)))
+        logging.info("The total number of files in the bucket {} is {}".format(self.storage_bucket_name, len(file_list)))
+        logging.info("The total size of all objects in the bucket {} is {}".format(self.storage_bucket_name, total_size))
+
         self.file_count_bucket_gauge.labels(
             name=self.storage_bucket_name,
             storage_provider_url=self.storage_provider_url,
             access_key=self.storage_access_key,
-            ).set(total_keys)
+        ).set(total_keys)
 
-        if(self.storage_exclude_subfolders == 'true'):
-            folders = [object for object in objectlist if object['Key'].endswith('/') and object['Key'].count('/') == 1]
-        else:
-            folders = [object for object in objectlist if object['Key'].endswith('/')]
-        
-        logging.info("The total number of folders in the bucket {} is {}".format(self.storage_bucket_name, len(folders)))
-        logging.info("The total number of files in the bucket {} is {}".format(self.storage_bucket_name, len(objectlist) - len(folders)))
+        self.size_bucket_gauge.labels(
+            name=self.storage_bucket_name,
+            storage_provider_url=self.storage_provider_url,
+            access_key=self.storage_access_key,
+        ).set(total_size)
 
-        for folder in folders:
-            folder_name = folder['Key']
-            files = [object for object in objectlist if object['Key'].startswith(folder_name)]
-            folder_file_count = len(files)-1
+        for folder_name in folder_list:
+            folder_file_list = [file for file in file_list if folder_name in file['Key']]
+            folder_file_count = len(folder_file_list)
 
             logging.info("The total number of files in the folder {} is {}".format(folder_name, folder_file_count))
             self.file_count_folder_gauge.labels(
@@ -149,10 +165,10 @@ class StorageMetricsThreading(object):
                 bucket=self.storage_bucket_name,
                 storage_provider_url=self.storage_provider_url,
                 access_key=self.storage_access_key,
-                ).set(folder_file_count)
+            ).set(folder_file_count)
 
             folder_size = 0
-            for file in files:
+            for file in folder_file_list:
                 folder_size += file['Size']
             
             logging.info("The size of all files in the folder {} is {}".format(folder_name, folder_size))
@@ -161,15 +177,6 @@ class StorageMetricsThreading(object):
                 bucket=self.storage_bucket_name,
                 storage_provider_url=self.storage_provider_url,
                 access_key=self.storage_access_key,
-                ).set(folder_size)
-
-            total_size += folder_size
-
-        logging.info("The total size of all objects in the bucket {} is {}".format(self.storage_bucket_name, total_size))
-        self.size_bucket_gauge.labels(
-            name=self.storage_bucket_name,
-            storage_provider_url=self.storage_provider_url,
-            access_key=self.storage_access_key,
-            ).set(total_size)
+            ).set(folder_size)
 
         return
