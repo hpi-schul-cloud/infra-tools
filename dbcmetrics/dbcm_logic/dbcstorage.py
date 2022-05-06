@@ -44,33 +44,33 @@ class StorageMetricsThreading(object):
             'name',
             'storage_provider_url',
             'access_key',
-            ])
+        ])
 
         self.size_bucket_gauge = Gauge('storage_size_bucket','The total size in bytes of all files in a bucket',[
             'name',
             'storage_provider_url',
             'access_key',
-            ])
+        ])
 
         self.file_count_bucket_gauge = Gauge('storage_file_count_bucket','The total number of files in a bucket',[
             'name',
             'storage_provider_url',
             'access_key',
-            ])
+        ])
 
         self.size_folder_gauge = Gauge('storage_size_folder','The total size in bytes of all files in a folder',[
             'name',
             'bucket',
             'storage_provider_url',
             'access_key',
-            ])
+        ])
 
         self.file_count_folder_gauge = Gauge('storage_file_count_folder','The total number of files in a folder',[
             'name',
             'bucket',            
             'storage_provider_url',
             'access_key',
-            ])
+        ])
 
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
@@ -101,7 +101,7 @@ class StorageMetricsThreading(object):
                     Bucket=self.storage_bucket_name,
                     ContinuationToken=marker,
                     FetchOwner=False,
-                    )
+                )
                 total_keys += response['KeyCount']
                 marker = response.get('NextContinuationToken')
                 incomplete = response['IsTruncated']
@@ -112,7 +112,7 @@ class StorageMetricsThreading(object):
                     name=self.storage_bucket_name,
                     storage_provider_url=self.storage_provider_url,
                     access_key=self.storage_access_key,
-                    ).set(0.0)
+                ).set(0.0)
                 return
 
         logging.debug("The total number of keys in the bucket {} is {}".format(self.storage_bucket_name, total_keys))
@@ -121,7 +121,7 @@ class StorageMetricsThreading(object):
             name=self.storage_bucket_name,
             storage_provider_url=self.storage_provider_url,
             access_key=self.storage_access_key,
-            ).set(1.0)
+        ).set(1.0)
 
         # Remove folder objects from object_list because files can be in folders by adding a slash to the path without the folders themselfes existing as objects in the bucket
         file_list = [obj for obj in object_list if obj['Key'].endswith('/') == False]
