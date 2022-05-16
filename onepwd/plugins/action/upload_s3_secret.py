@@ -18,9 +18,9 @@ import os
 import onepwd
 import url64
 
-# Provides the ability to upload a secret named 's3' to a vault (if secret does not exist), and to update the values of the secret if they differ from the requested ones (set OVERWRITE=True) 
+# Provides the ability to upload a secret to a vault (if secret does not exist), and to update the values of the secret if they differ from the requested ones (set OVERWRITE=True) 
 # How to use in Ansible: 
-# action: schulcloud.onepwd.upload_s3_secret vault=infra-dev  ACCESS_KEY=my-access-key BUCKET_NAME=my-bucket-name ACCESS_SECRET=my-access-secret OVERWRITE=True
+# action: schulcloud.onepwd.upload_s3_secret vault=infra-dev BUCKET_NAME=my-bucket-name SECRET_NAME=my-s3-name ACCESS_KEY=my-access-key ACCESS_SECRET=my-access-secret OVERWRITE=True
 
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#action-plugins
 class ActionModule(ActionBase):
@@ -37,12 +37,13 @@ class ActionModule(ActionBase):
         try: 
             vault = self._task.args['vault']
             BUCKET_NAME = self._task.args['BUCKET_NAME']
+            SECRET_NAME = self._task.args['SECRET_NAME']
             ACCESS_KEY = self._task.args['ACCESS_KEY']
             ACCESS_SECRET = self._task.args['ACCESS_SECRET']
         except: 
             print("""
             ERROR! Couldn't upload s3 secret.
-            Please provide a vault, BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
+            Please provide a vault, BUCKET_NAME, SECRET_NAME, ACCESS_KEY and ACCESS_SECRET!
             OVERWRITE is optional and set to 'False' per default. Set to 'True' if you wish to overwrite. 
             """) 
             raise Exception("PLEASE_SET_REQUIRED_VALUES - vault, BUCKET_NAME, ACCESS_KEY, ACCESS_SECRET")
@@ -69,16 +70,16 @@ class ActionModule(ActionBase):
         # vault = task_vars['vault']
         # try: 
         #     BUCKET_NAME = task_vars['BUCKET_NAME']
+        #     SECRET_NAME = task_vars['SECRET_NAME']
         #     ACCESS_KEY = task_vars['ACCESS_KEY']
         #     ACCESS_SECRET = task_vars['ACCESS_SECRET']
         # except: 
         #     print("""
         #     ERROR! Could't upload s3 secret.
-        #     Please provide a BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET!
+        #     Please provide a BUCKET_NAME, SECRET_NAME, ACCESS_KEY and ACCESS_SECRET!
         #     """)
         # # optinal values
-        # overwrite = False
-        # try: 
+        # overwrite = True
         # throw_error = False
         # try: 
         #     overwrite = task_vars['OVERWRITE']
@@ -99,12 +100,11 @@ class ActionModule(ActionBase):
         # Hardcoded Vars 
         category = 'password'
         url = 'https://dcd.ionos.com/latest'
-        title = 's3'
    
         # Test if secret already exists 
         try: 
-            onepwd.get_single_secret(op, item_name=title, vault=vault)
-            print("Secret s3 alreay exists in the specified vault!") 
+            onepwd.get_single_secret(op, item_name=SECRET_NAME, vault=vault)
+            print(f"Secret '{SECRET_NAME}' alreay exists in the specified vault!") 
             s3_secret_exists = True
             if overwrite == True: 
                 print("However since overwrite is set to True, values will be overwritten if they differ")
@@ -124,7 +124,7 @@ class ActionModule(ActionBase):
         # Upload Secret if no 's3' secret exists
         if s3_secret_exists == False: 
             print("Uploading secret as requested...")
-            command = onepwd.OnePwd.create_item(op, category, encoded_item, title, vault=vault, url=url)
+            command = onepwd.OnePwd.create_item(op, category, encoded_item, title=SECRET_NAME, vault=vault, url=url)
             print("Secret uploaded")
             return {'changed': 'true',
                     'exectued' : command}
@@ -134,7 +134,7 @@ class ActionModule(ActionBase):
             
             # Test if values are alredy configured as requested
             # svalue is a list with the secret fields [{'k':'string','n':'bucket_name','t':'BUCKET_NAME','v':'My-Bucket-name'}, ...]
-            svalue = onepwd.get_secret_values_list(op, item_name=title, vault=vault)
+            svalue = onepwd.get_secret_values_list(op, item_name=SECRET_NAME, vault=vault)
             # True = nothing changed, False = Requested value is different from current value
             check_bucket = True
             check_secret = True
@@ -160,10 +160,10 @@ class ActionModule(ActionBase):
 
             # Update Secret if changes are present
             if (check_bucket and check_key and check_secret) == False:
-                onepwd.OnePwd.update_item(op, title, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET )
+                onepwd.OnePwd.update_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET )
                 print("Secret updated...") 
                 return {'changed': 'true',
-                'executed' : 's3 Secret updated'}
+                'executed' : 'Secret updated'}
             else: 
                 print("Nothing new to update") 
             return {}
@@ -171,6 +171,6 @@ class ActionModule(ActionBase):
 
             
 # When run locally with python: Use getting Vars to local ones (using python)
-# ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', task_vars={ 'vault': 'infra-dev', 'BUCKET_NAME': 'my-bucket-name', 'ACCESS_SECRET': 'my-access-secret', 'ACCESS_KEY': 'my-access-key'})
+#ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', task_vars={ 'vault': 'infra-dev', 'SECRET_NAME': 'my-test-item', 'BUCKET_NAME': 'my-bucket-name', 'ACCESS_SECRET': 'my-access-secret', 'ACCESS_KEY': 'my-access-key'})
 
 
