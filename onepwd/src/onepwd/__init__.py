@@ -88,7 +88,7 @@ class OnePwd(object):
         return json.loads(run_op_command_in_shell(command))
 
     # used in the ansible action 'upload_s3_secret' 
-    def update_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
+    def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""
@@ -98,6 +98,21 @@ class OnePwd(object):
             fields_to_change += f"ACCESS_KEY={ACCESS_KEY} "
         if ACCESS_SECRET is not None: 
             fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
+
+        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
+        return run_op_command_in_shell(command)
+
+    # used in the ansible action 'update_s3_values_of_server_item' 
+    def update_s3_values_of_server_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None):
+        vault_flag = get_optional_flag(vault=vault)
+
+        fields_to_change = "FILES_STORAGE__S3_BUCKET=https://s3-de-central.profitbricks.com "
+        if BUCKET_NAME is not None: 
+            fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
+        if ACCESS_KEY is not None: 
+            fields_to_change += f"FILES_STORAGE__S3_ACCESS_KEY_ID={ACCESS_KEY} "
+        if ACCESS_SECRET is not None: 
+            fields_to_change += f"FILES_STORAGE__S3_SECRET_ACCESS_KEY={ACCESS_SECRET} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
         return run_op_command_in_shell(command)
@@ -326,6 +341,7 @@ def get_single_secret(op, item_name, field=None, vault=None):
     return svalue
 
 # used in the ansible action 'upload_s3_secret' 
+# this does not return values saved in separate sections
 def get_secret_values_list(op, item_name,  vault=None):
     item=op.get('item', item_name, vault=vault)
     svalue=""
@@ -333,6 +349,29 @@ def get_secret_values_list(op, item_name,  vault=None):
         svalue=item["details"]["sections"][0]["fields"] 
     else:
          raise Exception('The secret has not the password or login template type!')
+    return svalue
+
+# used in ansible action update_s3_values_of_server_item
+# filters for the values in a specefied section 
+def get_secret_values_list_from_section(op, item_name,  vault=None, section=None):
+    item=op.get('item', item_name, vault=vault)
+    matches_section = False
+    section_index = None
+    index = 0
+    if section is None: 
+        raise Exception('Section name not set! Please provide section name')
+    if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
+        while matches_section is False: 
+            try: 
+                if item["details"]["sections"][index]["title"] == section: 
+                    matches_section = True 
+                    section_index = index
+            except:
+                pass
+            index += 1
+    else:
+        raise Exception('The secret has not the password or login template type!')
+    svalue=item["details"]["sections"][section_index]["fields"]
     return svalue
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
