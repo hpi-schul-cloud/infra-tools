@@ -88,7 +88,7 @@ class OnePwd(object):
         return json.loads(run_op_command_in_shell(command))
 
     # used in the ansible action 'upload_s3_secret' 
-    def update_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
+    def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""

@@ -115,7 +115,6 @@ class ActionModule(ActionBase):
         # give feedabck on overwrite settings
         if overwrite == True: 
             print("Overwrite is set to True, values will be overwritten if they differ")
-            pass
         else: 
             print("Overwrite is NOT set to True. Values will get compared but will not be updated.")
   
