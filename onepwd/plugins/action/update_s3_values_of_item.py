@@ -2,12 +2,27 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
+Provides the ability to edit the s3 values of a secret. Will only take action if OVERWRITE is set to true.
+# Conditions: 
+# - The labels in the section have to exist beforehand.
 '''
 
 EXAMPLES = """
+- name: Edit S3 credentials
+  schulcloud.onepwd.update_s3_values_of_item:
+    vault: "vault"
+    BUCKET_NAME: "bucket-name"
+    SECRET_NAME: "secret_name"
+    ACCESS_KEY: "access_key"
+    ACCESS_SECRET: "access_secret"
+    # provide name of the section in which s3 credentials are saved
+    SECTION: "s3_credentials"
+    ENDPOINT_URL: "s3_url"
+    OVERWRITE: True
 """
 
 RETURN = """
+Updates the s3 credentials 
 """
 
 from subprocess import Popen, PIPE
@@ -18,13 +33,6 @@ import os
 import onepwd
 import url64
 import json
-
-# Provides the ability to edit the s3 values of a secret. Will only take action if OVERWRITE is set to true.
-# Conditions: 
-# - The labels in the section have to exist beforehand.
-# - The order of the labels always has to be: Acces Key, Access Secret, Endpoint, Url
-# How to use in Ansible: 
-# action: schulcloud.onepwd.upload_s3_secret vault=infra-dev BUCKET_NAME=my-bucket-name SECRET_NAME=my-s3-name ACCESS_KEY=my-access-key ACCESS_SECRET=my-access-secret ENPOINT_URL=my-endpoint-url SECTION=my-section OVERWRITE=True
 
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#action-plugins
 class ActionModule(ActionBase):
@@ -70,38 +78,6 @@ class ActionModule(ActionBase):
                 raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
             else: 
                 pass
-
-        # Getting Vars for local testing (using Python)
-        # vault = task_vars['vault']
-        # try: 
-        #     BUCKET_NAME = task_vars['BUCKET_NAME']
-        #     SECRET_NAME = task_vars['SECRET_NAME']
-        #     ACCESS_KEY = task_vars['ACCESS_KEY']
-        #     ACCESS_SECRET = task_vars['ACCESS_SECRET']
-        #     ENDPOINT_URL = task_vars['ENDPOINT_URL']
-        #     SECTION = task_vars['SECTION']
-        # except: 
-        #     print("""
-        #     ERROR! Could't upload s3 secret.
-        #     Please provide a BUCKET_NAME, SECRET_NAME, ACCESS_KEY, ACCESS_SECRET, ENDPOINT_URL and SECTION!
-        #     """)
-        # # optinal values
-        # overwrite = True
-        # throw_error = False
-        # try: 
-        #     overwrite = self._task.args['OVERWRITE']
-        #     if overwrite.lower()== "true":
-        #         overwrite = True
-        #     elif overwrite.lower()== "false":
-        #         overwrite = False
-        #     else:
-        #         throw_error = True
-        #         raise Exception()
-        # except: 
-        #     if throw_error == True: 
-        #         raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
-        #     else: 
-        #         pass
    
         # Test if secret already exists 
         try: 
@@ -176,8 +152,3 @@ class ActionModule(ActionBase):
                 'executed' : 'Secret updated'}
         print("Nothing new to update") 
         return {}
-
-# When run locally with python: Use getting Vars to local ones (using python)
-# ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', task_vars={ 'vault': 'infra-dev', 'SECRET_NAME': 'Aimees-Test2', 'BUCKET_NAME': 'my-bucket-name', 'ACCESS_SECRET': 'my-access-secret', 'ACCESS_KEY': 'my-access-key', 'ENDPOINT_URL': 'my-endpoint-url', 'SECTION': 'my-section'})
-
-

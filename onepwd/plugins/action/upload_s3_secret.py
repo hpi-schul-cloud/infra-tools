@@ -2,12 +2,22 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
+Provides the ability to upload a secret to a vault (if secret does not exist), and to update the values of the secret if they differ from the requested ones (set OVERWRITE=True) 
 '''
 
 EXAMPLES = """
+- name: Edit S3 Credentials in 1Password
+  schulcloud.onepwd.update_s3_secret:
+    vault: "vault"
+    BUCKET_NAME: "bucket_name"
+    SECRET_NAME:  "secret_name"
+    ACCESS_KEY: "access-key"
+    ACCESS_SECRET: "access-secret"
+    OVERWRITE: True
 """
 
 RETURN = """
+If non-existent uploads credentials in item named "s3", if existent updates the s3 credentials in s3 secret"
 """
 
 from subprocess import Popen, PIPE
@@ -17,10 +27,6 @@ from ansible.plugins.action import ActionBase
 import os
 import onepwd
 import url64
-
-# Provides the ability to upload a secret to a vault (if secret does not exist), and to update the values of the secret if they differ from the requested ones (set OVERWRITE=True) 
-# How to use in Ansible: 
-# action: schulcloud.onepwd.upload_s3_secret vault=infra-dev BUCKET_NAME=my-bucket-name SECRET_NAME=my-s3-name ACCESS_KEY=my-access-key ACCESS_SECRET=my-access-secret OVERWRITE=True
 
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#action-plugins
 class ActionModule(ActionBase):
@@ -64,36 +70,6 @@ class ActionModule(ActionBase):
                 raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
             else: 
                 pass
-
-        # Getting Vars for local testing (using Python)
-        # vault = task_vars['vault']
-        # try: 
-        #     BUCKET_NAME = task_vars['BUCKET_NAME']
-        #     SECRET_NAME = task_vars['SECRET_NAME']
-        #     ACCESS_KEY = task_vars['ACCESS_KEY']
-        #     ACCESS_SECRET = task_vars['ACCESS_SECRET']
-        # except: 
-        #     print("""
-        #     ERROR! Could't upload s3 secret.
-        #     Please provide a BUCKET_NAME, SECRET_NAME, ACCESS_KEY and ACCESS_SECRET!
-        #     """)
-        # # optinal values
-        # overwrite = True
-        # throw_error = False
-        # try: 
-        #     overwrite = self._task.args['OVERWRITE']
-        #     if overwrite.lower()== "true":
-        #         overwrite = True
-        #     elif overwrite.lower()== "false":
-        #         overwrite = False
-        #     else:
-        #         throw_error = True
-        #         raise Exception()
-        # except: 
-        #     if throw_error == True: 
-        #         raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
-        #     else: 
-        #         pass
 
         # Hardcoded Vars 
         category = 'password'
@@ -165,10 +141,3 @@ class ActionModule(ActionBase):
             else: 
                 print("Nothing new to update") 
             return {}
-
-
-            
-# When run locally with python: Use getting Vars to local ones (using python)
-# ActionModule.run('schulcloud.onepwd.onepwd.OnePwd', task_vars={ 'vault': 'infra-dev', 'SECRET_NAME': 'my-test-item', 'BUCKET_NAME': 'my-bucket-name', 'ACCESS_SECRET': 'my-access-secret', 'ACCESS_KEY': 'my-access-key'})
-
-
