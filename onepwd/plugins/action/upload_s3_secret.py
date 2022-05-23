@@ -52,14 +52,13 @@ class ActionModule(ActionBase):
         throw_error = False
         try: 
             overwrite = self._task.args['OVERWRITE']
-            if overwrite in ['True', 'true', 'TRUE', True]:
+            if overwrite.lower()== "true":
                 overwrite = True
-            elif overwrite in ['False', 'false', 'FALSE', False]:
+            elif overwrite.lower()== "false":
                 overwrite = False
-            elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE', True, False]:
+            else:
                 throw_error = True
-                print("Error - Set OVERWRITE to True or False")
-                raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
+                raise Exception()
         except: 
             if throw_error == True: 
                 raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
@@ -133,27 +132,27 @@ class ActionModule(ActionBase):
         if overwrite == True and s3_secret_exists == True: 
             
             # Test if values are alredy configured as requested
-            # svalue is a list with the secret fields [{'k':'string','n':'bucket_name','t':'BUCKET_NAME','v':'My-Bucket-name'}, ...]
-            svalue = onepwd.get_secret_values_list(op, item_name=SECRET_NAME, vault=vault)
+            # secret_value is a list with the secret fields [{'k':'string','n':'bucket_name','t':'BUCKET_NAME','v':'My-Bucket-name'}, ...]
+            secret_value = onepwd.get_secret_values_list(op, item_name=SECRET_NAME, vault=vault)
             # True = nothing changed, False = Requested value is different from current value
             check_bucket = True
             check_secret = True
             check_key = True
             if BUCKET_NAME is not None: 
-                check_bucket = (svalue[0]['v'] == BUCKET_NAME)
-                if svalue[0]['v'] == BUCKET_NAME:
+                check_bucket = (secret_value[0]['v'] == BUCKET_NAME)
+                if secret_value[0]['v'] == BUCKET_NAME:
                     print("BUCKET_NAME already set as requested")
                 else: 
                     print("BUCKET_NAME is different")
             if ACCESS_KEY is not None: 
-                check_key = (svalue[1]['v'] == ACCESS_KEY)
-                if svalue[1]['v'] == ACCESS_KEY:
+                check_key = (secret_value[1]['v'] == ACCESS_KEY)
+                if secret_value[1]['v'] == ACCESS_KEY:
                     print("ACCESS_KEY already set as requested")
                 else: 
                     print("ACCESS_KEY is different")
             if ACCESS_SECRET is not None: 
-                check_secret = (svalue[2]['v'] == ACCESS_SECRET)
-                if svalue[2]['v'] == ACCESS_SECRET:
+                check_secret = (secret_value[2]['v'] == ACCESS_SECRET)
+                if secret_value[2]['v'] == ACCESS_SECRET:
                     print("ACCESS_SECRET already set as requested")
                 else: 
                     print("ACCESS_SECRET is different")

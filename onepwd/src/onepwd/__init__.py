@@ -297,32 +297,32 @@ def yaml_str_presenter(dumper, data):
 def generate_secrets_file(op, items, file, field=None, disable_empty=False, permissions=0o600):
     secrets={}
     sname=""
-    svalue=""
+    secret_value=""
     for i in items:
         item=op.get('item',i['uuid'])
         if item["templateUuid"]=='005': # Password template type
             sname=item["overview"]["title"]
-            svalue=item["details"]["password"]
+            secret_value=item["details"]["password"]
             if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
                 for f in item["details"]["sections"][0]["fields"]:
                     if f["t"]==field:
-                        svalue=f["v"]
+                        secret_value=f["v"]
         if item["templateUuid"]=='006': # File template type
             document=op.get_document(i['uuid'])
             sname=item["overview"]["title"]
-            svalue=document
+            secret_value=document
         if item["templateUuid"]=='112': # JSON Web Token
             for s in item["details"]["sections"]:
               for f in s["fields"]:
                 if f["n"]=="credential":
                   sname=f["n"]
-                  svalue=f["v"]
+                  secret_value=f["v"]
         if disable_empty:
-            if svalue:
-                subdict=convert_dot_notation(sname, svalue)
+            if secret_value:
+                subdict=convert_dot_notation(sname, secret_value)
                 secrets=merge_dictionaries(secrets, subdict)
         else:
-            subdict=convert_dot_notation(sname, svalue)
+            subdict=convert_dot_notation(sname, secret_value)
             secrets=merge_dictionaries(secrets, subdict)
 
     with open(file, 'w') as f:
@@ -332,43 +332,43 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
 
 def get_single_secret(op, item_name, field=None, vault=None):
     item=op.get('item', item_name, vault=vault)
-    svalue=""
+    secret_value=""
     if item["templateUuid"]=='001': # Login template type
         if field:
           if field=="password":
             for f in item["details"]["fields"]:
                 if f["name"]==field:
-                    svalue=f["value"]
+                    secret_value=f["value"]
           elif item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
             for f in item["details"]["sections"][0]["fields"]:
                 if f["t"]==field:
-                    svalue=f["v"]
+                    secret_value=f["v"]
     elif item["templateUuid"]=='005': # Password template type
-        svalue=item["details"]["password"]
+        secret_value=item["details"]["password"]
         if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
             for f in item["details"]["sections"][0]["fields"]:
                 if f["t"]==field:
-                    svalue=f["v"]
+                    secret_value=f["v"]
     elif item["templateUuid"]=='006': # File template type
         document=op.get_document(item['uuid'])
-        svalue=document.replace("\n\n","\n")
+        secret_value=document.replace("\n\n","\n")
     elif item["templateUuid"]=='112': # JSON Web Token
         for s in item["details"]["sections"]:
           for f in s["fields"]:
             if f["n"]=="credential":
-              svalue=f["v"]
-    return svalue
+              secret_value=f["v"]
+    return secret_value
 
 # used in the ansible action 'upload_s3_secret' 
 # this does not return values saved in separate sections
 def get_secret_values_list(op, item_name,  vault=None):
     item=op.get('item', item_name, vault=vault)
-    svalue=""
+    secret_value=""
     if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        svalue=item["details"]["sections"][0]["fields"] 
+        secret_value=item["details"]["sections"][0]["fields"] 
     else:
          raise Exception('The secret has not the password or login template type!')
-    return svalue
+    return secret_value
 
 # used in ansible action update_s3_values_of_item
 # filters for the values in a specefied section 
@@ -380,7 +380,7 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
     if section is None:  
         raise Exception('Section name not set! Please provide section name')
     if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        while matches_section is False and index < 20: 
+        while matches_section is False and index <= len(item["details"]["sections"]): 
             try: 
                 if item["details"]["sections"][index]["title"] == section: 
                     matches_section = True 
@@ -390,11 +390,11 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
             index += 1
     else:
         raise Exception('The secret has not the password or login template type!')
-    if index < 20:
-        svalue=item["details"]["sections"][section_index]["fields"]
+    if index <= len(item["details"]["sections"]):
+        secret_value=item["details"]["sections"][section_index]["fields"]
     else: 
         raise Exception('Section name could not be found! Please check it!')
-    return svalue
+    return secret_value
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
 def oct2int(x):

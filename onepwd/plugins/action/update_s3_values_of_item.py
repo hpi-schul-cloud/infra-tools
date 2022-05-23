@@ -58,14 +58,13 @@ class ActionModule(ActionBase):
         throw_error = False
         try: 
             overwrite = self._task.args['OVERWRITE']
-            if overwrite in ['True', 'true', 'TRUE', True]:
+            if overwrite.lower()== "true":
                 overwrite = True
-            elif overwrite in ['False', 'false', 'FALSE', False]:
+            elif overwrite.lower()== "false":
                 overwrite = False
-            elif overwrite not in ['True', 'true', 'TRUE', 'False', 'false', 'FALSE', True, False]:
+            else:
                 throw_error = True
-                print("Error - Set OVERWRITE to True or False")
-                raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
+                raise Exception()
         except: 
             if throw_error == True: 
                 raise Exception("OVERWRITE_VALUE_CAN_ONLY_BE_TRUE_OR_FALSE")
@@ -112,34 +111,58 @@ class ActionModule(ActionBase):
         except:
             raise Exception("Secret does not exist. Therefore it can't be updated.")
         
-        # give feedabck on overwrite settings
+        # give feedback on overwrite settings
         if overwrite == True: 
             print("Overwrite is set to True, values will be overwritten if they differ")
         else: 
             print("Overwrite is NOT set to True. Values will get compared but will not be updated.")
   
         # get the secrets content of specified section
-        svalue = onepwd.get_secret_values_list_from_section(op, item_name=SECRET_NAME, vault=vault, section=SECTION )
-        check_key = (svalue[0]['v'] == ACCESS_KEY)
-        if svalue[0]['v'] == ACCESS_KEY:
-            print("ACCESS_KEY already set as requested")
-        else: 
-            print("ACCESS_KEY is different")
-        check_secret = (svalue[1]['v'] == ACCESS_SECRET)
-        if svalue[1]['v'] == ACCESS_SECRET:
-            print("ACCESS_SECRET already set as requested")
-        else: 
-            print("ACCESS_SECRET is different")
-        check_endpoint_url = (svalue[2]['v'] == ENDPOINT_URL)
-        if svalue[2]['v'] == ENDPOINT_URL:
-            print("ENDPOINT_URL already set as requested")
-        else: 
-            print("ENDPOINT_URL is different")
-        check_bucket = (svalue[3]['v'] == BUCKET_NAME)
-        if svalue[3]['v'] == BUCKET_NAME:
-            print("BUCKET_NAME already set as requested")
-        else: 
-            print("BUCKET_NAME is different")
+        secret_value = onepwd.get_secret_values_list_from_section(op, item_name=SECRET_NAME, vault=vault, section=SECTION )
+        index = 0 
+        try: 
+            while not ("key" in secret_value[index]['t'].lower() and "access" in secret_value[index]['t'].lower()): 
+                index += 1
+            if secret_value[index]['v'] == ACCESS_KEY:
+                print("ACCESS_KEY already set as requested")
+            else: 
+                print("ACCESS_KEY is different")
+        except:
+            raise Exception("No key value pair for ACCESS KEY found")
+        check_key = (secret_value[index]['v'] == ACCESS_KEY)
+        index=0
+        try: 
+            while not ("secret" in secret_value[index]['t'].lower() and "access" in secret_value[index]['t'].lower()): 
+                index += 1
+            if secret_value[index]['v'] == ACCESS_SECRET:
+                print("ACCESS_SECRET already set as requested")
+            else: 
+                print("ACCESS_SECRET is different")
+        except:
+            raise Exception("No key value pair for ACCESS SECRET found")
+        check_secret = (secret_value[index]['v'] == ACCESS_SECRET)
+        index=0 
+        try: 
+            while not ("endpoint" in secret_value[index]['t'].lower()): 
+                index += 1
+            if secret_value[index]['v'] == ENDPOINT_URL:
+                print("ENDPOINT already set as requested")
+            else: 
+                print("ENDPOINT is different")
+        except:
+            raise Exception("No key value pair for ENDPOINT found")
+        check_endpoint_url = (secret_value[2]['v'] == ENDPOINT_URL)
+        index=0
+        try: 
+            while not ("bucket" in secret_value[index]['t'].lower()): 
+                index += 1
+            if secret_value[index]['v'] == BUCKET_NAME:
+                print("BUCKET_NAME already set as requested")
+            else: 
+                print("BUCKET_NAME is different")
+        except:
+            raise Exception("No key value pair for BUCKET found")
+        check_bucket = (secret_value[3]['v'] == BUCKET_NAME)
 
         # Update Secret if changes are present
         if (check_bucket and check_key and check_secret and check_endpoint_url) == False and overwrite == True:
