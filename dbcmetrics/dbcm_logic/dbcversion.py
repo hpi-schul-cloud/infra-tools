@@ -27,6 +27,7 @@ class VersionMetricsThreading(object):
         Function that opens the tunnel and wait in a loop until the stop event is send from the main thread
         '''
         def do_something():
+            self.pmc_infos.clear()
             for i in self.configuration.instances:
                 labels: Dict = self.getInstanceVersions(i.name)
                 labels['app_instance'] = i.name
