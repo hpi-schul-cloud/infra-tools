@@ -1,3 +1,5 @@
 python38 [platform:rpm]
 git-lfs [platform:rpm]
 unzip [platform:rpm]
+terraform [platform:rpm] == 1.1.4
+1password-cli [platform:rpm] == 1.8.0
