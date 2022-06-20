@@ -87,16 +87,16 @@ class OnePwd(object):
         """
         return json.loads(run_op_command_in_shell(command))
 
-    # used in the ansible action 'upload_s3_secret' 
+    # used in the ansible action 'upload_s3_secret'
     def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""
-        if BUCKET_NAME is not None: 
+        if BUCKET_NAME is not None:
             fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
-        if ACCESS_KEY is not None: 
+        if ACCESS_KEY is not None:
             fields_to_change += f"ACCESS_KEY={ACCESS_KEY} "
-        if ACCESS_SECRET is not None: 
+        if ACCESS_SECRET is not None:
             fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
@@ -107,13 +107,13 @@ class OnePwd(object):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""
-        if ACCESS_KEY is not None: 
+        if ACCESS_KEY is not None:
             fields_to_change += f"FILES_STORAGE__S3_ACCESS_KEY_ID={ACCESS_KEY} "
-        if ACCESS_SECRET is not None: 
+        if ACCESS_SECRET is not None:
             fields_to_change += f"FILES_STORAGE__S3_SECRET_ACCESS_KEY={ACCESS_SECRET} "
-        if ENDPOINT_URL is not None: 
+        if ENDPOINT_URL is not None:
             fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
-        if BUCKET_NAME is not None: 
+        if BUCKET_NAME is not None:
             fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
@@ -124,13 +124,13 @@ class OnePwd(object):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""
-        if ACCESS_KEY is not None: 
+        if ACCESS_KEY is not None:
             fields_to_change += f"s3_access_secret={ACCESS_SECRET} "
-        if ACCESS_SECRET is not None: 
+        if ACCESS_SECRET is not None:
             fields_to_change += f"s3_bucket_name={BUCKET_NAME} "
-        if ENDPOINT_URL is not None: 
+        if ENDPOINT_URL is not None:
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
-        if BUCKET_NAME is not None: 
+        if BUCKET_NAME is not None:
             fields_to_change += f"s3_access_key={ACCESS_KEY} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
@@ -215,7 +215,7 @@ class OnePwd(object):
         child.readline()
         token = child.readline().decode('UTF-8').strip()
         if token.startswith('[ERROR]'):
-            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
+            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time. "{twofact_digits}"')
         return token
 
     def get_version(self):
@@ -359,31 +359,31 @@ def get_single_secret(op, item_name, field=None, vault=None):
               secret_value=f["v"]
     return secret_value
 
-# used in the ansible action 'upload_s3_secret' 
+# used in the ansible action 'upload_s3_secret'
 # this does not return values saved in separate sections
 def get_secret_values_list(op, item_name,  vault=None):
     item=op.get('item', item_name, vault=vault)
     secret_value=""
     if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        secret_value=item["details"]["sections"][0]["fields"] 
+        secret_value=item["details"]["sections"][0]["fields"]
     else:
          raise Exception('The secret has not the password or login template type!')
     return secret_value
 
 # used in ansible action update_s3_values_of_item
-# filters for the values in a specefied section 
+# filters for the values in a specefied section
 def get_secret_values_list_from_section(op, item_name,  vault=None, section=None):
     item=op.get('item', item_name, vault=vault)
     matches_section=False
     section_index=None
     index=0
-    if section is None:  
+    if section is None:
         raise Exception('Section name not set! Please provide section name')
     if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        while matches_section is False and index <= len(item["details"]["sections"]): 
-            try: 
-                if item["details"]["sections"][index]["title"] == section: 
-                    matches_section = True 
+        while matches_section is False and index <= len(item["details"]["sections"]):
+            try:
+                if item["details"]["sections"][index]["title"] == section:
+                    matches_section = True
                     section_index = index
             except:
                 pass
@@ -392,7 +392,7 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
         raise Exception('The secret has not the password or login template type!')
     if index <= len(item["details"]["sections"]):
         secret_value=item["details"]["sections"][section_index]["fields"]
-    else: 
+    else:
         raise Exception('Section name could not be found! Please check it!')
     return secret_value
 
