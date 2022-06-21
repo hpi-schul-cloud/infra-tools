@@ -1,6 +1,7 @@
 '''
 Module for a class that queries a s3 bucket for their size and the number of files to provide them as Prometheus Gauge Metrics
 '''
+from datetime import datetime, timedelta
 import logging
 import os
 from re import I
@@ -27,6 +28,7 @@ class StorageMetricsThreading(object):
         self.storage_access_secret = os.getenv("STORAGE_ACCESS_SECRET")
 
         logging.info("Connecting with Access Key {} to S3 region {} by using the storage provider url: {}".format(self.storage_access_key, self.storage_provider_region, self.storage_provider_url))
+        logging.info("Fetching S3 bucket metrics every {} seconds".format(self.storage_interval))
         logging.info("Exclude subfolders when generating metrics: {}".format(self.storage_exclude_subfolders))
 
         self.s3_client = boto3.client(
@@ -81,8 +83,13 @@ class StorageMetricsThreading(object):
         Function that calls metric functions and waits in a loop until the stop event is send from the main thread
         '''
         while True:
+            start_time = datetime.now()
+            end_time = start_time + timedelta(seconds=self.storage_interval)
             self.fetchStorageMetrics()
-            sleep(self.storage_interval)
+            if datetime.now() < end_time:
+                remaining_time = end_time - datetime.now()
+                logging.info("Wait for {} until the next fetching".format(remaining_time))
+                sleep(remaining_time.seconds)
 
     def fetchStorageMetrics(self):
         '''
@@ -95,6 +102,7 @@ class StorageMetricsThreading(object):
         object_list = []
         folder_list = []
 
+        logging.info("Start fetching the object list of bucket {}".format(self.storage_bucket_name))
         while incomplete:
             try:
                 response = self.s3_client.list_objects_v2(
