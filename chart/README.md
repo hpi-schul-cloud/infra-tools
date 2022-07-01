@@ -66,6 +66,9 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| storage_access_key_key | string | `"s3_access_key"` |  |
+| storage_access_secret_key | string | `"s3_access_secret"` |  |
+| storage_bucket_name_key | string | `"s3_bucket_name"` |  |
 | storage_exclude_subfolders | bool | `true` |  |
 | storage_interval | int | `30` |  |
 | storage_metrics_enabled | bool | `true` |  |
