@@ -1,6 +1,6 @@
 # dbcmetrics
 
-A containerized Python application which exposes sepcial dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application version of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes
+A containerized Python application which exposes special dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application version of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes
 The port where metrics are exposed is currently hard codeed to 9000
 
 The source code can be found in the [dbcmetrics](https://github.com/hpi-schul-cloud/infra-tools/tree/master/dbcmetrics) folder of the infra-tools repository of hpi-schul-cloud on github.
