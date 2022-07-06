@@ -147,7 +147,7 @@ class ActionModule(ActionBase):
                 onepwd.OnePwd.update_s3_values_of_server_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
             elif SECRET_NAME == "ionos-s3-password-backup":
                 onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
-            elif SECRET_NAME == "nextcloud-s3-password-backup":
+            elif SECRET_NAME == "nextcloud-ionos-s3-password-backup":
                 onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
             else:
                 raise Exception("Secret is neither the server, ionos-s3-password-backup  nor the nextcloud secret. Upload function for any other secret not implemented yet")
