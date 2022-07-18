@@ -119,8 +119,8 @@ class OnePwd(object):
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
         return run_op_command_in_shell(command)
 
-    # used in ansible action update_s3_values_of_item
-    def update_s3_values_of_nextcloud_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
+    # used in ansible action update_s3_values_of_item used by nextcloud and ionos-s3-password-backup
+    def update_s3_values_of_standard_s3_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""
