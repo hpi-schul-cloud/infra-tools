@@ -1,0 +1,2 @@
+python38 [platform:rpm]
+git-lfs [platform:rpm]
