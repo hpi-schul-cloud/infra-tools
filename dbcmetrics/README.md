@@ -1,14 +1,14 @@
 # dbcmetrics
 
-A containerized Python application which exposes sepcial dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application version of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes
-The port where metrics are exposed is currently hard codeed to 9000
+A containerized Python application which exposes sepcial dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application version of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes.
+The port where metrics are exposed is currently hard codeed to 9000.
 
 The source code can be found in the [dbcmetrics](https://github.com/hpi-schul-cloud/infra-tools/tree/master/dbcmetrics) folder of the infra-tools repository of hpi-schul-cloud on github.
 
 # Configuration
 
 ## Config File
-A `dbcm_config.yaml` config file will be read either from a global location `/etc/dbcmconfig` or the file path which is specified in a `DBCMCONFIG` environment variable.
+A `dbcm_config.yaml` config file will be read either from a global location `/etc/dbcmconfig` or the file path which is specified in an `DBCMCONFIG` environment variable.
 
 ### Environment Variables
 
@@ -19,6 +19,7 @@ The following environment variables are read by the dbcmetrics application:
 | DBCMCONFIG | Path to the `dbcm_config.yaml` file (default is `/etc/dbcmconfig`) | `./dbcm_config.yaml` |
 | STORAGE_METRICS_ENABLED | Enables or disabled the storage monitoring module | `true` |
 | STORAGE_INTERVAL | Number of seconds between cycles in which the storage metrics are fetched | `30` |
+| STORAGE_EXCLUDE_SUBFOLDERS | Defines if metric generation for folders inside of top-level folders should be disabled  | `true` |
 | STORAGE_PROVIDER_URL | URL of the S3 storage provider | `http://s3-de-central.profitbricks.com` |
 | STORAGE_PROVIDER_REGION | Region of the S3 storage provider | `s3-de-central` |
 | STORAGE_BUCKET_NAME | The name of the bucket to monitor by the storage module (Secret in Kubernetes) | `infra-dev-bucket-0000` |
@@ -50,6 +51,7 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 "DBCMCONFIG": "./dbcm_config.yaml",
                 "STORAGE_METRICS_ENABLED": "true",
                 "STORAGE_INTERVAL": "30",
+                "STORAGE_EXCLUDE_SUBFOLDERS": "true",
                 "STORAGE_PROVIDER_URL": "http://s3-de-central.profitbricks.com",
                 "STORAGE_PROVIDER_REGION": "s3-de-central",
                 // Secrets in Kubernetes
@@ -78,7 +80,9 @@ docker run `
     -e DBCMCONFIG="./dbcm_config.yaml" `
     -e STORAGE_METRICS_ENABLED="true" `
     -e STORAGE_INTERVAL="30" `
+    -e STORAGE_EXCLUDE_SUBFOLDERS="true" `
     -e STORAGE_PROVIDER_URL="http://s3-de-central.profitbricks.com" `
+    -e STORAGE_PROVIDER_REGION="s3-de-central" `
     -e STORAGE_BUCKET_NAME="<The Name of the Bucket to monitor>" `
     -e STORAGE_ACCESS_KEY="<The Access Key of your Object Storage Key with access to the Bucket>" `
     -e STORAGE_ACCESS_SECRET="<The Secret Key of your Object Storage Key with access to the Bucket>" `
