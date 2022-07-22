@@ -9,7 +9,7 @@ Provides the ability to edit the s3 values of a secret. Will only take action if
 
 EXAMPLES = """
 - name: Edit S3 credentials
-  schulcloud.onepwd.update_s3_values_of_item:
+  dbildungscloud.onepwd.update_s3_values_of_item:
     vault: "vault"
     BUCKET_NAME: "bucket-name"
     SECRET_NAME: "secret_name"
