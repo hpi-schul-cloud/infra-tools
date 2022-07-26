@@ -12,6 +12,7 @@ EXAMPLES = """
     vault: "vault"
     SECRET_NAME: "my-new-item"
     USER_EMAIL: "my-user-email"
+    LOGIN_URL: "my-login-url"
 """
 
 RETURN = """
@@ -44,17 +45,17 @@ class ActionModule(ActionBase):
             vault = self._task.args['vault']
             SECRET_NAME = self._task.args['SECRET_NAME']
             USER_EMAIL = self._task.args['USER_EMAIL']
+            LOGIN_URL = self._task.args['LOGIN_URL']
         except: 
             pass
             print("""
-            ERROR! Couldn't create s3 item.
-            Please provide a vault, the USER_EMAIL and a SECRET_NAME!
+            ERROR! Couldn't create item.
+            Please provide a vault, the USER_EMAIL, SECRET_NAME and LOGIN_URL!
             """) 
-            raise Exception("PLEASE_SET_REQUIRED_VALUES - vault, USER_EMAIL and SECRET_NAME")
+            raise Exception("PLEASE_SET_REQUIRED_VALUES - vault, USER_EMAIL, SECRET_NAME and LOGIN_URL")
 
         # Hardcoded Vars 
         category = 'login'
-        url = 'https://dcd.ionos.com/latest'
         USER_PASSWORD = secrets.token_urlsafe(22)
 
         # Test if secret already exists 
@@ -67,11 +68,11 @@ class ActionModule(ActionBase):
             print(f"SECRET with the name of '{SECRET_NAME}' does not exist yet. Will create it with dummy data")
 
         # Template creation 
-        template = '{ "fields": [ { "designation": "username", "name": "username", "type": "T", "value": "' + str(USER_EMAIL) + '" }, { "designation": "password", "name": "password", "type": "P", "value": "' + str(USER_PASSWORD) + '"} ], "notesPlain": "", "passwordHistory": [], "sections": [ { "fields": [ { "k": "concealed", "n": "hnzbv3pk52gke5niqlknbw6lkm", "t": "s3_access_key", "v": "s3_access_key" }, { "k": "concealed", "n": "wtymcesozffzludpmavnb37bf4", "t": "s3_access_secret", "v": "s3_access_secret" }, { "k": "string", "n": "eiaf5ekijecuqyvbf4ydfegarm", "t": "s3_endpoint_url", "v": "s3_endpoint_url" }, { "k": "string", "n": "bbrpsgrbjwmmzrqprqyrotuz34", "t": "s3_bucket_name", "v": "s3_bucket_name" } ], "name": "Section_oipgfwes43d7dbwpkbqonein2i", "title": "s3_credentials" } ] }'
+        template = '{ "fields": [ { "designation": "username", "name": "username", "type": "T", "value": "' + str(USER_EMAIL) + '" }, { "designation": "password", "name": "password", "type": "P", "value": "' + str(USER_PASSWORD) + '"} ], "notesPlain": "", "passwordHistory": [], "sections": [ { "fields": [ { "k": "concealed", "n": "internal_name_s3_access_key", "t": "s3_access_key", "v": "s3_access_key" }, { "k": "concealed", "n": "internal_name_s3_access_secret", "t": "s3_access_secret", "v": "s3_access_secret" }, { "k": "string", "n": "internal_name_s3_endpoint_url", "t": "s3_endpoint_url", "v": "s3_endpoint_url" }, { "k": "string", "n": "internal_name_bucket_name", "t": "s3_bucket_name", "v": "s3_bucket_name" } ], "name": "section_name_s3_credentials", "title": "s3_credentials" } ] }'
         encoded_item = url64.encode(template)   
         
         print("Uploading secret as requested...")
-        command = onepwd.OnePwd.create_item(op, category, encoded_item, title=SECRET_NAME, vault=vault, url=url)
+        command = onepwd.OnePwd.create_item(op, category, encoded_item, title=SECRET_NAME, vault=vault, url=LOGIN_URL)
         print("Secret uploaded")
         return {'changed': 'true',
                 'exectued' : command}
