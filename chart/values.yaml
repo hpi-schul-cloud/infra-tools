@@ -90,10 +90,10 @@ dbcmconfig:
     # configuration section with the same name below
     version_metrics: enabled
   instances:
-    # -- This part contains a list of instances which evrsions should be observed and provided as Prometheus metrics
+    # -- This part contains a list of instances which versions should be observed and provided as Prometheus metrics
     # - the name will be part of the Prometheus value, for the sample the Prometheus value will be 'myinstance_info'
     # - url is the base url of an existing dBildungscloud instance to be monitored
-    # - shortname is for further filtering in  future scenarios
+    # - shortname is for further filtering in future scenarios
     - name: "myinstancename" 
       url: "https://myinstance.dbildungscloud.dev"
       shortname: "min"
@@ -118,3 +118,4 @@ storage_provider_region: "s3-de-central"
 storage_bucket_name_key: s3_bucket_name
 storage_access_key_key: s3_access_key
 storage_access_secret_key: s3_access_secret
+storage_access_secret_name: "dbcmetrics-secret"

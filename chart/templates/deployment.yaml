@@ -54,20 +54,20 @@ spec:
             - name: STORAGE_BUCKET_NAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "dbcmetrics.fullname" . }}-secret
+                  name: {{ .Values.storage_access_secret_name }}
                   key: {{ .Values.storage_bucket_name_key }}
             - name: STORAGE_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "dbcmetrics.fullname" . }}-secret
+                  name: {{ .Values.storage_access_secret_name }}
                   key: {{ .Values.storage_access_key_key }}
             - name: STORAGE_ACCESS_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "dbcmetrics.fullname" . }}-secret
+                  name: {{ .Values.storage_access_secret_name }}
                   key: {{ .Values.storage_access_secret_key }}
           volumeMounts:
-          - name: {{ .Chart.Name }}-configyml
+          - name: {{ include "dbcmetrics.fullname" . }}-configyml
             mountPath: /etc/dbcmetrics/dbcm_config.yaml
             subPath: dbcm_config.yaml
             readOnly: true

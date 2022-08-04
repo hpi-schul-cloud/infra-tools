@@ -40,7 +40,7 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | containerPort | int | `9000` |  |
 | dbcmconfig | object | `{"features":{"version_metrics":"enabled"},"instances":[{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}],"version_metrics":{"interval":600,"services":{"client":"/version","nuxt":"/nuxtversion","server":"/serverversion"}}}` | The values below 'dbcnconfigwill be copied via the configmap into the file system of the dbcmetrics pod below the mount point specified in the deployment template which is '/etc/dbcmetrics/dbcm_config.yaml' |
 | dbcmconfig.features.version_metrics | string | `"enabled"` | each supported feature can be disabled or enabled. In additon each feature has its own configuration section with the same name below |
-| dbcmconfig.instances[0] | object | `{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}` | This part contains a list of instances which evrsions should be observed and provided as Prometheus metrics - the name will be part of the Prometheus value, for the sample the Prometheus value will be 'myinstance_info' - url is the base url of an existing dBildungscloud instance to be monitored - shortname is for further filtering in  future scenarios |
+| dbcmconfig.instances[0] | object | `{"name":"myinstancename","shortname":"min","url":"https://myinstance.dbildungscloud.dev"}` | This part contains a list of instances which versions should be observed and provided as Prometheus metrics - the name will be part of the Prometheus value, for the sample the Prometheus value will be 'myinstance_info' - url is the base url of an existing dBildungscloud instance to be monitored - shortname is for further filtering in future scenarios |
 | dbcmconfig.version_metrics | object | `{"interval":600,"services":{"client":"/version","nuxt":"/nuxtversion","server":"/serverversion"}}` | This part hold the feature specif configuration - interval definces the cycle in seconds how often the version information is queried - services contains a list of services the version will be queried with the parte that needs to be added    to the base url to receive the version information |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -68,6 +68,7 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | storage_access_key_key | string | `"s3_access_key"` |  |
 | storage_access_secret_key | string | `"s3_access_secret"` |  |
+| storage_access_secret_name | string | `"dbcmetrics-secret"` |  |
 | storage_bucket_name_key | string | `"s3_bucket_name"` |  |
 | storage_exclude_subfolders | bool | `true` |  |
 | storage_interval | int | `30` |  |
