@@ -92,12 +92,12 @@ class OnePwd(object):
         vault_flag = get_optional_flag(vault=vault)
 
         fields_to_change = ""
-        if BUCKET_NAME is not None: 
-            fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
         if ACCESS_KEY is not None: 
             fields_to_change += f"ACCESS_KEY={ACCESS_KEY} "
         if ACCESS_SECRET is not None: 
             fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
+        if BUCKET_NAME is not None: 
+            fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
         return run_op_command_in_shell(command)
@@ -111,10 +111,10 @@ class OnePwd(object):
             fields_to_change += f"FILES_STORAGE__S3_ACCESS_KEY_ID={ACCESS_KEY} "
         if ACCESS_SECRET is not None: 
             fields_to_change += f"FILES_STORAGE__S3_SECRET_ACCESS_KEY={ACCESS_SECRET} "
-        if ENDPOINT_URL is not None: 
-            fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
         if BUCKET_NAME is not None: 
             fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
+        if ENDPOINT_URL is not None: 
+            fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
         return run_op_command_in_shell(command)
@@ -125,13 +125,13 @@ class OnePwd(object):
 
         fields_to_change = ""
         if ACCESS_KEY is not None: 
-            fields_to_change += f"s3_access_secret={ACCESS_SECRET} "
+            fields_to_change += f"s3_access_key={ACCESS_KEY} "
         if ACCESS_SECRET is not None: 
+            fields_to_change += f"s3_access_secret={ACCESS_SECRET} "
+        if BUCKET_NAME is not None: 
             fields_to_change += f"s3_bucket_name={BUCKET_NAME} "
         if ENDPOINT_URL is not None: 
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
-        if BUCKET_NAME is not None: 
-            fields_to_change += f"s3_access_key={ACCESS_KEY} "
 
         command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
         return run_op_command_in_shell(command)
