@@ -104,7 +104,7 @@ dbcmconfig:
   version_metrics:
     interval: 600
     services:
-      server: /api/v1/version
+      server: /serverversion
       client: /version
       nuxt: /nuxtversion
 
