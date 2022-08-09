@@ -114,6 +114,8 @@ class StorageMetricsThreading(object):
                 marker = response.get('NextContinuationToken')
                 incomplete = response['IsTruncated']
                 object_list = [*object_list, *response['Contents']]
+            except KeyError as ex:
+                incomplete = False
             except Exception as ex:
                 logging.error("The bucket {} is not available".format(self.storage_bucket_name))
                 self.bucket_availability_gauge.labels(
