@@ -45,6 +45,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push ${{ github.repository }}
+        id: docker_build_push
         uses: docker/build-push-action@v2
         with:
           context: ./dbcmetrics/
@@ -56,7 +57,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
-          image-ref: ${{ steps.docker_meta_img_hub.outputs.tags[0] }}
+          image-ref: 'ghcr.io/${{ github.repository_owner }}/dbcmetrics@${{ steps.docker_build_push.imageid }}'
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
