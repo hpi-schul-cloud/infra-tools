@@ -12,3 +12,4 @@ version_metrics:
     # list of services and URL suffixes as key/value pair of services to be checked for a version
     <service a>: <suffix a>
 
+
