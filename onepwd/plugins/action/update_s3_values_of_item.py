@@ -9,7 +9,7 @@ Provides the ability to edit the s3 values of a secret. Will only take action if
 
 EXAMPLES = """
 - name: Edit S3 credentials
-  schulcloud.onepwd.update_s3_values_of_item:
+  dbildungscloud.onepwd.update_s3_values_of_item:
     vault: "vault"
     BUCKET_NAME: "bucket-name"
     SECRET_NAME: "secret_name"
@@ -141,17 +141,11 @@ class ActionModule(ActionBase):
 
         # Update Secret if changes are present
         if (check_bucket and check_key and check_secret and check_endpoint_url) == False and overwrite == True:
-            if SECRET_NAME == "nextcloud":
-                onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
-            elif SECRET_NAME == "server":
+            if SECRET_NAME == "server":
                 onepwd.OnePwd.update_s3_values_of_server_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
-            elif SECRET_NAME == "ionos-s3-password-backup":
-                onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
-            elif SECRET_NAME == "nextcloud-ionos-s3-password-backup":
-                onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
             else:
-                raise Exception("Secret is neither the server, ionos-s3-password-backup  nor the nextcloud secret. Upload function for any other secret not implemented yet")
-            print("Secret updated...")
+                onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
+            print("Secret updated...") 
             return {'changed': 'true',
                 'executed' : 'Secret updated'}
         print("Nothing new to update")
