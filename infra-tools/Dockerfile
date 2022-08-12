@@ -1,7 +1,10 @@
-FROM debian:bullseye as release
+FROM ubuntu:20.04 as release
 
 ARG BUILD_BRANCH
 ARG BUILD_HASH
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Berlin
 
 LABEL build.stage="release"
 LABEL build.branch="${BUILD_BRANCH}"
@@ -39,8 +42,10 @@ RUN set -x \
         mtr-tiny \
         tcpdump \
         gettext-base \
+        gettext \
+        librsync-dev \
+        python3-pip \
     && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs \
-    && apt-get clean -y
-
-
+    && apt-get clean -y \
+    && pip install duplicity==0.8.23
