@@ -10,6 +10,6 @@ on:
 
 jobs:
   call-workflow:
-    uses: ./infra-tools/.github/workflows/imagetoghcr-on-push.yaml
+    uses: ./.github/workflows/imagetoghcr-on-push.yaml
     with:
       image_name: "dbcmetrics"
