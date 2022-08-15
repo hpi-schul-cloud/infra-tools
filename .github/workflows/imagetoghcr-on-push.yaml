@@ -55,6 +55,7 @@ jobs:
           push: true
           tags: ${{ steps.docker_meta_img_hub.outputs.tags }}
           labels: ${{ steps.docker_meta_img_hub.outputs.labels }}
+          fail_on_vulnerabilities: true
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
