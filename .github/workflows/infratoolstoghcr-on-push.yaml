@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: 'pwd'
+    - run: 'ls'
     - uses: ./.github/workflows/imagetoghcr-on-push.yaml
       with:
         image_name: "infra-tools"
