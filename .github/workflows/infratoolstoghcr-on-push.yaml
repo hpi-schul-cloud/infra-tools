@@ -1,5 +1,5 @@
 ---
-name: Docker Image on Push to GHCR
+name: infra-tools Docker Image on Push to GHCR
 
 on:
   push:
@@ -10,7 +10,8 @@ on:
 
 jobs:
   build_image_on_push:
-    uses: ./.github/workflows/imagetoghcr-on-push.yaml
-    with:
-      image_name: "infra-tools"
-
+    runs-on: ubuntu-latest
+    steps:
+    - uses: ./.github/workflows/imagetoghcr-on-push.yaml
+      with:
+        image_name: "infra-tools"
