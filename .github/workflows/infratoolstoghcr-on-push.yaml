@@ -1,5 +1,5 @@
 ---
-name: Docker Image on Push to GHCR
+name: infra-tools Docker Image on Push to GHCR
 
 on:
   push:
