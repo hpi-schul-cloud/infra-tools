@@ -12,6 +12,7 @@ jobs:
   build_image_on_push:
     runs-on: ubuntu-latest
     steps:
+    - run: 'pwd'
     - uses: ./.github/workflows/imagetoghcr-on-push.yaml
       with:
         image_name: "infra-tools"
