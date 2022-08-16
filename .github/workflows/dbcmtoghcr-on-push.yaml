@@ -9,7 +9,7 @@ on:
       - 'dbcmetrics/**'
 
 jobs:
-  call-workflow:
+  build_image_on_push:
     uses: ./.github/workflows/imagetoghcr-on-push.yaml
     with:
       image_name: "dbcmetrics"
