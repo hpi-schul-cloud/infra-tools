@@ -10,7 +10,6 @@ on:
   pull_request:
     paths:
       - 'infra-tools/**'
-    
 
 jobs:
   build_image_on_push:
