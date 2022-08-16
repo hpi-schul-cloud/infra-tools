@@ -13,7 +13,3 @@ on:
 jobs:
   build_image_on_push:
     uses: ./.github/workflows/dummy-reusable-workflow.yaml
-    # runs-on: ubuntu-latest
-    # steps:
-    #   - name: build_and_push_docker_to_ghcr
-    #     run: 'echo "No docker images to build" '
