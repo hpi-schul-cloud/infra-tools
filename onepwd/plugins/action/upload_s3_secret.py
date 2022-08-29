@@ -7,7 +7,7 @@ Provides the ability to upload a secret to a vault (if secret does not exist), a
 
 EXAMPLES = """
 - name: Edit S3 Credentials in 1Password
-  schulcloud.onepwd.update_s3_secret:
+  dbildungscloud.onepwd.update_s3_secret:
     vault: "vault"
     BUCKET_NAME: "bucket_name"
     SECRET_NAME:  "secret_name"
