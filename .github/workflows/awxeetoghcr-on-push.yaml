@@ -1,15 +1,15 @@
 ---
-name: dbcmetrics Docker Image on Push to GHCR
+name: awx-ee Docker Image on Push to GHCR
 
 on:
   push:
     branches-ignore:
       - master
     paths:
-      - 'dbcmetrics/**'
+      - 'awx-ee/**'
 
 jobs:
   build_image_on_push:
     uses: ./.github/workflows/imagetoghcr-on-push.yaml
     with:
-      image_name: "dbcmetrics"
+      image_name: "awx-ee"
