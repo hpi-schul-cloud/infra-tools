@@ -110,10 +110,14 @@ class StorageMetricsThreading(object):
                     ContinuationToken=marker,
                     FetchOwner=False,
                 )
-                total_keys += response['KeyCount']
-                marker = response.get('NextContinuationToken')
-                incomplete = response['IsTruncated']
-                object_list = [*object_list, *response['Contents']]
+                key_count = response['KeyCount']
+                total_keys += key_count
+                if key_count == 0:
+                    incomplete = False
+                else:
+                    marker = response.get('NextContinuationToken')
+                    incomplete = response['IsTruncated']
+                    object_list = [*object_list, *response['Contents']]
             except Exception as ex:
                 logging.error("The bucket {} is not available".format(self.storage_bucket_name))
                 self.bucket_availability_gauge.labels(
