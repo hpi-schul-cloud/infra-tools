@@ -64,7 +64,7 @@ def get_actions_from_steps(steps: list):
 
 
 parser = argparse.ArgumentParser("Searches all repositories of an organization for actions used in jobs inside workflows and extracts them into an CSV file")
-parser.add_argument("github_token", help = "Personal access token generated on GitHub, no special scopes/permissions required")
+parser.add_argument("github_token", help = "Personal access token generated on GitHub, scope \"repo\" is necessary for private repositories")
 parser.add_argument("organization", help = "Name of the organization (from the URL) whose repositories should be analyzed")
 parser.add_argument("-o", "--output_file", default = "actions.csv")
 args = parser.parse_args()
