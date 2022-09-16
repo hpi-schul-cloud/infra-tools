@@ -69,7 +69,7 @@ class OnePwd(object):
 
     def list(self, resource, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        op_command = f"{self.op} list {resource} {vault_flag} --session={self.session_token}"
+        op_command = f"{self.op} {resource} list {vault_flag} --session={self.session_token}"
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except json.decoder.JSONDecodeError:
@@ -198,20 +198,23 @@ class OnePwd(object):
     def signin(self, secret, shorthand):
         if not os.environ.get("OP_DEVICE"):
             os.environ["OP_DEVICE"] = base64.b32encode(os.urandom(16)).decode().lower().rstrip("=")
+        if not os.environ.get("OP_FORMAT"):
+            os.environ["OP_FORMAT"] = "json"
         session_flag=get_optional_flag(session=self.session_token)
-        child = pexpect.spawn(f"{self.op} signin {secret['signin_address']} {secret['username']} {secret['secret_key']} --output=raw --shorthand={shorthand} {session_flag}",
+        child = pexpect.spawn(f"{self.op} account add --signin --address {secret['signin_address']} --email {secret['email']} --secret-key {secret['secret_key']} --raw --shorthand={shorthand} {session_flag}",
                               env=os.environ)
         child.expect("Enter the password for")
         child.sendline(secret['password'])
+        # TODO: Uncomment this part (no 2fa for testing account)
         # Wrapped expected input with own input as child.readline() does not work here
-        child.expect("Enter your six-digit authentication code: ")
-        twofact_digits=""
-        if secret["2fa_token"]:
-            totp = pyotp.TOTP(secret["2fa_token"])
-            twofact_digits=totp.now()
-        else:
-            twofact_digits=input("Enter your six-digit authentication code: ")
-        child.sendline(twofact_digits)
+        # child.expect("Enter your six-digit authentication code: ")
+        # twofact_digits=""
+        # if secret["2fa_token"]:
+        #     totp = pyotp.TOTP(secret["2fa_token"])
+        #     twofact_digits=totp.now()
+        # else:
+        #     twofact_digits=input("Enter your six-digit authentication code: ")
+        # child.sendline(twofact_digits)
         child.readline()
         token = child.readline().decode('UTF-8').strip()
         if token.startswith('[ERROR]'):
@@ -261,7 +264,7 @@ def get_op_login():
         sys.exit("Please define OP_SECRET_KEY environment variable")
     twofact_token=os.environ.get("OP_2FA_TOKEN", "")
     return {"password": os.environ.get("OP_PASSWORD"),
-             "username": os.environ.get("OP_EMAIL"),
+             "email": os.environ.get("OP_EMAIL"),
              "signin_address": os.environ.get("OP_SUBDOMAIN"),
              "secret_key": os.environ.get("OP_SECRET_KEY"),
              "2fa_token": twofact_token}
