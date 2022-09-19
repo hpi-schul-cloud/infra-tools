@@ -45,6 +45,9 @@ class UnknownResourceItem(Exception):
 class UnknownError(Exception):
     pass
 
+class InvalidOnePwdVersion(Exception):
+    pass
+
 
 class OnePwd(object):
 
@@ -66,6 +69,11 @@ class OnePwd(object):
             self.cache_token()
         else:
             raise MissingCredentials()
+            
+        check_version = self.get_version()
+        if not(check_version.startswith('2.')):
+            raise InvalidOnePwdVersion()
+        
 
     def list(self, resource, vault=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -97,7 +105,7 @@ class OnePwd(object):
         if BUCKET_NAME is not None:
             fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
         
-        return edit_item(title, fields_to_change, vault)
+        return self.edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item
     def update_s3_values_of_server_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
@@ -110,7 +118,7 @@ class OnePwd(object):
             fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
         if ENDPOINT_URL is not None:
             fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
-        return edit_item(title, fields_to_change, vault)
+        return self.edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item used by nextcloud and ionos-s3-password-backup
     def update_s3_values_of_standard_s3_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
@@ -124,7 +132,7 @@ class OnePwd(object):
         if ENDPOINT_URL is not None:
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
         
-        return edit_item(title, fields_to_change, vault)
+        return self.edit_item(title, fields_to_change, vault)
 
     def edit_item(self, title, assignment_statements:str, vault=None):
         vault_flag = get_optional_flag(vault=vault)
