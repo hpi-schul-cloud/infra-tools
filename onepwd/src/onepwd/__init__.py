@@ -72,7 +72,7 @@ class OnePwd(object):
             
         check_version = self.get_version()
         if not(check_version.startswith('2.')):
-            raise InvalidOnePwdVersion()
+            raise InvalidOnePwdVersion("CLI 2 is required")
         
 
     def list(self, resource, vault=None):
@@ -161,7 +161,7 @@ class OnePwd(object):
 
     def get(self, resource, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        op_command = f"{self.op} get {resource} '{item_name}' {vault_flag} --session={self.session_token}"
+        op_command = f"{self.op} {resource} get '{item_name}' {vault_flag} --session={self.session_token}"
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except subprocess.CalledProcessError:
