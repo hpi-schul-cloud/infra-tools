@@ -45,6 +45,9 @@ class UnknownResourceItem(Exception):
 class UnknownError(Exception):
     pass
 
+class InvalidOnePwdVersion(Exception):
+    pass
+
 
 class OnePwd(object):
 
@@ -66,6 +69,11 @@ class OnePwd(object):
             self.cache_token()
         else:
             raise MissingCredentials()
+            
+        check_version = self.get_version()
+        if not(check_version.startswith('2.')):
+            raise InvalidOnePwdVersion()
+        
 
     def list(self, resource, vault=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -96,7 +104,6 @@ class OnePwd(object):
             fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
         if BUCKET_NAME is not None:
             fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
-
         return self.edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item
@@ -123,7 +130,6 @@ class OnePwd(object):
             fields_to_change += f"s3_bucket_name={BUCKET_NAME} "
         if ENDPOINT_URL is not None:
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
-
         return self.edit_item(title, fields_to_change, vault)
 
     def edit_item(self, title, assignment_statements:str, vault=None):
