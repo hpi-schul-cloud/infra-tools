@@ -96,8 +96,8 @@ class OnePwd(object):
             fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
         if BUCKET_NAME is not None:
             fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
-        
-        return edit_item(title, fields_to_change, vault)
+
+        return self.edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item
     def update_s3_values_of_server_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
@@ -110,7 +110,7 @@ class OnePwd(object):
             fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
         if ENDPOINT_URL is not None:
             fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
-        return edit_item(title, fields_to_change, vault)
+        return self.edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item used by nextcloud and ionos-s3-password-backup
     def update_s3_values_of_standard_s3_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
@@ -123,14 +123,14 @@ class OnePwd(object):
             fields_to_change += f"s3_bucket_name={BUCKET_NAME} "
         if ENDPOINT_URL is not None:
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
-        
-        return edit_item(title, fields_to_change, vault)
+
+        return self.edit_item(title, fields_to_change, vault)
 
     def edit_item(self, title, assignment_statements:str, vault=None):
         vault_flag = get_optional_flag(vault=vault)
         command = f""" {self.op} item edit {title} --session={self.session_token} {vault_flag} {assignment_statements} """
         return run_op_command_in_shell(command)
-    
+
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
         op_command = f"{self.op} item delete {item_name} {vault_flag} --session={self.session_token}"
@@ -267,7 +267,7 @@ def get_op_login():
              "secret_key": os.environ.get("OP_SECRET_KEY"),
              "2fa_token": twofact_token}
 
-def convert_dot_notation(key, val):
+def convert_dot_notation(key, val) -> dict:
     split_list = key.split('.')
     if  len(split_list) == 1: # no dot notation found
         return {key:val}
@@ -300,24 +300,22 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
     sname=""
     secret_value=""
     for i in items:
-        item=op.get('item',i['uuid'])
-        if item["templateUuid"]=='005': # Password template type
-            sname=item["overview"]["title"]
-            secret_value=item["details"]["password"]
-            if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-                for f in item["details"]["sections"][0]["fields"]:
-                    if f["t"]==field:
-                        secret_value=f["v"]
-        if item["templateUuid"]=='006': # File template type
-            document=op.get_document(i['uuid'])
-            sname=item["overview"]["title"]
-            secret_value=document
-        if item["templateUuid"]=='112': # JSON Web Token
-            for s in item["details"]["sections"]:
-              for f in s["fields"]:
-                if f["n"]=="credential":
-                  sname=f["n"]
-                  secret_value=f["v"]
+        item=op.get('item',i['id'])
+        if item["category"]=='PASSWORD': # Password template type
+            sname=item["title"]
+            if field is None:
+                field = "password"
+            for f in item["fields"]:
+                if f["label"]==field:
+                    secret_value=f["value"]
+        if item["category"]=='DOCUMENT': # File template type
+            sname=item["title"]
+            secret_value=op.get_document(i['id'])
+        if item["category"]=='API_CREDENTIAL': # JSON Web Token
+            for f in item["fields"]:
+                if f["id"]=="credential":
+                    secret_value=f["value"]
+                    sname=f["id"]   # TODO: item["title"]?
         if disable_empty:
             if secret_value:
                 subdict=convert_dot_notation(sname, secret_value)
@@ -331,42 +329,35 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
          f.write(yaml.dump(secrets, width=1000, allow_unicode=True, default_flow_style=False).replace("\n\n","\n"))
          os.chmod(file, permissions)
 
-def get_single_secret(op, item_name, field=None, vault=None):
+def get_single_secret(op:OnePwd, item_name:str, field=None, vault=None) -> str:
     item=op.get('item', item_name, vault=vault)
     secret_value=""
-    if item["templateUuid"]=='001': # Login template type
+    if item["category"]=='LOGIN': # Login template type
         if field:
-          if field=="password":
-            for f in item["details"]["fields"]:
-                if f["name"]==field:
+            for f in item["fields"]:
+                if f["label"]==field:
                     secret_value=f["value"]
-          elif item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-            for f in item["details"]["sections"][0]["fields"]:
-                if f["t"]==field:
-                    secret_value=f["v"]
-    elif item["templateUuid"]=='005': # Password template type
-        secret_value=item["details"]["password"]
-        if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-            for f in item["details"]["sections"][0]["fields"]:
-                if f["t"]==field:
-                    secret_value=f["v"]
-    elif item["templateUuid"]=='006': # File template type
-        document=op.get_document(item['uuid'])
+    elif item["category"]=='PASSWORD': # Password template type
+        if field is None:
+            field = "password"
+        for f in item["fields"]:
+                if f["label"]==field:
+                    secret_value=f["value"]
+    elif item["category"]=='DOCUMENT': # File template type
+        document=op.get_document(item['id'])
         secret_value=document.replace("\n\n","\n")
-    elif item["templateUuid"]=='112': # JSON Web Token
-        for s in item["details"]["sections"]:
-          for f in s["fields"]:
-            if f["n"]=="credential":
-              secret_value=f["v"]
+    elif item["category"]=='API_CREDENTIAL': # JSON Web Token
+        for f in item["fields"]:
+            if f["id"]=="credential":
+                secret_value=f["value"]
     return secret_value
 
 # used in the ansible action 'upload_s3_secret'
-# this does not return values saved in separate sections
 def get_secret_values_list(op, item_name,  vault=None):
     item=op.get('item', item_name, vault=vault)
     secret_value=""
-    if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        secret_value=item["details"]["sections"][0]["fields"]
+    if item["category"]=='LOGIN' or item["category"]=='PASSWORD': # Password or Login template type
+        secret_value=item["fields"]
     else:
          raise Exception('The secret has not the password or login template type!')
     return secret_value
@@ -375,27 +366,26 @@ def get_secret_values_list(op, item_name,  vault=None):
 # filters for the values in a specefied section
 def get_secret_values_list_from_section(op, item_name,  vault=None, section=None):
     item=op.get('item', item_name, vault=vault)
-    matches_section=False
-    section_index=None
-    index=0
     if section is None:
         raise Exception('Section name not set! Please provide section name')
-    if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        while matches_section is False and index <= len(item["details"]["sections"]):
-            try:
-                if item["details"]["sections"][index]["title"] == section:
-                    matches_section = True
-                    section_index = index
-            except:
-                pass
-            index += 1
+    secret_fields = []
+    if item["category"]=='LOGIN' or item["category"]=='PASSWORD': # Password or Login template type
+        section_exists = False
+        if item['sections']:
+            for s in item['sections']:
+                if s['label'] == section:
+                    section_exists = True
+                    break
+        if not section_exists:
+            raise Exception('Section name could not be found! Please check it!')
+
+        for f in item['fields']:
+            if f['section'] and f['section']['label'] == section:
+                secret_fields.append(f)
     else:
         raise Exception('The secret has not the password or login template type!')
-    if index <= len(item["details"]["sections"]):
-        secret_value=item["details"]["sections"][section_index]["fields"]
-    else:
-        raise Exception('Section name could not be found! Please check it!')
-    return secret_value
+
+    return secret_fields
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
 def oct2int(x):
