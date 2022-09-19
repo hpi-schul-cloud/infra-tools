@@ -75,70 +75,65 @@ class OnePwd(object):
         except json.decoder.JSONDecodeError:
             raise UnknownResource(resource)
 
-    def create_item(self, category, encoded_item, title, vault=None, url=None):
+    def create_item(self, category, json_item, title, vault=None, url=None):
         vault_flag = get_optional_flag(vault=vault)
         url_flag = get_optional_flag(url=url)
 
         command = f"""
-            {self.op} create item {category} '{encoded_item}' \
+            {self.op} item  create --category={category} - \
             --title='{title}' \
             --session={self.session_token} \
             {vault_flag} {url_flag}
         """
-        return json.loads(run_op_command_in_shell(command))
+        return json.loads(run_op_command_in_shell(command, input=json_item.encode()))
 
-    # used in the ansible action 'upload_s3_secret' 
+    # used in the ansible action 'upload_s3_secret'
     def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
-        vault_flag = get_optional_flag(vault=vault)
-
         fields_to_change = ""
-        if ACCESS_KEY is not None: 
+        if ACCESS_KEY is not None:
             fields_to_change += f"ACCESS_KEY={ACCESS_KEY} "
-        if ACCESS_SECRET is not None: 
+        if ACCESS_SECRET is not None:
             fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
-        if BUCKET_NAME is not None: 
+        if BUCKET_NAME is not None:
             fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
-
-        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
-        return run_op_command_in_shell(command)
+        
+        return edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item
     def update_s3_values_of_server_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
-        vault_flag = get_optional_flag(vault=vault)
-
         fields_to_change = ""
-        if ACCESS_KEY is not None: 
+        if ACCESS_KEY is not None:
             fields_to_change += f"FILES_STORAGE__S3_ACCESS_KEY_ID={ACCESS_KEY} "
-        if ACCESS_SECRET is not None: 
+        if ACCESS_SECRET is not None:
             fields_to_change += f"FILES_STORAGE__S3_SECRET_ACCESS_KEY={ACCESS_SECRET} "
-        if BUCKET_NAME is not None: 
+        if BUCKET_NAME is not None:
             fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
-        if ENDPOINT_URL is not None: 
+        if ENDPOINT_URL is not None:
             fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
-
-        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
-        return run_op_command_in_shell(command)
+        return edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item used by nextcloud and ionos-s3-password-backup
     def update_s3_values_of_standard_s3_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
-        vault_flag = get_optional_flag(vault=vault)
-
         fields_to_change = ""
-        if ACCESS_KEY is not None: 
+        if ACCESS_KEY is not None:
             fields_to_change += f"s3_access_key={ACCESS_KEY} "
-        if ACCESS_SECRET is not None: 
+        if ACCESS_SECRET is not None:
             fields_to_change += f"s3_access_secret={ACCESS_SECRET} "
-        if BUCKET_NAME is not None: 
+        if BUCKET_NAME is not None:
             fields_to_change += f"s3_bucket_name={BUCKET_NAME} "
-        if ENDPOINT_URL is not None: 
+        if ENDPOINT_URL is not None:
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
+        
+        return edit_item(title, fields_to_change, vault)
 
-        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
+    def edit_item(self, title, assignment_statements:str, vault=None):
+        vault_flag = get_optional_flag(vault=vault)
+        command = f""" {self.op} item edit {title} --session={self.session_token} {vault_flag} {assignment_statements} """
         return run_op_command_in_shell(command)
-
+    
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        op_command = f"{self.op} delete item {item_name} {vault_flag} --session={self.session_token}"
+        op_command = f"{self.op} item delete {item_name} {vault_flag} --session={self.session_token}"
         try:
             run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
@@ -167,7 +162,7 @@ class OnePwd(object):
             raise UnknownResourceItem(f"{resource}: {item_name}")
 
     def get_document(self, item_name):
-        op_command = f"{self.op} get document '{item_name}' --session={self.session_token}"
+        op_command = f"{self.op} document get '{item_name}' --session={self.session_token}"
         try:
             return run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
@@ -224,13 +219,16 @@ class OnePwd(object):
     def get_version(self):
         return run_op_command_in_shell(f"{self.op} --version")
 
-def run_op_command_in_shell(op_command, verbose=False):
+
+def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) -> str:
     process = subprocess.run(op_command,
                              shell=True,
                              check=False,
+                             input=input,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              env=os.environ)
+
     try:
         process.check_returncode()
     except subprocess.CalledProcessError:
@@ -362,31 +360,31 @@ def get_single_secret(op, item_name, field=None, vault=None):
               secret_value=f["v"]
     return secret_value
 
-# used in the ansible action 'upload_s3_secret' 
+# used in the ansible action 'upload_s3_secret'
 # this does not return values saved in separate sections
 def get_secret_values_list(op, item_name,  vault=None):
     item=op.get('item', item_name, vault=vault)
     secret_value=""
     if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        secret_value=item["details"]["sections"][0]["fields"] 
+        secret_value=item["details"]["sections"][0]["fields"]
     else:
          raise Exception('The secret has not the password or login template type!')
     return secret_value
 
 # used in ansible action update_s3_values_of_item
-# filters for the values in a specefied section 
+# filters for the values in a specefied section
 def get_secret_values_list_from_section(op, item_name,  vault=None, section=None):
     item=op.get('item', item_name, vault=vault)
     matches_section=False
     section_index=None
     index=0
-    if section is None:  
+    if section is None:
         raise Exception('Section name not set! Please provide section name')
     if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        while matches_section is False and index <= len(item["details"]["sections"]): 
-            try: 
-                if item["details"]["sections"][index]["title"] == section: 
-                    matches_section = True 
+        while matches_section is False and index <= len(item["details"]["sections"]):
+            try:
+                if item["details"]["sections"][index]["title"] == section:
+                    matches_section = True
                     section_index = index
             except:
                 pass
@@ -395,7 +393,7 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
         raise Exception('The secret has not the password or login template type!')
     if index <= len(item["details"]["sections"]):
         secret_value=item["details"]["sections"][section_index]["fields"]
-    else: 
+    else:
         raise Exception('Section name could not be found! Please check it!')
     return secret_value
 
