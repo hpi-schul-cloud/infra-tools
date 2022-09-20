@@ -86,13 +86,12 @@ class ActionModule(ActionBase):
             else: 
                 print("Overwrite is NOT set to True. No action taken.")
                 return {}
-        except:
+        except onepwd.UnknownResourceItem:
             print("Secret doesn't exist yet")
             s3_secret_exists = False
 
         # Template creation - BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET
-        # TODO: Problem: Version 2 seems to require a password value
-        json_item =f'{{"fields":[{{"id":"password","type":"CONCEALED","purpose":"PASSWORD","label":"password","value":" "}},{{"type":"string","id":"bucket_name","label":"BUCKET_NAME","value":"{BUCKET_NAME}"}},{{"type":"concealed","id":"access_key","label":"ACCESS_KEY","value":"{ACCESS_KEY}"}},{{"type":"concealed","id":"access_secret","label":"ACCESS_SECRET","value":"{ACCESS_SECRET}"}}]}}'
+        json_item =f'{{"fields":[{{"id":"password","type":"CONCEALED","purpose":"PASSWORD","label":"password","value":"DUMMY_NOT_USED"}},{{"type":"string","id":"bucket_name","label":"BUCKET_NAME","value":"{BUCKET_NAME}"}},{{"type":"concealed","id":"access_key","label":"ACCESS_KEY","value":"{ACCESS_KEY}"}},{{"type":"concealed","id":"access_secret","label":"ACCESS_SECRET","value":"{ACCESS_SECRET}"}}]}}'
         
         # Upload Secret if no 's3' secret exists
         if s3_secret_exists == False: 
@@ -106,7 +105,6 @@ class ActionModule(ActionBase):
         if overwrite == True and s3_secret_exists == True: 
             
             # Test if values are alredy configured as requested 
-            # TODO: Probably not working without name-matching in new version!
             # secret_value is a list with the secret fields [{'k':'string','n':'bucket_name','t':'BUCKET_NAME','v':'My-Bucket-name'}, ...]
             secret_value = onepwd.get_secret_values_list(op, item_name=SECRET_NAME, vault=vault)
             # True = nothing changed, False = Requested value is different from current value
@@ -114,20 +112,20 @@ class ActionModule(ActionBase):
             check_secret = True
             check_key = True
             if BUCKET_NAME is not None: 
-                check_bucket = (secret_value[0]['value'] == BUCKET_NAME)
-                if secret_value[0]['value'] == BUCKET_NAME:
+                check_bucket = (secret_value[2]['value'] == BUCKET_NAME)
+                if secret_value[2]['value'] == BUCKET_NAME:
                     print("BUCKET_NAME already set as requested")
                 else: 
                     print("BUCKET_NAME is different")
             if ACCESS_KEY is not None: 
-                check_key = (secret_value[1]['value'] == ACCESS_KEY)
-                if secret_value[1]['value'] == ACCESS_KEY:
+                check_key = (secret_value[3]['value'] == ACCESS_KEY)
+                if secret_value[3]['value'] == ACCESS_KEY:
                     print("ACCESS_KEY already set as requested")
                 else: 
                     print("ACCESS_KEY is different")
             if ACCESS_SECRET is not None: 
-                check_secret = (secret_value[2]['value'] == ACCESS_SECRET)
-                if secret_value[2]['value'] == ACCESS_SECRET:
+                check_secret = (secret_value[4]['value'] == ACCESS_SECRET)
+                if secret_value[4]['value'] == ACCESS_SECRET:
                     print("ACCESS_SECRET already set as requested")
                 else: 
                     print("ACCESS_SECRET is different")

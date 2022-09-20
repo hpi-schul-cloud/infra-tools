@@ -64,7 +64,7 @@ class ActionModule(ActionBase):
             print(f"Secret '{SECRET_NAME}' alreay exists in the specified vault!") 
             print("No action to be taken.")
             return {}
-        except:
+        except onepwd.UnknownResourceItem:
             print(f"SECRET with the name of '{SECRET_NAME}' does not exist yet. Will create it with dummy data")
 
         # Template creation 

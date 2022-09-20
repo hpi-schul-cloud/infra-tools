@@ -83,7 +83,7 @@ class ActionModule(ActionBase):
         try:
             onepwd.get_single_secret(op, item_name=SECRET_NAME, vault=vault)
             print(f"Secret '{SECRET_NAME}' exists in the specified vault!")
-        except:
+        except onepwd.UnknownResourceItem:
             raise Exception("Secret does not exist. Therefore it can't be updated.")
 
         # give feedback on overwrite settings

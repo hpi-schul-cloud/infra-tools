@@ -41,6 +41,8 @@ class UnknownResource(Exception):
 class UnknownResourceItem(Exception):
     pass
 
+class DuplicateItems(Exception):
+    pass
 
 class UnknownError(Exception):
     pass
@@ -134,12 +136,12 @@ class OnePwd(object):
 
     def edit_item(self, title, assignment_statements:str, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        command = f""" {self.op} item edit {title} --session={self.session_token} {vault_flag} {assignment_statements} """
+        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {assignment_statements} """
         return run_op_command_in_shell(command)
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        op_command = f"{self.op} item delete {item_name} {vault_flag} --session={self.session_token}"
+        op_command = f"{self.op} item delete '{item_name}' {vault_flag} --session={self.session_token}"
         try:
             run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
@@ -206,16 +208,15 @@ class OnePwd(object):
                               env=os.environ)
         child.expect("Enter the password for")
         child.sendline(secret['password'])
-        # TODO: Uncomment this part (no 2fa for testing account)
         # Wrapped expected input with own input as child.readline() does not work here
-        # child.expect("Enter your six-digit authentication code: ")
-        # twofact_digits=""
-        # if secret["2fa_token"]:
-        #     totp = pyotp.TOTP(secret["2fa_token"])
-        #     twofact_digits=totp.now()
-        # else:
-        #     twofact_digits=input("Enter your six-digit authentication code: ")
-        # child.sendline(twofact_digits)
+        child.expect("Enter your six-digit authentication code: ")
+        twofact_digits=""
+        if secret["2fa_token"]:
+            totp = pyotp.TOTP(secret["2fa_token"])
+            twofact_digits=totp.now()
+        else:
+            twofact_digits=input("Enter your six-digit authentication code: ")
+        child.sendline(twofact_digits)
         child.readline()
         token = child.readline().decode('UTF-8').strip()
         if token.startswith('[ERROR]'):
@@ -241,11 +242,15 @@ def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) 
         if verbose:
             print(process.stderr.decode("UTF-8").strip())
 
-        error_messages = ["not currently signed in",
+        unauthorized_error_messages = ["not currently signed in",
                           "Authentication required"]
         full_error_message = process.stderr.decode("UTF-8")
-        if any(msg in full_error_message for msg in error_messages):
+        if any(msg in full_error_message for msg in unauthorized_error_messages):
             raise Unauthorized()
+        elif "More than one item matches" in full_error_message:
+            raise DuplicateItems()
+        elif "isn't an item" in full_error_message:
+            raise UnknownResourceItem()
         else:
             raise UnknownError(full_error_message)
     return process.stdout.decode("UTF-8").strip()
@@ -314,10 +319,10 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
             for f in item["fields"]:
                 if f["label"]==field:
                     secret_value=f["value"]
-        if item["category"]=='DOCUMENT': # File template type
+        elif item["category"]=='DOCUMENT': # File template type
             sname=item["title"]
             secret_value=op.get_document(i['id'])
-        if item["category"]=='API_CREDENTIAL': # JSON Web Token
+        elif item["category"]=='API_CREDENTIAL': # JSON Web Token
             for f in item["fields"]:
                 if f["id"]=="credential":
                     secret_value=f["value"]
@@ -347,7 +352,7 @@ def get_single_secret(op:OnePwd, item_name:str, field=None, vault=None) -> str:
         if field is None:
             field = "password"
         for f in item["fields"]:
-                if f["label"]==field:
+                if f["label"]==field and "value" in f:
                     secret_value=f["value"]
     elif item["category"]=='DOCUMENT': # File template type
         document=op.get_document(item['id'])
@@ -386,7 +391,7 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
             raise Exception('Section name could not be found! Please check it!')
 
         for f in item['fields']:
-            if f['section'] and f['section']['label'] == section:
+            if 'section' in f and f['section']['label'] == section:
                 secret_fields.append(f)
     else:
         raise Exception('The secret has not the password or login template type!')
