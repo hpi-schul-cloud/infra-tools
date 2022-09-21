@@ -201,8 +201,6 @@ class OnePwd(object):
     def signin(self, secret, shorthand):
         if not os.environ.get("OP_DEVICE"):
             os.environ["OP_DEVICE"] = base64.b32encode(os.urandom(16)).decode().lower().rstrip("=")
-        if not os.environ.get("OP_FORMAT"):
-            os.environ["OP_FORMAT"] = "json"
         session_flag=get_optional_flag(session=self.session_token)
         child = pexpect.spawn(f"{self.op} account add --signin --address {secret['signin_address']} --email {secret['email']} --secret-key {secret['secret_key']} --raw --shorthand={shorthand} {session_flag}",
                               env=os.environ)
@@ -228,6 +226,7 @@ class OnePwd(object):
 
 
 def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) -> str:
+    os.environ["OP_FORMAT"] = "json"
     process = subprocess.run(op_command,
                              shell=True,
                              check=False,
