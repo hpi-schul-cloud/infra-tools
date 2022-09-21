@@ -73,8 +73,9 @@ class OnePwd(object):
             raise MissingCredentials()
             
         check_version = self.get_version()
-        if not(check_version.startswith('2.')):
-            raise InvalidOnePwdVersion("CLI 2 is required")
+        split_version=check_version.split(".")
+        if not(int(split_version[0]) == 2 and int(split_version[1])>=7):
+            raise InvalidOnePwdVersion("1Password CLI 2 (2.7 or higher) is required. To check version use: \"op --version\"")
         
 
     def list(self, resource, vault=None):
