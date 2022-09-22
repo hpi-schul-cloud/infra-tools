@@ -64,15 +64,14 @@ class ActionModule(ActionBase):
             print(f"Secret '{SECRET_NAME}' alreay exists in the specified vault!") 
             print("No action to be taken.")
             return {}
-        except:
+        except onepwd.UnknownResourceItem:
             print(f"SECRET with the name of '{SECRET_NAME}' does not exist yet. Will create it with dummy data")
 
         # Template creation 
-        template = '{ "fields": [ { "designation": "username", "name": "username", "type": "T", "value": "' + str(USER_EMAIL) + '" }, { "designation": "password", "name": "password", "type": "P", "value": "' + str(USER_PASSWORD) + '"} ], "notesPlain": "", "passwordHistory": [], "sections": [ { "fields": [ { "k": "concealed", "n": "internal_name_s3_access_key", "t": "s3_access_key", "v": "s3_access_key" }, { "k": "concealed", "n": "internal_name_s3_access_secret", "t": "s3_access_secret", "v": "s3_access_secret" }, { "k": "string", "n": "internal_name_s3_endpoint_url", "t": "s3_endpoint_url", "v": "s3_endpoint_url" }, { "k": "string", "n": "internal_name_bucket_name", "t": "s3_bucket_name", "v": "s3_bucket_name" } ], "name": "section_name_s3_credentials", "title": "s3_credentials" } ] }'
-        encoded_item = url64.encode(template)   
+        json_item = '{"sections":[{"id":"section_name_s3_credentials","label":"s3_credentials"}],"fields":[{"id":"username","label":"username","type":"STRING","purpose":"USERNAME","value":"' + str(USER_EMAIL) + '"},{"id":"password","label":"password","type":"CONCEALED","purpose":"PASSWORD","value":"' + str(USER_PASSWORD) + '"},{"section":{"id":"section_name_s3_credentials"},"type":"CONCEALED","id":"internal_name_s3_access_key","label":"s3_access_key","value":"s3_access_key"},{"section":{"id":"section_name_s3_credentials"},"type":"CONCEALED","id":"internal_name_s3_access_secret","label":"s3_access_secret","value":"s3_access_secret"},{"section":{"id":"section_name_s3_credentials"},"type":"STRING","id":"internal_name_s3_endpoint_url","label":"s3_endpoint_url","value":"s3_endpoint_url"},{"section":{"id":"section_name_s3_credentials"},"type":"STRING","id":"internal_name_bucket_name","label":"s3_bucket_name","value":"s3_bucket_name"}]}'
         
         print("Uploading secret as requested...")
-        command = onepwd.OnePwd.create_item(op, category, encoded_item, title=SECRET_NAME, vault=vault, url=LOGIN_URL)
+        command = op.create_item(category, json_item, title=SECRET_NAME, vault=vault, url=LOGIN_URL)
         print("Secret uploaded")
         return {'changed': 'true',
                 'exectued' : command}
