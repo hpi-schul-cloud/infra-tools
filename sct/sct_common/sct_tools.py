@@ -45,7 +45,7 @@ def enableSudochache ():
     sct_sudo, sct_hostctl, sct_windows = setSystemtools()
     if sct_windows:
 #        os.system('{} --loglevel none'.format(sct_sudo))
-        os.system('{} --loglevel none cache on '.format(sct_sudo))
+        os.system('{} --loglevel none cache on -d -1'.format(sct_sudo))
 
 def disableSudochache ():
     sct_sudo, sct_hostctl, sct_windows = setSystemtools()
