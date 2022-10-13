@@ -384,15 +384,21 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
         section_exists = False
         if item['sections']:
             for s in item['sections']:
-                if s['label'] == section:
-                    section_exists = True
-                    break
+                try:
+                    if s['label'] == section:
+                        section_exists = True
+                        break
+                except:
+                    pass
         if not section_exists:
             raise Exception('Section name could not be found! Please check it!')
 
         for f in item['fields']:
-            if 'section' in f and f['section']['label'] == section:
-                secret_fields.append(f)
+            try:
+                if 'section' in f and f['section']['label'] == section:
+                    secret_fields.append(f)
+            except:
+                pass
     else:
         raise Exception('The secret has not the password or login template type!')
 
