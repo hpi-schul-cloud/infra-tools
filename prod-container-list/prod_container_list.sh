@@ -21,7 +21,7 @@ echo $LOG > $LOG
 
 for CLUSTER_ITEM in ${CLUSTER_LIST[*]}
 do
-    echo "Prosessing:"${CLUSTER_ITEM%.*} | tee -a $LOG
+    echo "Processing:"${CLUSTER_ITEM%.*} | tee -a $LOG
     CLUSTER_IMAGE_LIST=($(kubectl get pods --kubeconfig ~/.kube/$CLUSTER_ITEM --all-namespaces -o jsonpath='{range .items[*]}{"\n"}{.spec.containers[*].image}{.spec.volumes[*].persistentVolumeClaim}{end}' | sed 's/ //g' | sort | uniq))
     IMAGE_COUNT=0
 
@@ -33,7 +33,7 @@ do
             STATE_TYPE_PVC=true
             IMAGE_ITEM=${IMAGE_ITEM%{*}
         fi       
-        echo "$CLUSTER_ITEM;$IMAGE_ITEM;$STATE_TYPE_PVC" >> $FILE
+        echo "${CLUSTER_ITEM%.*};$IMAGE_ITEM;$STATE_TYPE_PVC" >> $FILE
         IMAGE_COUNT=$((IMAGE_COUNT+1))
     done
     
