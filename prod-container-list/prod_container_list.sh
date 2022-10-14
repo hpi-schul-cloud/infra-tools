@@ -5,7 +5,7 @@
 # We have to list the container type, e.g. api-server the image currently active in the CLUSTER_LIST and whether the container runs stateless or stateful.
 
 set -Eeuo pipefail
-trap ERR EXIT
+trap EXIT
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
