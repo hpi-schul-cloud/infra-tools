@@ -22,7 +22,7 @@ echo $LOG > $LOG
 for CLUSTER_ITEM in ${CLUSTER_LIST[*]}
 do
     echo "Prosessing:"${CLUSTER_ITEM%.*} | tee -a $LOG
-    CLUSTER_IMAGE_LIST=($(kubectl get pods --kubeconfig ~/.kube/$CLUSTER_ITEM --all-namespaces -o jsonpath='{range .items[*]}{"\n"}{.spec.containers[*].image}sc-prod-admin.yaml{.spec.volumes[*].persistentVolumeClaim}{end}' | sort | uniq))
+    CLUSTER_IMAGE_LIST=($(kubectl get pods --kubeconfig ~/.kube/$CLUSTER_ITEM --all-namespaces -o jsonpath='{range .items[*]}{"\n"}{.spec.containers[*].image}{.spec.volumes[*].persistentVolumeClaim}{end}' | sort | uniq))
     IMAGE_COUNT=0
 
     for IMAGE_ITEM in ${CLUSTER_IMAGE_LIST[*]}
