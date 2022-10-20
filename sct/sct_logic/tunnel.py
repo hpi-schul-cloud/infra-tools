@@ -6,6 +6,7 @@ import threading
 import paramiko
 import sshtunnel
 from sct_common.run_command import run_command
+from sct_common.sct_tools import setSystemtools
 
 class TunnelThreading(object):
     '''
@@ -26,7 +27,8 @@ class TunnelThreading(object):
             while not server.tunnel_is_up:
                 sleep(2)
             self.tunnel_is_up = True
-            run_command(['sudo', 'hostctl', 'add', 'domains', 'sc', api_server_host])
+            sct_sudo, sct_hostctl, sct_windows = setSystemtools()
+            run_command([sct_sudo, sct_hostctl, 'add', 'domains', 'sc', api_server_host])
             while True:
                 if not stopper.is_set():
                     stopper.wait(2)
