@@ -16,6 +16,7 @@ class DBCMConfiguration:
         # A dictionary that maps cluster names to Cluster objects.
 
         self.version: DBCMVersion
+        self.maintenance: Dict = {}
         self.features: Dict = {}
         
     def __str__(self):

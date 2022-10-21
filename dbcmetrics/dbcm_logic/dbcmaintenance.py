@@ -4,11 +4,13 @@ and provides prometheus metrics, that show whether the clusters are currently in
 """
 import datetime
 import json
+import logging
 import os
 from time import sleep
 import threading
 import time
 import boto3
+from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
 from dbcm_data.configuration import DBCMConfiguration
 
@@ -20,11 +22,16 @@ class IonosMaintenanceWindowThreading(object):
 
     def __init__(self, configuration: DBCMConfiguration):
         # TODO: Load configuration
-        self.LOADING_INTERVAL_MIN = 30
-        self.METRICS_INTERVAL_SEC = 15
-        self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=240)
-        self.CLUSTER_MAINTENANCE_DURATION = datetime.timedelta(minutes=120)
-        self.PREFIX = "env:/dev/"
+        file_configs = configuration.maintenance
+        try:
+            self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval"] # 30
+            self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval"] # 15
+            self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["nodepool_maintenance_duration"]) # datetime.timedelta(minutes=240)
+            self.CLUSTER_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["cluster_maintenance_duration"]) # datetime.timedelta(minutes=120)
+            self.PREFIX = file_configs["s3_stage_directory"] # "env:/dev/"
+        except:
+            logging.error("Missing or wrong configuration values for maintenance metrics")
+            raise DBCMException
 
         session = boto3.session.Session()
         self.s3_client = session.client(
@@ -70,7 +77,7 @@ class IonosMaintenanceWindowThreading(object):
                 self.metrics[cluster].set(0)
 
     def load_maintenance_windows(self):
-        response = self.s3_client.list_objects(Bucket=BUCKET, Prefix=PREFIX, Delimiter='/')
+        response = self.s3_client.list_objects(Bucket=BUCKET, Prefix=self.PREFIX, Delimiter='/')
         # TODO: Filter clusters?
         self.windows = {}
         self.metrics = {}

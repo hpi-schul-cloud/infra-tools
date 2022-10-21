@@ -35,6 +35,7 @@ def read_configuration():
         config_yaml_file = open(local_configuration_file, encoding="utf-8")
     else:
         # no config file
+        logging.error("No configuration file found.")
         raise DBCMException
     all_data = safe_load(config_yaml_file)
     try:
@@ -42,6 +43,7 @@ def read_configuration():
     except:
         logging.error("No features found in configuration file: {}".format(config_yaml_file))
         raise DBCMException
+    # Version
     if feature_data['version_metrics'] == 'enabled':
         try:
             version_data = all_data['version_metrics']
@@ -53,6 +55,13 @@ def read_configuration():
     except:
         logging.error("No instances found in configuration file: {}".format(config_yaml_file))
         raise DBCMException
+    # Maintenance
+    if feature_data.get("maintenance_metrics") == "enabled":
+        try:
+            maintenance_data = all_data["maintenance_metrics"]
+        except:
+            logging.error(f"Feature 'maintenance_metrics' enabled, but no config specified in configuration file {config_yaml_file}")
+            raise DBCMException
 
     # new configuration object
     # Here are at leats the features an dinstances defined
@@ -71,4 +80,6 @@ def read_configuration():
     for instance in configuration.instances:
         logging.info(instance)
     # configuration.versionservices = services_data
+    if feature_data.get("maintenance_metrics") == "enabled":
+        configuration.maintenance = maintenance_data
     return configuration

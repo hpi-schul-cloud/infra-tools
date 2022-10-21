@@ -2,13 +2,13 @@ import os, sys
 import random
 import time
 import logging
-import requests, json
 from typing import Dict, List
 from prometheus_client import start_http_server, Summary
 from dbcm_data.configuration import DBCMConfiguration
 from dbcm_common.dbcm_config import read_configuration
 from dbcm_logic.dbcstorage import StorageMetricsThreading
 from dbcm_logic.dbcversion import VersionMetricsThreading
+from dbcm_logic.dbcmaintenance import IonosMaintenanceWindowThreading
 
 REQUEST_TIME = Summary('request_my_processing_seconds', 'Time spent processing request')
 @REQUEST_TIME.time()
@@ -34,6 +34,10 @@ if __name__ == '__main__':
             smtr = StorageMetricsThreading()
             dbcmThreads.append(smtr)
             logging.info("Storage metrics started")
+        if dbcm_config.features.get("maintenance_metrics") == 'enabled':
+            maintenance_metrics_thread = IonosMaintenanceWindowThreading(dbcm_config)
+            dbcmThreads.append(maintenance_metrics_thread)
+            logging.info("Maintenance window metrics started")
         while True:
             #while not tr.isUp():
             #    sleep(2)
