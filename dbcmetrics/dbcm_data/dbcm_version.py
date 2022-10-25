@@ -14,7 +14,7 @@ class DBCMVersionService:
         '''
         Assembles the class member content into a string.
         '''
-        service_string = self.name + " (Suffix: " + self.sufffix + ")" 
+        service_string = self.name + " (Suffix: " + self.suffix + ")"
 
 class DBCMVersionServices:
     '''
@@ -33,7 +33,7 @@ class DBCMVersionServices:
             if len(services_string) != 0:
                 services_string += ", "
             services_string += service.__str__()
-        return "Services: " + services_string 
+        return "Services: " + services_string
 
 class DBCMVersion:
     '''
@@ -50,5 +50,5 @@ class DBCMVersion:
         '''
         # Services
         services_string = self.services.__str__()
-        return "Version: " + services_string 
+        return "Version: " + services_string
 

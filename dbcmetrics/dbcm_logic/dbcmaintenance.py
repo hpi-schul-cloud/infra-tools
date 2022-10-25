@@ -14,31 +14,38 @@ from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
 from dbcm_data.configuration import DBCMConfiguration
 
-BUCKET = "sc-tf-remote-state-01"
 STATEFILE = "terraform.tfstate"
 
 
 class IonosMaintenanceWindowThreading(object):
 
     def __init__(self, configuration: DBCMConfiguration):
-        # TODO: Load configuration
-        file_configs = configuration.maintenance
         try:
-            self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval"] # 30
-            self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval"] # 15
-            self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["nodepool_maintenance_duration"]) # datetime.timedelta(minutes=240)
-            self.CLUSTER_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["cluster_maintenance_duration"]) # datetime.timedelta(minutes=120)
+            file_configs = configuration.maintenance
+            self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] # 30
+            self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] # 15
+            self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["nodepool_maintenance_duration_min"]) # datetime.timedelta(minutes=240)
+            self.CLUSTER_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["cluster_maintenance_duration_min"]) # datetime.timedelta(minutes=120)
             self.PREFIX = file_configs["s3_stage_directory"] # "env:/dev/"
+            self.S3_ENDPOINT = file_configs["s3_endpoint"] # "https://s3-eu-central-1.ionoscloud.com"
+            self.S3_BUCKET = file_configs["s3_bucket"] # "sc-tf-remote-state-01"
         except:
             logging.error("Missing or wrong configuration values for maintenance metrics")
+            raise DBCMException
+
+        s3_access_key = os.getenv("TERRAFORM_STATE_S3_ACCESS_KEY")
+        s3_secret_key = os.getenv("TERRAFORM_STATE_S3_SECRET_KEY")
+
+        if s3_access_key is None or s3_secret_key:
+            logging.error("Missing S3 key values for maintenance metrics")
             raise DBCMException
 
         session = boto3.session.Session()
         self.s3_client = session.client(
           service_name='s3',
-          aws_access_key_id=os.getenv("SC_AWS_ACCESS_KEY_ID"),
-          aws_secret_access_key=os.getenv("SC_AWS_SECRET_ACCESS_KEY"),
-          endpoint_url='https://s3-eu-central-1.ionoscloud.com',
+          aws_access_key_id=s3_access_key,
+          aws_secret_access_key=s3_secret_key,
+          endpoint_url= self.S3_ENDPOINT
         )
         self.windows = {}
         self.metrics = {}
@@ -77,8 +84,7 @@ class IonosMaintenanceWindowThreading(object):
                 self.metrics[cluster].set(0)
 
     def load_maintenance_windows(self):
-        response = self.s3_client.list_objects(Bucket=BUCKET, Prefix=self.PREFIX, Delimiter='/')
-        # TODO: Filter clusters?
+        response = self.s3_client.list_objects(Bucket=self.S3_BUCKET, Prefix=self.PREFIX, Delimiter='/')
         self.windows = {}
         self.metrics = {}
         for subdirectory in response.get("CommonPrefixes"):
@@ -96,7 +102,7 @@ class IonosMaintenanceWindowThreading(object):
                 print(f"Saved maintenance windows for {cluster_name}")
 
     def get_maintenance_windows_from_tfstate(self, tfstate_path: str) -> dict:
-        response = self.s3_client.get_object(Bucket=BUCKET, Key=tfstate_path)
+        response = self.s3_client.get_object(Bucket=self.S3_BUCKET, Key=tfstate_path)
         state = json.loads(response['Body'].read().decode("UTF-8"))
         resources = state['resources']
         cluster_windows = []
