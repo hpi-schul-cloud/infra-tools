@@ -7,7 +7,7 @@ Provides the ability to upload a secret to a vault (if secret does not exist), a
 
 EXAMPLES = """
 - name: Edit S3 Credentials in 1Password
-  schulcloud.onepwd.update_s3_secret:
+  dbildungscloud.onepwd.upload_s3_secret:
     vault: "vault"
     BUCKET_NAME: "bucket_name"
     SECRET_NAME:  "secret_name"
@@ -86,19 +86,17 @@ class ActionModule(ActionBase):
             else: 
                 print("Overwrite is NOT set to True. No action taken.")
                 return {}
-        except:
+        except onepwd.UnknownResourceItem:
             print("Secret doesn't exist yet")
             s3_secret_exists = False
 
         # Template creation - BUCKET_NAME, ACCESS_KEY and ACCESS_SECRET
-        content = f'{{"k":"string","n":"bucket_name","t":"BUCKET_NAME","v":"{BUCKET_NAME}"}},{{"k":"concealed","n":"access_key","t":"ACCESS_KEY","v":"{ACCESS_KEY}"}},{{"k":"concealed","n":"access_secret","t":"ACCESS_SECRET","v":"{ACCESS_SECRET}"}}'
-        template = '{"sections":[{"fields":[' + str(content) +  ']}]}'
-        encoded_item = url64.encode(template)   
+        json_item =f'{{"fields":[{{"id":"password","type":"CONCEALED","purpose":"PASSWORD","label":"password","value":"DUMMY_NOT_USED"}},{{"type":"string","id":"bucket_name","label":"BUCKET_NAME","value":"{BUCKET_NAME}"}},{{"type":"concealed","id":"access_key","label":"ACCESS_KEY","value":"{ACCESS_KEY}"}},{{"type":"concealed","id":"access_secret","label":"ACCESS_SECRET","value":"{ACCESS_SECRET}"}}]}}'
         
         # Upload Secret if no 's3' secret exists
         if s3_secret_exists == False: 
             print("Uploading secret as requested...")
-            command = onepwd.OnePwd.create_item(op, category, encoded_item, title=SECRET_NAME, vault=vault, url=url)
+            command = onepwd.OnePwd.create_item(op, category, json_item, title=SECRET_NAME, vault=vault, url=url)
             print("Secret uploaded")
             return {'changed': 'true',
                     'exectued' : command}
@@ -106,7 +104,7 @@ class ActionModule(ActionBase):
         # Overwrite wanted? Update Values   
         if overwrite == True and s3_secret_exists == True: 
             
-            # Test if values are alredy configured as requested
+            # Test if values are alredy configured as requested 
             # secret_value is a list with the secret fields [{'k':'string','n':'bucket_name','t':'BUCKET_NAME','v':'My-Bucket-name'}, ...]
             secret_value = onepwd.get_secret_values_list(op, item_name=SECRET_NAME, vault=vault)
             # True = nothing changed, False = Requested value is different from current value
@@ -114,20 +112,20 @@ class ActionModule(ActionBase):
             check_secret = True
             check_key = True
             if BUCKET_NAME is not None: 
-                check_bucket = (secret_value[0]['v'] == BUCKET_NAME)
-                if secret_value[0]['v'] == BUCKET_NAME:
+                check_bucket = (secret_value[2]['value'] == BUCKET_NAME)
+                if secret_value[2]['value'] == BUCKET_NAME:
                     print("BUCKET_NAME already set as requested")
                 else: 
                     print("BUCKET_NAME is different")
             if ACCESS_KEY is not None: 
-                check_key = (secret_value[1]['v'] == ACCESS_KEY)
-                if secret_value[1]['v'] == ACCESS_KEY:
+                check_key = (secret_value[3]['value'] == ACCESS_KEY)
+                if secret_value[3]['value'] == ACCESS_KEY:
                     print("ACCESS_KEY already set as requested")
                 else: 
                     print("ACCESS_KEY is different")
             if ACCESS_SECRET is not None: 
-                check_secret = (secret_value[2]['v'] == ACCESS_SECRET)
-                if secret_value[2]['v'] == ACCESS_SECRET:
+                check_secret = (secret_value[4]['value'] == ACCESS_SECRET)
+                if secret_value[4]['value'] == ACCESS_SECRET:
                     print("ACCESS_SECRET already set as requested")
                 else: 
                     print("ACCESS_SECRET is different")

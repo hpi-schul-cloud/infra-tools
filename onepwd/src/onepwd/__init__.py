@@ -41,8 +41,13 @@ class UnknownResource(Exception):
 class UnknownResourceItem(Exception):
     pass
 
+class DuplicateItems(Exception):
+    pass
 
 class UnknownError(Exception):
+    pass
+
+class InvalidOnePwdVersion(Exception):
     pass
 
 
@@ -66,79 +71,78 @@ class OnePwd(object):
             self.cache_token()
         else:
             raise MissingCredentials()
+            
+        check_version = self.get_version()
+        split_version=check_version.split(".")
+        if not(int(split_version[0]) == 2 and int(split_version[1])>=7):
+            raise InvalidOnePwdVersion("1Password CLI 2 (2.7 or higher) is required. To check version use: \"op --version\"")
+        
 
     def list(self, resource, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        op_command = f"{self.op} list {resource} {vault_flag} --session={self.session_token}"
+        op_command = f"{self.op} {resource} list {vault_flag} --session={self.session_token}"
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except json.decoder.JSONDecodeError:
             raise UnknownResource(resource)
 
-    def create_item(self, category, encoded_item, title, vault=None, url=None):
+    def create_item(self, category, json_item, title, vault=None, url=None):
         vault_flag = get_optional_flag(vault=vault)
         url_flag = get_optional_flag(url=url)
 
         command = f"""
-            {self.op} create item {category} '{encoded_item}' \
+            {self.op} item  create --category={category} - \
             --title='{title}' \
             --session={self.session_token} \
             {vault_flag} {url_flag}
         """
-        return json.loads(run_op_command_in_shell(command))
+        return json.loads(run_op_command_in_shell(command, input=json_item.encode()))
 
     # used in the ansible action 'upload_s3_secret'
     def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
-        vault_flag = get_optional_flag(vault=vault)
-
         fields_to_change = ""
-        if BUCKET_NAME is not None:
-            fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
         if ACCESS_KEY is not None:
             fields_to_change += f"ACCESS_KEY={ACCESS_KEY} "
         if ACCESS_SECRET is not None:
             fields_to_change += f"ACCESS_SECRET={ACCESS_SECRET} "
-
-        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
-        return run_op_command_in_shell(command)
+        if BUCKET_NAME is not None:
+            fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
+        return self.edit_item(title, fields_to_change, vault)
 
     # used in ansible action update_s3_values_of_item
     def update_s3_values_of_server_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
-        vault_flag = get_optional_flag(vault=vault)
-
         fields_to_change = ""
         if ACCESS_KEY is not None:
             fields_to_change += f"FILES_STORAGE__S3_ACCESS_KEY_ID={ACCESS_KEY} "
         if ACCESS_SECRET is not None:
             fields_to_change += f"FILES_STORAGE__S3_SECRET_ACCESS_KEY={ACCESS_SECRET} "
-        if ENDPOINT_URL is not None:
-            fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
         if BUCKET_NAME is not None:
             fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
+        if ENDPOINT_URL is not None:
+            fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
+        return self.edit_item(title, fields_to_change, vault)
 
-        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
-        return run_op_command_in_shell(command)
-
-    # used in ansible action update_s3_values_of_item
-    def update_s3_values_of_nextcloud_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
-        vault_flag = get_optional_flag(vault=vault)
-
+    # used in ansible action update_s3_values_of_item used by nextcloud and ionos-s3-password-backup
+    def update_s3_values_of_standard_s3_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
         fields_to_change = ""
         if ACCESS_KEY is not None:
-            fields_to_change += f"s3_access_secret={ACCESS_SECRET} "
+            fields_to_change += f"s3_access_key={ACCESS_KEY} "
         if ACCESS_SECRET is not None:
+            fields_to_change += f"s3_access_secret={ACCESS_SECRET} "
+        if BUCKET_NAME is not None:
             fields_to_change += f"s3_bucket_name={BUCKET_NAME} "
         if ENDPOINT_URL is not None:
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
-        if BUCKET_NAME is not None:
-            fields_to_change += f"s3_access_key={ACCESS_KEY} "
+        return self.edit_item(title, fields_to_change, vault)
 
-        command = f""" {self.op} edit item {title} --session={self.session_token} {vault_flag} {fields_to_change} """
+    def edit_item(self, title, assignment_statements:str, vault=None):
+        vault_flag = get_optional_flag(vault=vault)
+        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {assignment_statements} """
         return run_op_command_in_shell(command)
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        op_command = f"{self.op} delete item {item_name} {vault_flag} --session={self.session_token}"
+        op_command = f"{self.op} item delete '{item_name}' {vault_flag} --session={self.session_token}"
         try:
             run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
@@ -160,14 +164,14 @@ class OnePwd(object):
 
     def get(self, resource, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
-        op_command = f"{self.op} get {resource} '{item_name}' {vault_flag} --session={self.session_token}"
+        op_command = f"{self.op} {resource} get '{item_name}' {vault_flag} --session={self.session_token}"
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except subprocess.CalledProcessError:
             raise UnknownResourceItem(f"{resource}: {item_name}")
 
     def get_document(self, item_name):
-        op_command = f"{self.op} get document '{item_name}' --session={self.session_token}"
+        op_command = f"{self.op} document get '{item_name}' --session={self.session_token}"
         try:
             return run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
@@ -199,7 +203,7 @@ class OnePwd(object):
         if not os.environ.get("OP_DEVICE"):
             os.environ["OP_DEVICE"] = base64.b32encode(os.urandom(16)).decode().lower().rstrip("=")
         session_flag=get_optional_flag(session=self.session_token)
-        child = pexpect.spawn(f"{self.op} signin {secret['signin_address']} {secret['username']} {secret['secret_key']} --output=raw --shorthand={shorthand} {session_flag}",
+        child = pexpect.spawn(f"{self.op} account add --signin --address {secret['signin_address']} --email {secret['email']} --secret-key {secret['secret_key']} --raw --shorthand={shorthand} {session_flag}",
                               env=os.environ)
         child.expect("Enter the password for")
         child.sendline(secret['password'])
@@ -215,30 +219,38 @@ class OnePwd(object):
         child.readline()
         token = child.readline().decode('UTF-8').strip()
         if token.startswith('[ERROR]'):
-            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time. "{twofact_digits}"')
+            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
         return token
 
     def get_version(self):
         return run_op_command_in_shell(f"{self.op} --version")
 
-def run_op_command_in_shell(op_command, verbose=False):
+
+def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) -> str:
+    os.environ["OP_FORMAT"] = "json"
     process = subprocess.run(op_command,
                              shell=True,
                              check=False,
+                             input=input,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              env=os.environ)
+
     try:
         process.check_returncode()
     except subprocess.CalledProcessError:
         if verbose:
             print(process.stderr.decode("UTF-8").strip())
 
-        error_messages = ["not currently signed in",
+        unauthorized_error_messages = ["not currently signed in",
                           "Authentication required"]
         full_error_message = process.stderr.decode("UTF-8")
-        if any(msg in full_error_message for msg in error_messages):
+        if any(msg in full_error_message for msg in unauthorized_error_messages):
             raise Unauthorized()
+        elif "More than one item matches" in full_error_message:
+            raise DuplicateItems()
+        elif "isn't an item" in full_error_message:
+            raise UnknownResourceItem()
         else:
             raise UnknownError(full_error_message)
     return process.stdout.decode("UTF-8").strip()
@@ -261,12 +273,12 @@ def get_op_login():
         sys.exit("Please define OP_SECRET_KEY environment variable")
     twofact_token=os.environ.get("OP_2FA_TOKEN", "")
     return {"password": os.environ.get("OP_PASSWORD"),
-             "username": os.environ.get("OP_EMAIL"),
+             "email": os.environ.get("OP_EMAIL"),
              "signin_address": os.environ.get("OP_SUBDOMAIN"),
              "secret_key": os.environ.get("OP_SECRET_KEY"),
              "2fa_token": twofact_token}
 
-def convert_dot_notation(key, val):
+def convert_dot_notation(key, val) -> dict:
     split_list = key.split('.')
     if  len(split_list) == 1: # no dot notation found
         return {key:val}
@@ -299,24 +311,22 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
     sname=""
     secret_value=""
     for i in items:
-        item=op.get('item',i['uuid'])
-        if item["templateUuid"]=='005': # Password template type
-            sname=item["overview"]["title"]
-            secret_value=item["details"]["password"]
-            if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-                for f in item["details"]["sections"][0]["fields"]:
-                    if f["t"]==field:
-                        secret_value=f["v"]
-        if item["templateUuid"]=='006': # File template type
-            document=op.get_document(i['uuid'])
-            sname=item["overview"]["title"]
-            secret_value=document
-        if item["templateUuid"]=='112': # JSON Web Token
-            for s in item["details"]["sections"]:
-              for f in s["fields"]:
-                if f["n"]=="credential":
-                  sname=f["n"]
-                  secret_value=f["v"]
+        item=op.get('item',i['id'])
+        if item["category"]=='PASSWORD': # Password template type
+            sname=item["title"]
+            if field is None:
+                field = "password"
+            for f in item["fields"]:
+                if f["label"]==field:
+                    secret_value=f["value"]
+        elif item["category"]=='DOCUMENT': # File template type
+            sname=item["title"]
+            secret_value=op.get_document(i['id'])
+        elif item["category"]=='API_CREDENTIAL': # JSON Web Token
+            for f in item["fields"]:
+                if f["id"]=="credential":
+                    secret_value=f["value"]
+                    sname=f["id"]   # TODO: item["title"]?
         if disable_empty:
             if secret_value:
                 subdict=convert_dot_notation(sname, secret_value)
@@ -330,42 +340,35 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
          f.write(yaml.dump(secrets, width=1000, allow_unicode=True, default_flow_style=False).replace("\n\n","\n"))
          os.chmod(file, permissions)
 
-def get_single_secret(op, item_name, field=None, vault=None):
+def get_single_secret(op:OnePwd, item_name:str, field=None, vault=None) -> str:
     item=op.get('item', item_name, vault=vault)
     secret_value=""
-    if item["templateUuid"]=='001': # Login template type
+    if item["category"]=='LOGIN': # Login template type
         if field:
-          if field=="password":
-            for f in item["details"]["fields"]:
-                if f["name"]==field:
+            for f in item["fields"]:
+                if f["label"]==field:
                     secret_value=f["value"]
-          elif item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-            for f in item["details"]["sections"][0]["fields"]:
-                if f["t"]==field:
-                    secret_value=f["v"]
-    elif item["templateUuid"]=='005': # Password template type
-        secret_value=item["details"]["password"]
-        if field and item["details"]["sections"] and item["details"]["sections"][0] and item["details"]["sections"][0]["fields"]:
-            for f in item["details"]["sections"][0]["fields"]:
-                if f["t"]==field:
-                    secret_value=f["v"]
-    elif item["templateUuid"]=='006': # File template type
-        document=op.get_document(item['uuid'])
+    elif item["category"]=='PASSWORD': # Password template type
+        if field is None:
+            field = "password"
+        for f in item["fields"]:
+                if f["label"]==field and "value" in f:
+                    secret_value=f["value"]
+    elif item["category"]=='DOCUMENT': # File template type
+        document=op.get_document(item['id'])
         secret_value=document.replace("\n\n","\n")
-    elif item["templateUuid"]=='112': # JSON Web Token
-        for s in item["details"]["sections"]:
-          for f in s["fields"]:
-            if f["n"]=="credential":
-              secret_value=f["v"]
+    elif item["category"]=='API_CREDENTIAL': # JSON Web Token
+        for f in item["fields"]:
+            if f["id"]=="credential":
+                secret_value=f["value"]
     return secret_value
 
 # used in the ansible action 'upload_s3_secret'
-# this does not return values saved in separate sections
 def get_secret_values_list(op, item_name,  vault=None):
     item=op.get('item', item_name, vault=vault)
     secret_value=""
-    if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        secret_value=item["details"]["sections"][0]["fields"]
+    if item["category"]=='LOGIN' or item["category"]=='PASSWORD': # Password or Login template type
+        secret_value=item["fields"]
     else:
          raise Exception('The secret has not the password or login template type!')
     return secret_value
@@ -374,27 +377,32 @@ def get_secret_values_list(op, item_name,  vault=None):
 # filters for the values in a specefied section
 def get_secret_values_list_from_section(op, item_name,  vault=None, section=None):
     item=op.get('item', item_name, vault=vault)
-    matches_section=False
-    section_index=None
-    index=0
     if section is None:
         raise Exception('Section name not set! Please provide section name')
-    if item["templateUuid"]=='005' or item["templateUuid"]=='001': # Password or Login template type
-        while matches_section is False and index <= len(item["details"]["sections"]):
+    secret_fields = []
+    if item["category"]=='LOGIN' or item["category"]=='PASSWORD': # Password or Login template type
+        section_exists = False
+        if item['sections']:
+            for s in item['sections']:
+                try:
+                    if s['label'] == section:
+                        section_exists = True
+                        break
+                except:
+                    pass
+        if not section_exists:
+            raise Exception('Section name could not be found! Please check it!')
+
+        for f in item['fields']:
             try:
-                if item["details"]["sections"][index]["title"] == section:
-                    matches_section = True
-                    section_index = index
+                if 'section' in f and f['section']['label'] == section:
+                    secret_fields.append(f)
             except:
                 pass
-            index += 1
     else:
         raise Exception('The secret has not the password or login template type!')
-    if index <= len(item["details"]["sections"]):
-        secret_value=item["details"]["sections"][section_index]["fields"]
-    else:
-        raise Exception('Section name could not be found! Please check it!')
-    return secret_value
+
+    return secret_fields
 
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
 def oct2int(x):

@@ -1,0 +1,15 @@
+---
+name: Dummy Docker Image on Push to GHCR
+
+on:
+  push:
+    branches-ignore:
+      - master
+    paths-ignore:
+      - 'awx-ee/**'
+      - 'dbcmetrics/**'
+      - 'infra-tools/**'
+
+jobs:
+  build_image_on_push:
+    uses: ./.github/workflows/dummy-reusable-workflow.yaml

@@ -23,3 +23,33 @@ def get_absolute_path(a_file):
         script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
         a_file_abs = os.path.join(script_path, a_file)
     return a_file_abs
+
+def setSystemtools():
+    sct_sudo = "sudo"
+    sct_hostctl = "hostctl"
+    sct_windows = False
+    if sys.platform.startswith("linux"):
+        # linux or wsl
+        rc = os.system('uname -a | grep -i microsoft 2>&1 > /dev/null')
+        if rc == 0: # wsl
+            sct_sudo = "gsudo.exe"
+            sct_hostctl = "hostctl.exe"
+            sct_windows = True
+    elif sys.platform.startswith("win32"):
+        sct_sudo = "gsudo.exe"
+        sct_hostctl = "hostctl.exe"
+        sct_windows = True
+    return (sct_sudo, sct_hostctl, sct_windows)
+
+def enableSudochache ():
+    sct_sudo, sct_hostctl, sct_windows = setSystemtools()
+    if sct_windows:
+#        os.system('{} --loglevel none'.format(sct_sudo))
+        os.system('{} --loglevel none cache on -d -1'.format(sct_sudo))
+
+def disableSudochache ():
+    sct_sudo, sct_hostctl, sct_windows = setSystemtools()
+    if sct_windows:
+#        os.system('{} config --global --reset'.format(sct_sudo))
+        os.system('{} --loglevel none cache off'.format(sct_sudo))
+

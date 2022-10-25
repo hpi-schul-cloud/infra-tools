@@ -1,0 +1,12 @@
+---
+name: Dummy Docker Image on Push to GHCR
+
+on:
+  workflow_call:
+
+jobs:
+  build_and_push_docker_to_ghcr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: build_and_push_docker_to_ghcr
+        run: 'echo "No docker images to build" '

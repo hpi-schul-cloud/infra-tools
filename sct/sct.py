@@ -4,6 +4,7 @@
 This script tunnels access to IONOS Kubernets cluster via a jump host.
 '''
 
+import os
 import sys
 import logging
 import argparse
@@ -20,6 +21,7 @@ from sct_logic.tunnel import TunnelThreading
 from sct_logic.list import listCluster
 from sct_logic.update import updateKubeconfigs
 from sct_common.run_command import run_command, run_command_no_output
+from sct_common.sct_tools import *
 
 
 def parseArguments():
@@ -38,8 +40,7 @@ def parseArguments():
     args = parser.parse_args()
     return args
 
-
-
+  
 if __name__ == '__main__':
     sc_tunnel_config = None
     connectThreads: List = []
@@ -48,7 +49,6 @@ if __name__ == '__main__':
         if sys.version_info[0] < 3 or sys.version_info[1] < 6:
             print("This script requires Python version 3.6")
             sys.exit(1)
-
 
         logging.debug('Call arguments given: %s' % sys.argv[1:])
         parsedArgs = parseArguments()
@@ -78,6 +78,7 @@ if __name__ == '__main__':
                         while not tr.isUp():
                             sleep(2)
             if parsedArgs.clusters != '':
+                enableSudochache()
                 for cluster in parsedArgs.clusters:
                     if sct_tunnel_config.clusters[cluster].api_server_port in openedPorts.keys():
                         # Tunneling to the same port is not possible so we just add a host entry
@@ -90,6 +91,7 @@ if __name__ == '__main__':
                             sleep(2)
             if parsedArgs.connectall is True:
                 # Open a tunnel for all cluster with looping over all available cluster
+                enableSudochache()
                 for cluster in sct_tunnel_config.clusters:
                     if sct_tunnel_config.clusters[cluster].api_server_port in openedPorts.keys():
                         # Tunneling to the same port is not possible so we just add a host entry
@@ -111,7 +113,9 @@ if __name__ == '__main__':
                             while cThread.isUp():
                                 continue
                             cThread.join()
-                        run_command(['sudo', 'hostctl', 'remove', 'sc'])
+                        sct_sudo, sct_hostctl, sct_windows = setSystemtools()
+                        run_command([sct_sudo, sct_hostctl, 'remove', 'sc'])
+                        disableSudochache()
                         print("Tunneling terminated")
                         break
                     continue
