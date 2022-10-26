@@ -15,6 +15,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(message)s', level=loglevel)
     dbcm_config = None
     dbcmThreads: List = []
+    logging.info("DBCMetrics startup")
     try:
         if sys.version_info < (3,6):
             print("This script requires at least Python version 3.6")
@@ -30,6 +31,7 @@ if __name__ == '__main__':
             dbcmThreads.append(smtr)
             logging.info("Storage metrics started")
         if os.getenv("MAINTENANCE_METRICS_ENABLED").lower() == 'true':
+            logging.info("Maintenance window metrics starting...")
             maintenance_metrics_thread = IonosMaintenanceWindowThreading(dbcm_config)
             dbcmThreads.append(maintenance_metrics_thread)
             logging.info("Maintenance window metrics started")
