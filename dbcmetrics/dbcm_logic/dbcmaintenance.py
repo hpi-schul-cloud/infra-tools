@@ -36,7 +36,7 @@ class IonosMaintenanceWindowThreading(object):
         s3_access_key = os.getenv("TERRAFORM_STATE_S3_ACCESS_KEY")
         s3_secret_key = os.getenv("TERRAFORM_STATE_S3_SECRET_KEY")
 
-        if s3_access_key is None or s3_secret_key:
+        if s3_access_key is None or s3_secret_key is None:
             logging.error("Missing S3 key values for maintenance metrics")
             raise DBCMException
 
