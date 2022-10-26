@@ -96,7 +96,7 @@ class IonosMaintenanceWindowThreading(object):
             # Add only if at least one window exists
             if cluster_window["cluster"] or cluster_window["nodepools"]:
                 if cluster_name not in self.metrics:
-                    logging.info("Creating Gauge:", cluster_name.replace("-", "_") + "_in_maintenance")
+                    logging.info("Creating Gauge: " + cluster_name.replace("-", "_") + "_in_maintenance")
                     self.metrics[cluster_name] = Gauge(cluster_name.replace("-", "_") + "_in_maintenance",
                                                        "Cluster or one of the nodepools is in maintenance window")
                 self.windows[cluster_name] = cluster_window
