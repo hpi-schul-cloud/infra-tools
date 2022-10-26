@@ -55,6 +55,7 @@ class IonosMaintenanceWindowThreading(object):
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
+        logging.info(f"Maintenance Metrics Thread started. UTC Time: {datetime.datetime.utcnow()}")
 
     def run(self):
         while True:
@@ -95,11 +96,11 @@ class IonosMaintenanceWindowThreading(object):
             # Add only if at least one window exists
             if cluster_window["cluster"] or cluster_window["nodepools"]:
                 if cluster_name not in self.metrics:
-                    print("Creating Gauge:", cluster_name.replace("-", "_") + "_in_maintenance")
+                    logging.info("Creating Gauge:", cluster_name.replace("-", "_") + "_in_maintenance")
                     self.metrics[cluster_name] = Gauge(cluster_name.replace("-", "_") + "_in_maintenance",
                                                        "Cluster or one of the nodepools is in maintenance window")
                 self.windows[cluster_name] = cluster_window
-                print(f"Saved maintenance windows for {cluster_name}")
+                logging.info(f"Saved maintenance windows for {cluster_name}: {cluster_window}")
 
     def get_maintenance_windows_from_tfstate(self, tfstate_path: str) -> dict:
         response = self.s3_client.get_object(Bucket=self.S3_BUCKET, Key=tfstate_path)
