@@ -12,16 +12,15 @@ import time
 import boto3
 from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
-from dbcm_data.configuration import DBCMConfiguration
 
 STATEFILE = "terraform.tfstate"
 
 
 class IonosMaintenanceWindowThreading(object):
 
-    def __init__(self, configuration: DBCMConfiguration):
+    def __init__(self, configuration: dict):
         try:
-            file_configs = configuration.maintenance
+            file_configs = configuration["maintenance_metrics"]
             self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] # 30
             self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] # 15
             self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["nodepool_maintenance_duration_min"]) # datetime.timedelta(minutes=240)
@@ -60,7 +59,7 @@ class IonosMaintenanceWindowThreading(object):
     def run(self):
         while True:
             if (time.time() - self.last_time_windows_loaded)/60 > self.LOADING_INTERVAL_MIN:
-                self.refresh_metrics()
+                self.load_maintenance_windows()
                 self.last_time_windows_loaded = time.time()
             self.refresh_metrics()
             sleep(self.METRICS_INTERVAL_SEC)
@@ -85,22 +84,28 @@ class IonosMaintenanceWindowThreading(object):
                 self.metrics[cluster].set(0)
 
     def load_maintenance_windows(self):
-        response = self.s3_client.list_objects(Bucket=self.S3_BUCKET, Prefix=self.PREFIX, Delimiter='/')
-        self.windows = {}
-        self.metrics = {}
-        for subdirectory in response.get("CommonPrefixes"):
-            path = subdirectory.get("Prefix")
-            cluster_name = path.split("/")[-2]
-            tf_path = path + STATEFILE
-            cluster_window = self.get_maintenance_windows_from_tfstate(tf_path)
-            # Add only if at least one window exists
-            if cluster_window["cluster"] or cluster_window["nodepools"]:
-                if cluster_name not in self.metrics:
-                    logging.info("Creating Gauge: " + cluster_name.replace("-", "_") + "_in_maintenance")
-                    self.metrics[cluster_name] = Gauge(cluster_name.replace("-", "_") + "_in_maintenance",
-                                                       "Cluster or one of the nodepools is in maintenance window")
-                self.windows[cluster_name] = cluster_window
-                logging.info(f"Saved maintenance windows for {cluster_name}: {cluster_window}")
+        try:
+            response = self.s3_client.list_objects(Bucket=self.S3_BUCKET, Prefix=self.PREFIX, Delimiter='/')
+            self.windows = {}
+            self.metrics = {}
+            for subdirectory in response.get("CommonPrefixes"):
+                path = subdirectory.get("Prefix")
+                cluster_name = path.split("/")[-2]
+                tf_path = path + STATEFILE
+                try:
+                    cluster_window = self.get_maintenance_windows_from_tfstate(tf_path)
+                    # Add only if at least one window exists
+                    if cluster_window["cluster"] or cluster_window["nodepools"]:
+                        if cluster_name not in self.metrics:
+                            logging.info("Creating Gauge: " + cluster_name.replace("-", "_") + "_in_maintenance")
+                            self.metrics[cluster_name] = Gauge(cluster_name.replace("-", "_") + "_in_maintenance",
+                                                               "Cluster or one of the nodepools is in maintenance window")
+                        self.windows[cluster_name] = cluster_window
+                        logging.info(f"Saved maintenance windows for {cluster_name}: {cluster_window}")
+                except:
+                  logging.error(f"Couldn't load/update maintenance window for {cluster_name}")
+        except:
+            logging.error(f"Couldn't get list of S3 objects with prefix {self.PREFIX}")
 
     def get_maintenance_windows_from_tfstate(self, tfstate_path: str) -> dict:
         response = self.s3_client.get_object(Bucket=self.S3_BUCKET, Key=tfstate_path)
