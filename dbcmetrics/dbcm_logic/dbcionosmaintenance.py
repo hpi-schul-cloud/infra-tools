@@ -21,13 +21,13 @@ class IonosMaintenanceWindowThreading(object):
     def __init__(self, configuration: dict):
         try:
             file_configs = configuration["maintenance_metrics"]
-            self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] # 30
-            self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] # 15
-            self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["nodepool_maintenance_duration_min"]) # datetime.timedelta(minutes=240)
-            self.CLUSTER_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["cluster_maintenance_duration_min"]) # datetime.timedelta(minutes=120)
-            self.PREFIX = file_configs["s3_stage_directory"] # "env:/dev/"
-            self.S3_ENDPOINT = file_configs["s3_endpoint"] # "https://s3-eu-central-1.ionoscloud.com"
-            self.S3_BUCKET = file_configs["s3_bucket"] # "sc-tf-remote-state-01"
+            self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] 
+            self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] 
+            self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["nodepool_maintenance_duration_min"]) 
+            self.CLUSTER_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["cluster_maintenance_duration_min"])
+            self.PREFIX = file_configs["s3_stage_directory"] 
+            self.S3_ENDPOINT = file_configs["s3_endpoint"] 
+            self.S3_BUCKET = file_configs["s3_bucket"] 
         except:
             logging.error("Missing or wrong configuration values for maintenance metrics")
             raise DBCMException
@@ -47,7 +47,7 @@ class IonosMaintenanceWindowThreading(object):
           endpoint_url= self.S3_ENDPOINT
         )
         self.windows = {}
-        self.metrics = {}
+        self.metric = Gauge("in_hoster_maintenance_window", "Cluster or one of the nodepools is in maintenance window", ["cluster"])
         self.load_maintenance_windows()
         self.last_time_windows_loaded = time.time()
         # Start Thread
@@ -65,7 +65,7 @@ class IonosMaintenanceWindowThreading(object):
             sleep(self.METRICS_INTERVAL_SEC)
 
     def refresh_metrics(self):
-        for cluster, windows in self.windows.items():
+        for cluster_name, windows in self.windows.items():
             in_window = False
             # Check cluster window(s)
             for cluster_window in windows["cluster"]:
@@ -79,15 +79,14 @@ class IonosMaintenanceWindowThreading(object):
                     continue
             # Set metric
             if in_window:
-                self.metrics[cluster].set(1)
+                self.metric.labels(cluster=cluster_name).set(1)
             else:
-                self.metrics[cluster].set(0)
+                self.metric.labels(cluster=cluster_name).set(0)
 
     def load_maintenance_windows(self):
         try:
             response = self.s3_client.list_objects(Bucket=self.S3_BUCKET, Prefix=self.PREFIX, Delimiter='/')
             self.windows = {}
-            self.metrics = {}
             for subdirectory in response.get("CommonPrefixes"):
                 path = subdirectory.get("Prefix")
                 cluster_name = path.split("/")[-2]
@@ -96,10 +95,6 @@ class IonosMaintenanceWindowThreading(object):
                     cluster_window = self.get_maintenance_windows_from_tfstate(tf_path)
                     # Add only if at least one window exists
                     if cluster_window["cluster"] or cluster_window["nodepools"]:
-                        if cluster_name not in self.metrics:
-                            logging.info("Creating Gauge: " + cluster_name.replace("-", "_") + "_in_maintenance")
-                            self.metrics[cluster_name] = Gauge(cluster_name.replace("-", "_") + "_in_maintenance",
-                                                               "Cluster or one of the nodepools is in maintenance window")
                         self.windows[cluster_name] = cluster_window
                         logging.info(f"Saved maintenance windows for {cluster_name}: {cluster_window}")
                 except:

@@ -9,7 +9,7 @@ GLOBAL_CONFIGDIR = "/etc/dbcmetrics/"
 
 def read_configuration() -> dict:
     '''
-    Reads an dbcm_config.yaml configuration file into a dict returns it.
+    Reads an dbcm_config.yaml configuration file into a dict and returns it.
     Try first to read from global configuration location, in case it does not exist
     read from the config file specified in the environment variable DBCMCONFIG else terminate with error
     '''
