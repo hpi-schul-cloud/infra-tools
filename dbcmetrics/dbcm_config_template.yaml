@@ -1,6 +1,3 @@
-features:
-  # Key/value pais of features dbcmetrics supports
-  version_metrics: [enabled|disabled]
 instances:
   # list of instances to be monitored
   - name: "<name used as prefix for the metrics name, e.g. hugo -> hugo_info>"
@@ -11,3 +8,11 @@ version_metrics:
   services:
     # list of services and URL suffixes as key/value pair of services to be checked for a version
     <service a>: <suffix a>
+maintenance_metrics:
+  window_refresh_interval_min: <value in minutes, how often the maintenance windows are polled from the terraform state>
+  metric_refresh_interval_sec: <value in seconds, how often the metric is refreshed>
+  nodepool_maintenance_duration_min: <value in minutes, duration of a nodepool maintenance>
+  cluster_maintenance_duration_min: <value in minutes, duration of a cluster maintenance>
+  s3_stage_directory: "<Prefix for the terraform stage s3 object, for example: env:/dev/>"
+  s3_endpoint: "<S3 endpoint for the terraform state bucket>"
+  s3_bucket: "<Name of the terraform state bucket>"
