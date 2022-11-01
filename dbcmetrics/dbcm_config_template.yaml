@@ -1,6 +1,6 @@
 instances:
   # list of instances to be monitored
-  - name: "<name used as prefix for the metrics name, e.g. hugo -> hugo_info>"
+  - name: "<name used in the metric label app_instance>"
     url: "<Full quallified URL which should be monitored>"
     shortname: "<abbreviated name of the naem>"
 version_metrics:

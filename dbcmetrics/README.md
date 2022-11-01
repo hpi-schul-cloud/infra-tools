@@ -33,9 +33,9 @@ The following environment variables are read by the dbcmetrics application:
 | STORAGE_METRICS_ENABLED | storage | Enables or disabled the storage monitoring module | `true` |
 | STORAGE_INTERVAL | storage | Number of seconds between cycles in which the storage metrics are fetched | `30` |
 | STORAGE_EXCLUDE_SUBFOLDERS | storage | Defines if metric generation for folders inside of top-level folders should be disabled  | `true` |
-| STORAGE_PROVIDER_URL | storage | URL of the S3 storage provider | `http://s3-de-central.profitbricks.com` |
-| STORAGE_PROVIDER_REGION | storage | Region of the S3 storage provider | `s3-de-central` |
-| STORAGE_BUCKET_NAME | storage | The name of the bucket to monitor by the storage module (Secret in Kubernetes) | `infra-dev-bucket-0000` |
+| STORAGE_PROVIDER_URL | storage | URL of the S3 storage provider | `http://example-s3-endpoint.com` |
+| STORAGE_PROVIDER_REGION | storage | Region of the S3 storage provider | `s3-example-region` |
+| STORAGE_BUCKET_NAME | storage | The name of the bucket to monitor by the storage module (Secret in Kubernetes) | `example-bucket-0000` |
 | STORAGE_ACCESS_KEY | storage | The Access Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
 | STORAGE_ACCESS_SECRET | storage | The Secret Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
 | TERRAFORM_STATE_S3_ACCESS_KEY | ionosmaintenance | The Access Key of your Object Storage Key with access to the Terraform State Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
@@ -66,11 +66,11 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 "DBCMCONFIG": "./dbcm_config.yaml",
                 "STORAGE_METRICS_ENABLED": "true",
                 "VERSION_METRICS_ENABLED": "false",
-                "IONOS_MAINTENANCE_METRICS_ENABLED": "fasle",
+                "IONOS_MAINTENANCE_METRICS_ENABLED": "false",
                 "STORAGE_INTERVAL": "30",
                 "STORAGE_EXCLUDE_SUBFOLDERS": "true",
-                "STORAGE_PROVIDER_URL": "http://s3-de-central.profitbricks.com",
-                "STORAGE_PROVIDER_REGION": "s3-de-central",
+                "STORAGE_PROVIDER_URL": "<S3 endpoint>",
+                "STORAGE_PROVIDER_REGION": "<S3 provider region>",
                 // Secrets in Kubernetes
                 "STORAGE_BUCKET_NAME": "<The Name of the Bucket to monitor>",
                 "STORAGE_ACCESS_KEY": "<The Access Key of your Object Storage Key with access to the Bucket>",
@@ -100,8 +100,8 @@ docker run `
     -e IONOS_MAINTENANCE_METRICS_ENABLED="false" `
     -e STORAGE_INTERVAL="30" `
     -e STORAGE_EXCLUDE_SUBFOLDERS="true" `
-    -e STORAGE_PROVIDER_URL="http://s3-de-central.profitbricks.com" `
-    -e STORAGE_PROVIDER_REGION="s3-de-central" `
+    -e STORAGE_PROVIDER_URL="<S3 endpoint>" `
+    -e STORAGE_PROVIDER_REGION="<S3 provider region>" `
     -e STORAGE_BUCKET_NAME="<The Name of the Bucket to monitor>" `
     -e STORAGE_ACCESS_KEY="<The Access Key of your Object Storage Key with access to the Bucket>" `
     -e STORAGE_ACCESS_SECRET="<The Secret Key of your Object Storage Key with access to the Bucket>" `
@@ -117,7 +117,7 @@ Afterwards you need to create a secret with the name `dbcmetrics-secret` with th
 
 | Key |  Value (Example) |
 | ----------- | ----------- |
-| s3_bucket_name | `infra-dev-bucket-0000` |
+| s3_bucket_name | `example-bucket-0000` |
 | s3_access_key | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
 | s3_access_secret | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
 
@@ -148,54 +148,35 @@ After running dbcmetrics as a python application, as a standalone container or a
 Besides the default prometheus metrics you should see on this endpoint a section for each enabled module.
 Like this for the version module:
 ```
-# HELP dbildungscloud_info Version Information
-# TYPE dbildungscloud_info gauge
-dbildungscloud_info{app_instance="dbildungscloud",client="27.12.0",dashboard="version_dashboard",nuxt="27.12.0",server="27.12.0"} 1.0
-# HELP brandenburg_info Version Information
-# TYPE brandenburg_info gauge
-brandenburg_info{app_instance="brandenburg",client="27.12.0",dashboard="version_dashboard",nuxt="27.12.0",server="27.12.0"} 1.0
-# HELP niedersachsen_info Version Information
-# TYPE niedersachsen_info gauge
-niedersachsen_info{app_instance="niedersachsen",client="27.12.0",dashboard="version_dashboard",nuxt="27.12.0",server="27.12.0"} 1.0
+# HELP version_info Version Information
+# TYPE version_info gauge
+version_info{app_instance="example_instance_name",dashboard="version_dashboard",service_a="12.2.0",service_b="1.3.4"} 1.0
 ```
 
 And a section like this for the storage module:
 ```
 # HELP storage_bucket_availability Indicates if the target bucket is available
 # TYPE storage_bucket_availability gauge
-storage_bucket_availability{access_key="25d7ba3888a652459ae2",name="infra-dev-bucket-0000",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.0
+storage_bucket_availability{access_key="mkMfCRMp8GpwZwXzkJbp",name="example-bucket-0000",storage_provider_url="http://example-s3-endpoint.com"} 1.0
 # HELP storage_size_bucket The total size in bytes of all files in a bucket
 # TYPE storage_size_bucket gauge
-storage_size_bucket{access_key="25d7ba3888a652459ae2",name="infra-dev-bucket-0000",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.188575e+06
+storage_size_bucket{access_key="mkMfCRMp8GpwZwXzkJbp",name="example-bucket-0000",storage_provider_url="http://example-s3-endpoint.com"} 1.188575e+06
 # HELP storage_file_count_bucket The total number of files in a bucket
 # TYPE storage_file_count_bucket gauge
-storage_file_count_bucket{access_key="25d7ba3888a652459ae2",name="infra-dev-bucket-0000",storage_provider_url="http://s3-de-central.profitbricks.com"} 10003.0
+storage_file_count_bucket{access_key="mkMfCRMp8GpwZwXzkJbp",name="example-bucket-0000",storage_provider_url="http://example-s3-endpoint.com"} 10003.0
 # HELP storage_size_folder The total size in bytes of all files in a folder
 # TYPE storage_size_folder gauge
-storage_size_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_10k/",storage_provider_url="http://s3-de-central.profitbricks.com"} 140000.0
-storage_size_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.048575e+06
+storage_size_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_10k/",storage_provider_url="http://example-s3-endpoint.com"} 140000.0
+storage_size_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://example-s3-endpoint.com"} 1.048575e+06
 # HELP storage_file_count_folder The total number of files in a folder
 # TYPE storage_file_count_folder gauge
-storage_file_count_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_10k/",storage_provider_url="http://s3-de-central.profitbricks.com"} 10000.0
-storage_file_count_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.0
+storage_file_count_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_10k/",storage_provider_url="http://example-s3-endpoint.com"} 10000.0
+storage_file_count_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://example-s3-endpoint.com"} 1.0
 ```
 And a section like this for the ionosmaintenance module:
 ```
 # HELP in_hoster_maintenance_window Cluster or one of the nodepools is in maintenance window
 # TYPE in_hoster_maintenance_window gauge
-in_hoster_maintenance_window{cluster="infra-admin-1"} 0.0
-in_hoster_maintenance_window{cluster="infra-admin-2"} 0.0
-in_hoster_maintenance_window{cluster="infra-collaboration-1"} 0.0
-in_hoster_maintenance_window{cluster="infra-collaboration-2"} 0.0
-in_hoster_maintenance_window{cluster="infra-collaboration-3"} 0.0
-in_hoster_maintenance_window{cluster="infra-dev-servicecenter-1"} 0.0
-in_hoster_maintenance_window{cluster="infra-dev-servicecenter-2"} 0.0
-in_hoster_maintenance_window{cluster="infra-edusharing-1"} 0.0
-in_hoster_maintenance_window{cluster="infra-nextcloud-1"} 0.0
-in_hoster_maintenance_window{cluster="infra-schulcloud-1"} 0.0
-in_hoster_maintenance_window{cluster="sc-app-01"} 0.0
-in_hoster_maintenance_window{cluster="sc-collabora"} 0.0
-in_hoster_maintenance_window{cluster="sc-devcenter-1"} 0.0
-in_hoster_maintenance_window{cluster="sc-nextcloud"} 0.0
-in_hoster_maintenance_window{cluster="sc-servicecenter"} 0.0
+in_hoster_maintenance_window{cluster="example-cluster-1"} 0.0
+in_hoster_maintenance_window{cluster="example-cluster-2"} 0.0
 ```
