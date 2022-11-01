@@ -21,17 +21,17 @@ if __name__ == '__main__':
         dbcm_config: dict = read_configuration()
         start_http_server(9000)
         active_modules = 0
-        if os.getenv("VERSION_METRICS_ENABLED").lower() == 'true':
+        if os.getenv("VERSION_METRICS_ENABLED", default = "false").lower() == 'true':
             vmtr = VersionMetricsThreading(dbcm_config)
             dbcmThreads.append(vmtr)
             logging.info("Version metrics started")
             active_modules += 1
-        if os.getenv("STORAGE_METRICS_ENABLED").lower() == 'true':
+        if os.getenv("STORAGE_METRICS_ENABLED", default = "false").lower() == 'true':
             smtr = StorageMetricsThreading()
             dbcmThreads.append(smtr)
             logging.info("Storage metrics started")
             active_modules += 1
-        if os.getenv("IONOS_MAINTENANCE_METRICS_ENABLED").lower() == 'true':
+        if os.getenv("IONOS_MAINTENANCE_METRICS_ENABLED", default = "false").lower() == 'true':
             logging.info("Maintenance window metrics starting...")
             maintenance_metrics_thread = IonosMaintenanceWindowThreading(dbcm_config)
             dbcmThreads.append(maintenance_metrics_thread)
