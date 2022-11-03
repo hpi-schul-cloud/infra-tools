@@ -1,6 +1,3 @@
-from typing import Dict
-from typing import List
-
 class DBCMInstance:
     '''
     Dataclass that stores the specification about an dbc instance.
@@ -17,5 +14,5 @@ class DBCMInstance:
         '''
         # instances
         instance_string = self.name + ": " +  self.url + " (" + self.shortname + ")"
-        return "instance: " + instance_string 
+        return "instance: " + instance_string
 

@@ -1,30 +1,45 @@
 # dbcmetrics
 
 A containerized Python application which exposes sepcial dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application version of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes.
-The port where metrics are exposed is currently hard codeed to 9000.
+The port where metrics are exposed is currently hard coded to 9000.
 
 The source code can be found in the [dbcmetrics](https://github.com/hpi-schul-cloud/infra-tools/tree/master/dbcmetrics) folder of the infra-tools repository of hpi-schul-cloud on github.
 
+## Modules
+| Name             | metrics for       |
+| ---------------- | ----------------- |
+| storage          | S3 buckets        |
+| version          | service versions  |
+| ionosmaintenance | maintenance windows of clusters | 
+
 # Configuration
+
+Modules can be enabled/disabled via environment variables.
+
+Secrets are provided via environment variables.
 
 ## Config File
 A `dbcm_config.yaml` config file will be read either from a global location `/etc/dbcmconfig` or the file path which is specified in an `DBCMCONFIG` environment variable.
 
-### Environment Variables
+## Environment Variables
 
 The following environment variables are read by the dbcmetrics application:
-| Name | Description | Example Value |
-| ----------- | ----------- | ----------- |
-| LOGLEVEL | Optional variable to set the log level (default is `INFO`) | `DEBUG` |
-| DBCMCONFIG | Path to the `dbcm_config.yaml` file (default is `/etc/dbcmconfig`) | `./dbcm_config.yaml` |
-| STORAGE_METRICS_ENABLED | Enables or disabled the storage monitoring module | `true` |
-| STORAGE_INTERVAL | Number of seconds between cycles in which the storage metrics are fetched | `30` |
-| STORAGE_EXCLUDE_SUBFOLDERS | Defines if metric generation for folders inside of top-level folders should be disabled  | `true` |
-| STORAGE_PROVIDER_URL | URL of the S3 storage provider | `http://s3-de-central.profitbricks.com` |
-| STORAGE_PROVIDER_REGION | Region of the S3 storage provider | `s3-de-central` |
-| STORAGE_BUCKET_NAME | The name of the bucket to monitor by the storage module (Secret in Kubernetes) | `infra-dev-bucket-0000` |
-| STORAGE_ACCESS_KEY | The Access Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
-| STORAGE_ACCESS_SECRET | The Secret Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
+| Name        | Module      | Description | Example Value |
+| ----------- | ----------- | ----------- | ------------- |
+| LOGLEVEL | - | Optional variable to set the log level (default is `INFO`) | `DEBUG` |
+| DBCMCONFIG | - | Path to the `dbcm_config.yaml` file (default is `/etc/dbcmconfig`) | `./dbcm_config.yaml` |
+| VERSION_METRICS_ENABLED | version | Enables or disabled the version monitoring module | `true` |
+| IONOS_MAINTENANCE_METRICS_ENABLED | ionosmaintenance | Enables or disabled the ionosmaintenance monitoring module | `true` |
+| STORAGE_METRICS_ENABLED | storage | Enables or disabled the storage monitoring module | `true` |
+| STORAGE_INTERVAL | storage | Number of seconds between cycles in which the storage metrics are fetched | `30` |
+| STORAGE_EXCLUDE_SUBFOLDERS | storage | Defines if metric generation for folders inside of top-level folders should be disabled  | `true` |
+| STORAGE_PROVIDER_URL | storage | URL of the S3 storage provider | `http://example-s3-endpoint.com` |
+| STORAGE_PROVIDER_REGION | storage | Region of the S3 storage provider | `s3-example-region` |
+| STORAGE_BUCKET_NAME | storage | The name of the bucket to monitor by the storage module (Secret in Kubernetes) | `example-bucket-0000` |
+| STORAGE_ACCESS_KEY | storage | The Access Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
+| STORAGE_ACCESS_SECRET | storage | The Secret Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
+| TERRAFORM_STATE_S3_ACCESS_KEY | ionosmaintenance | The Access Key of your Object Storage Key with access to the Terraform State Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
+| TERRAFORM_STATE_S3_SECRET_KEY | ionosmaintenance | The Secret Key of your Object Storage Key with access to the Terraform State Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
 
 # Run dbcmetrics on your local machine
 
@@ -50,10 +65,12 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 "LOGLEVEL": "DEBUG",
                 "DBCMCONFIG": "./dbcm_config.yaml",
                 "STORAGE_METRICS_ENABLED": "true",
+                "VERSION_METRICS_ENABLED": "false",
+                "IONOS_MAINTENANCE_METRICS_ENABLED": "false",
                 "STORAGE_INTERVAL": "30",
                 "STORAGE_EXCLUDE_SUBFOLDERS": "true",
-                "STORAGE_PROVIDER_URL": "http://s3-de-central.profitbricks.com",
-                "STORAGE_PROVIDER_REGION": "s3-de-central",
+                "STORAGE_PROVIDER_URL": "<S3 endpoint>",
+                "STORAGE_PROVIDER_REGION": "<S3 provider region>",
                 // Secrets in Kubernetes
                 "STORAGE_BUCKET_NAME": "<The Name of the Bucket to monitor>",
                 "STORAGE_ACCESS_KEY": "<The Access Key of your Object Storage Key with access to the Bucket>",
@@ -79,10 +96,12 @@ docker run `
     -p 9000:9000 `
     -e DBCMCONFIG="./dbcm_config.yaml" `
     -e STORAGE_METRICS_ENABLED="true" `
+    -e VERSION_METRICS_ENABLED="false" `
+    -e IONOS_MAINTENANCE_METRICS_ENABLED="false" `
     -e STORAGE_INTERVAL="30" `
     -e STORAGE_EXCLUDE_SUBFOLDERS="true" `
-    -e STORAGE_PROVIDER_URL="http://s3-de-central.profitbricks.com" `
-    -e STORAGE_PROVIDER_REGION="s3-de-central" `
+    -e STORAGE_PROVIDER_URL="<S3 endpoint>" `
+    -e STORAGE_PROVIDER_REGION="<S3 provider region>" `
     -e STORAGE_BUCKET_NAME="<The Name of the Bucket to monitor>" `
     -e STORAGE_ACCESS_KEY="<The Access Key of your Object Storage Key with access to the Bucket>" `
     -e STORAGE_ACCESS_SECRET="<The Secret Key of your Object Storage Key with access to the Bucket>" `
@@ -94,13 +113,20 @@ docker run `
 To install dbcmetrics with helm in your local kubernetes cluster you first need to clone the [infra-schulcloud](https://github.com/hpi-schul-cloud/infra-schulcloud) repository.
 Then you need to remove the `charts/dbcmetrics/templates/servicemonitor.yaml` file locally (do not commit this change) because this is a Kubernetes Custom Resource Definition (CRD) that is created by installing the [kube-prometheus stack](https://github.com/prometheus-operator/kube-prometheus) helm chart, so it doesn't exist on your local kubernetes cluster as long as you don't have the kube-prometheus stack installed.
 
-Afterwards you need to create a secret with the name `dbcmetrics-secret` with three key-value pairs
+Afterwards you need to create a secret with the name `dbcmetrics-secret` with three key-value pairs (for the storage module)
 
 | Key |  Value (Example) |
 | ----------- | ----------- |
-| BUCKET_NAME | `infra-dev-bucket-0000` |
-| ACCESS_KEY | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
-| ACCESS_SECRET | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
+| s3_bucket_name | `example-bucket-0000` |
+| s3_access_key | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
+| s3_access_secret | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
+
+If the ionosmaintenance module is enabled you need a secret with the name `ionos-maintenance-metrics` with the following key-value pairs for the terraform state s3 bucket:
+
+| Key |  Value (Example) |
+| ----------- | ----------- |
+| s3_access_key | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
+| s3_access_secret | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
 
 If you have done that you can install the dbcmetrics helm chart by in the `charts/` directory of the cloned `infra-schulcloud` repository and run the command
 ```
@@ -119,36 +145,38 @@ kubectl port-forward deployment/dbcmetrics 9000:9000
 
 After running dbcmetrics as a python application, as a standalone container or as a helm release you can open the URL `http://localhost:9000/` in your browser to see the metrics endpoint generated by the prometheus client with all metrics according to your configuration.
 
-Besides the default prometheus metrics you should see on this endpoint a section like this for the version module:
+Besides the default prometheus metrics you should see on this endpoint a section for each enabled module.
+Like this for the version module:
 ```
-# HELP dbildungscloud_info Version Information
-# TYPE dbildungscloud_info gauge
-dbildungscloud_info{app_instance="dbildungscloud",client="27.12.0",dashboard="version_dashboard",nuxt="27.12.0",server="27.12.0"} 1.0
-# HELP brandenburg_info Version Information
-# TYPE brandenburg_info gauge
-brandenburg_info{app_instance="brandenburg",client="27.12.0",dashboard="version_dashboard",nuxt="27.12.0",server="27.12.0"} 1.0
-# HELP niedersachsen_info Version Information
-# TYPE niedersachsen_info gauge
-niedersachsen_info{app_instance="niedersachsen",client="27.12.0",dashboard="version_dashboard",nuxt="27.12.0",server="27.12.0"} 1.0
+# HELP version_info Version Information
+# TYPE version_info gauge
+version_info{app_instance="example_instance_name",dashboard="version_dashboard",service_a="12.2.0",service_b="1.3.4"} 1.0
 ```
 
 And a section like this for the storage module:
 ```
 # HELP storage_bucket_availability Indicates if the target bucket is available
 # TYPE storage_bucket_availability gauge
-storage_bucket_availability{access_key="25d7ba3888a652459ae2",name="infra-dev-bucket-0000",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.0
+storage_bucket_availability{access_key="mkMfCRMp8GpwZwXzkJbp",name="example-bucket-0000",storage_provider_url="http://example-s3-endpoint.com"} 1.0
 # HELP storage_size_bucket The total size in bytes of all files in a bucket
 # TYPE storage_size_bucket gauge
-storage_size_bucket{access_key="25d7ba3888a652459ae2",name="infra-dev-bucket-0000",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.188575e+06
+storage_size_bucket{access_key="mkMfCRMp8GpwZwXzkJbp",name="example-bucket-0000",storage_provider_url="http://example-s3-endpoint.com"} 1.188575e+06
 # HELP storage_file_count_bucket The total number of files in a bucket
 # TYPE storage_file_count_bucket gauge
-storage_file_count_bucket{access_key="25d7ba3888a652459ae2",name="infra-dev-bucket-0000",storage_provider_url="http://s3-de-central.profitbricks.com"} 10003.0
+storage_file_count_bucket{access_key="mkMfCRMp8GpwZwXzkJbp",name="example-bucket-0000",storage_provider_url="http://example-s3-endpoint.com"} 10003.0
 # HELP storage_size_folder The total size in bytes of all files in a folder
 # TYPE storage_size_folder gauge
-storage_size_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_10k/",storage_provider_url="http://s3-de-central.profitbricks.com"} 140000.0
-storage_size_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.048575e+06
+storage_size_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_10k/",storage_provider_url="http://example-s3-endpoint.com"} 140000.0
+storage_size_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://example-s3-endpoint.com"} 1.048575e+06
 # HELP storage_file_count_folder The total number of files in a folder
 # TYPE storage_file_count_folder gauge
-storage_file_count_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_10k/",storage_provider_url="http://s3-de-central.profitbricks.com"} 10000.0
-storage_file_count_folder{access_key="25d7ba3888a652459ae2",bucket="infra-dev-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://s3-de-central.profitbricks.com"} 1.0
+storage_file_count_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_10k/",storage_provider_url="http://example-s3-endpoint.com"} 10000.0
+storage_file_count_folder{access_key="mkMfCRMp8GpwZwXzkJbp",bucket="example-bucket-0000",name="testfiles_1mb/",storage_provider_url="http://example-s3-endpoint.com"} 1.0
+```
+And a section like this for the ionosmaintenance module:
+```
+# HELP in_hoster_maintenance_window Cluster or one of the nodepools is in maintenance window
+# TYPE in_hoster_maintenance_window gauge
+in_hoster_maintenance_window{cluster="example-cluster-1"} 0.0
+in_hoster_maintenance_window{cluster="example-cluster-2"} 0.0
 ```
