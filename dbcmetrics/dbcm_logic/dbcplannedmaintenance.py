@@ -7,6 +7,7 @@ import threading
 import time
 from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
+import requests
 
 
 class PlannedMaintenanceWindowThreading(object):
@@ -15,6 +16,8 @@ class PlannedMaintenanceWindowThreading(object):
             file_configs = configuration["maintenance_metrics"]
             self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] 
             self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] 
+            self.PLANNNED_MAINTENANCE_DEFAULT_DURATION = datetime.timedelta(minutes=file_configs["default_maintenance_duration_min"])
+            self.PLATFORMS = file_configs["platforms"]
         except:
             logging.error("Missing or wrong configuration values for planned maintenance metrics")
             raise DBCMException
@@ -43,16 +46,45 @@ class PlannedMaintenanceWindowThreading(object):
         # windows is a dict of all platforms e.g.: {"niedersachsen.cloud": [["03.11.2022 13:00","03.11.2022 12:00"]["03.11.2022 13:00","03.11.2022 12:00"]], "next.Platform": ...}
         #                                            platform name          window_start_date      window_end_date   window_start_date  window_end_date       ...
         self.windows = {}
-        try:
-            cluster_window = self.get_maintenance_windows_from_tfstate(tf_path)
-            # Add only if at least one window exists
-            if cluster_window["cluster"] or cluster_window["nodepools"]:
-                self.windows[cluster_name] = cluster_window
-                logging.info(f"Saved maintenance windows for {cluster_name}: {cluster_window}")
-        except:
-            logging.error(f"Couldn't load/update maintenance window for {cluster_name}")
-        
+        for platform in self.PLATFORMS:
+            try:
+                # print(f"platform = {platform}")
+                platform_name = platform['name']
+                print(f"platform_name = {platform_name}, plattform_url = {platform['url']}")
+                import requests
 
+                url = platform['url'] + "/api/v1/schedules"
+
+                headers = {
+                    "accept": "application/json",
+                    "X-Cachet-Application": "Demo"
+                }
+
+                response = json.loads(requests.get(url, headers=headers).text)
+
+                print(response['data'])
+                for maintance_entry in response['data']:
+
+                    
+                    platform_window_start = maintance_entry['scheduled_at']
+                    platform_window_end = maintance_entry['completed_at']
+                    print(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['message']}")
+                    print(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
+
+                # What happens if platform_window_end not set 
+
+                # parse platform_window_start and platform_window_end to datetime.datetime and in list:
+                # platform_windows = 
+
+                # Check if platform_window_end in in future 
+
+                # set entry in list
+                #self.windows[platform_name] = platform_windows
+                #logging.info(f"Saved planned maintenance windows for {platform_name}: {platform_windows}")
+
+            except Exception as e:
+                print(f"Couldn't load/update maintenance window for {platform}")
+                print(e)
 
     def refresh_metrics(self):
         for platform_name, plattform_windows in self.windows.items():
