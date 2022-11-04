@@ -48,9 +48,8 @@ class PlannedMaintenanceWindowThreading(object):
         self.windows = {}
         for platform in self.PLATFORMS:
             try:
-                # print(f"platform = {platform}")
                 platform_name = platform['name']
-                print(f"platform_name = {platform_name}, plattform_url = {platform['url']}")
+                logging.info(f"platform_name = {platform_name}, plattform_url = {platform['url']}")
 
                 url = platform['url'] + "/api/v1/schedules"
 
