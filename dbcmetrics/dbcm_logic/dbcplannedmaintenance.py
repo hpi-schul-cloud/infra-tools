@@ -67,27 +67,25 @@ class PlannedMaintenanceWindowThreading(object):
                     # load and parse data from response
 
                     try:
-                        logging(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['message']}")
+                        logging.info(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['message']}")
                     except Exception as e:
-                        logging(f"Couldn't load maintenance entry: message on {platform_name} for entry: {maintance_entry}")
-                        logging(e)
+                        logging.warning(f"Couldn't load maintenance entry: message on {platform_name} for entry: {maintance_entry}")
+                        logging.error(e)
 
 
                     try:
-                        # TODO: parse to datetime
-                        platform_window_start =  datetime.datetime.strptime(maintance_entry['scheduled_at'], '%Y-%m-%d %H:%M:%S') 
+                        platform_window_start = self.parse_string_to_datetime(maintance_entry['scheduled_at'])
                     except Exception as e:
-                        logging(f"Couldn't load maintenance entry: platform_window_start on {platform_name} for entry: {maintance_entry}")
-                        logging(e)
+                        logging.warning(f"Couldn't load maintenance entry: platform_window_start on {platform_name} for entry: {maintance_entry}")
+                        logging.error(e)
                         continue
 
                     try:
-                        # TODO: parse to datetime
-                        platform_window_end = datetime.datetime.strptime(maintance_entry['completed_at'], '%Y/%m/%d %H:%M:%S')  
+                        platform_window_end = self.parse_string_to_datetime(maintance_entry['completed_at'])    
                     except Exception as e:
-                        logging(f"Couldn't load maintenance entry: platform_window_end on {platform_name} for entry: {maintance_entry}")
-                        logging(f"platform_window_end is set to platform_window_start + {PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
-                        logging(e)
+                        logging.warning(f"Couldn't load maintenance entry: platform_window_end on {platform_name} for entry: {maintance_entry}")
+                        logging.warning(f"platform_window_end is set to platform_window_start + {PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
+                        logging.error(e)
                         platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
 
                     
@@ -100,8 +98,8 @@ class PlannedMaintenanceWindowThreading(object):
                 logging.info(f"Saved planned maintenance windows for {platform_name}: {platform_windows}")
 
             except Exception as e:
-                print(f"Couldn't load/update maintenance window for {platform}")
-                print(e)
+                logging.warning(f"Couldn't load/update maintenance window for {platform}")
+                logging.error(e)
 
     def refresh_metrics(self):
         for platform_name, plattform_windows in self.windows.items():
@@ -125,3 +123,8 @@ class PlannedMaintenanceWindowThreading(object):
         current = datetime.datetime.utcnow()
         # TODO: Validation?
         return platform_window_start <= current <= platform_window_end
+
+        
+    @staticmethod
+    def parse_string_to_datetime(datetime_string: str) -> datetime.datetime:
+        return datetime.datetime.strptime(datetime_string, '%Y-%m-%d %H:%M:%S') 
