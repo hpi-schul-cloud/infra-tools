@@ -94,13 +94,10 @@ class PlannedMaintenanceWindowThreading(object):
                     logging(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
                     platform_windows.append([platform_window_start,platform_window_end])
                 
-                # platform_windows = 
-
-                # Check if platform_window_end in in future 
-
+            
                 # set entry in list
-                #self.windows[platform_name] = platform_windows
-                #logging.info(f"Saved planned maintenance windows for {platform_name}: {platform_windows}")
+                self.windows[platform_name] = platform_windows
+                logging.info(f"Saved planned maintenance windows for {platform_name}: {platform_windows}")
 
             except Exception as e:
                 print(f"Couldn't load/update maintenance window for {platform}")
