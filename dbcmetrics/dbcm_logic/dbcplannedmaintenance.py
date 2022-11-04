@@ -51,7 +51,6 @@ class PlannedMaintenanceWindowThreading(object):
                 # print(f"platform = {platform}")
                 platform_name = platform['name']
                 print(f"platform_name = {platform_name}, plattform_url = {platform['url']}")
-                import requests
 
                 url = platform['url'] + "/api/v1/schedules"
 
@@ -62,18 +61,38 @@ class PlannedMaintenanceWindowThreading(object):
 
                 response = json.loads(requests.get(url, headers=headers).text)
 
-                print(response['data'])
+                # Several maintance_entry can exist in response['data'], default is empty List
                 for maintance_entry in response['data']:
+                    # load and parse data from response
+
+                    try:
+                        logging(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['message']}")
+                    except Exception as e:
+                        logging(f"Couldn't load maintenance entry: message on {platform_name} for entry: {maintance_entry}")
+                        logging(e)
+
+
+                    try:
+                        # TODO: parse to datetime
+                        platform_window_start =  datetime.datetime.strptime(maintance_entry['scheduled_at'], '%Y-%m-%d %H:%M:%S') 
+                    except Exception as e:
+                        logging(f"Couldn't load maintenance entry: platform_window_start on {platform_name} for entry: {maintance_entry}")
+                        logging(e)
+                        continue
+
+                    try:
+                        # TODO: parse to datetime
+                        platform_window_end = datetime.datetime.strptime(maintance_entry['completed_at'], '%Y/%m/%d %H:%M:%S')  
+                    except Exception as e:
+                        logging(f"Couldn't load maintenance entry: platform_window_end on {platform_name} for entry: {maintance_entry}")
+                        logging(f"platform_window_end is set to platform_window_start + {PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
+                        logging(e)
+                        platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
 
                     
-                    platform_window_start = maintance_entry['scheduled_at']
-                    platform_window_end = maintance_entry['completed_at']
-                    print(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['message']}")
-                    print(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
+                    logging(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
 
-                # What happens if platform_window_end not set 
 
-                # parse platform_window_start and platform_window_end to datetime.datetime and in list:
                 # platform_windows = 
 
                 # Check if platform_window_end in in future 
