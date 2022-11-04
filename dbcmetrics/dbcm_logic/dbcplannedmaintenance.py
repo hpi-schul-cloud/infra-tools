@@ -61,6 +61,7 @@ class PlannedMaintenanceWindowThreading(object):
 
                 response = json.loads(requests.get(url, headers=headers).text)
 
+                platform_windows = []
                 # Several maintance_entry can exist in response['data'], default is empty List
                 for maintance_entry in response['data']:
                     # load and parse data from response
@@ -91,8 +92,8 @@ class PlannedMaintenanceWindowThreading(object):
 
                     
                     logging(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
-
-
+                    platform_windows.append([platform_window_start,platform_window_end])
+                
                 # platform_windows = 
 
                 # Check if platform_window_end in in future 
