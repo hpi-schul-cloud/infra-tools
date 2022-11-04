@@ -83,7 +83,7 @@ class PlannedMaintenanceWindowThreading(object):
                         platform_window_end = self.parse_string_to_datetime(maintance_entry['completed_at'])    
                     except Exception as e:
                         logging.warning(f"Couldn't load maintenance entry: platform_window_end on {platform_name} for entry: {maintance_entry}")
-                        logging.warning(f"platform_window_end is set to platform_window_start + {PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
+                        logging.warning(f"platform_window_end is set to platform_window_start + {self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
                         logging.error(e)
                         platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
 
