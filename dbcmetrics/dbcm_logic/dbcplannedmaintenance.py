@@ -8,6 +8,7 @@ import time
 from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
 import requests
+import pytz
 
 
 class PlannedMaintenanceWindowThreading(object):
@@ -45,7 +46,7 @@ class PlannedMaintenanceWindowThreading(object):
 
         # windows is a dict of all platforms e.g.: {"niedersachsen.cloud": [["03.11.2022 13:00","03.11.2022 12:00"]["03.11.2022 13:00","03.11.2022 12:00"]], "next.Platform": ...}
         #                                            platform name          window_start_date      window_end_date   window_start_date  window_end_date       ...
-        self.windows = {}
+        
         for platform in self.PLATFORMS:
             try:
                 platform_name = platform['name']
@@ -61,13 +62,15 @@ class PlannedMaintenanceWindowThreading(object):
                 response = json.loads(requests.get(url, headers=headers).text)
 
                 platform_windows = []
-                # Several maintance_entry can exist in response['data'], default is empty List
+                # Several maintance_entry may exist in response['data'], default is empty List
                 for maintance_entry in response['data']:
                     # load and parse data from response
 
                     try:
                         logging.info(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['message']}")
                     except Exception as e:
+                        # Triggered if message field is empty
+                        # It is not a requiered field, so code will continue for this entry
                         logging.warning(f"Couldn't load maintenance entry: message on {platform_name} for entry: {maintance_entry}")
                         logging.error(e)
 
@@ -75,17 +78,22 @@ class PlannedMaintenanceWindowThreading(object):
                     try:
                         platform_window_start = self.parse_string_to_datetime(maintance_entry['scheduled_at'])
                     except Exception as e:
+                        # Triggered if field for start of platform maintenance window is empty
                         logging.warning(f"Couldn't load maintenance entry: platform_window_start on {platform_name} for entry: {maintance_entry}")
                         logging.error(e)
                         continue
 
-                    try:
-                        platform_window_end = self.parse_string_to_datetime(maintance_entry['completed_at'])    
-                    except Exception as e:
-                        logging.warning(f"Couldn't load maintenance entry: platform_window_end on {platform_name} for entry: {maintance_entry}")
-                        logging.warning(f"platform_window_end is set to platform_window_start + {self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
-                        logging.error(e)
-                        platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
+                    
+                    #try:
+                    #    platform_window_end = self.parse_string_to_datetime(maintance_entry['completed_at'])    
+                    #except Exception as e:
+                    #    # Triggered if field for end of platform maintenance window is empty
+                    #    logging.warning(f"Couldn't load maintenance entry: platform_window_end on {platform_name} for entry: {maintance_entry}")
+                    #    logging.warning(f"platform_window_end is set to platform_window_start + {self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
+                    #    logging.error(e)
+                    #    platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
+                    
+                    platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
 
                     
                     logging(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
@@ -103,8 +111,6 @@ class PlannedMaintenanceWindowThreading(object):
     def refresh_metrics(self):
         for platform_name, plattform_windows in self.windows.items():
             in_window = False
-            # Check platform window(s)
-            # TODO: window only tuple not dic?
             for platform_window_start, platform_window_end  in plattform_windows:
                 if self.currently_in_window(platform_window_start, platform_window_end):
                     in_window = True
@@ -118,10 +124,13 @@ class PlannedMaintenanceWindowThreading(object):
 
     @staticmethod
     def currently_in_window(platform_window_start: datetime.datetime, platform_window_end: datetime.datetime) -> bool:
-        # TODO: Timezone?
-        current = datetime.datetime.utcnow()
-        # TODO: Validation?
-        return platform_window_start <= current <= platform_window_end
+
+        tz_berlin = pytz.timezone('Europe/Berlin')
+        berlin_now = datetime.datetime.now(tz_berlin)
+
+        # The formatting is needed for the calculation with time zones
+        in_window: bool = platform_window_start.strftime('%Y:%m:%d %H:%M:%S') <= berlin_now.strftime('%Y:%m:%d %H:%M:%S') <= platform_window_end.strftime('%Y:%m:%d %H:%M:%S')
+        return in_window
 
         
     @staticmethod
