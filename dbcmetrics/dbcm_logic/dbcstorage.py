@@ -4,14 +4,10 @@ Module for a class that queries a s3 bucket for their size and the number of fil
 from datetime import datetime, timedelta
 import logging
 import os
-from re import I
 from time import sleep
-import threading, requests, json, urllib.parse
-from typing import Dict
-from typing import List
-from prometheus_client import Gauge, Info
+import threading
+from prometheus_client import Gauge
 import boto3
-from botocore.config import Config
 
 
 class StorageMetricsThreading(object):
@@ -69,7 +65,7 @@ class StorageMetricsThreading(object):
 
         self.file_count_folder_gauge = Gauge('storage_file_count_folder','The total number of files in a folder',[
             'name',
-            'bucket',            
+            'bucket',
             'storage_provider_url',
             'access_key',
         ])
@@ -182,7 +178,7 @@ class StorageMetricsThreading(object):
             folder_size = 0
             for file in folder_file_list:
                 folder_size += file['Size']
-            
+
             logging.info("The size of all files in the folder {} is {}".format(folder_name, folder_size))
             self.size_folder_gauge.labels(
                 name=folder_name,
