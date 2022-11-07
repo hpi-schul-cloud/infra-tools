@@ -7,6 +7,7 @@ from dbcm_common.dbcm_config import read_configuration
 from dbcm_logic.dbcstorage import StorageMetricsThreading
 from dbcm_logic.dbcversion import VersionMetricsThreading
 from dbcm_logic.dbcionosmaintenance import IonosMaintenanceWindowThreading
+from dbcm_logic.dbcplannedmaintenance import PlannedMaintenanceWindowThreading
 
 
 if __name__ == '__main__':
@@ -32,10 +33,16 @@ if __name__ == '__main__':
             logging.info("Storage metrics started")
             active_modules += 1
         if os.getenv("IONOS_MAINTENANCE_METRICS_ENABLED", default = "false").lower() == 'true':
-            logging.info("Maintenance window metrics starting...")
+            logging.info("Ionos Maintenance window metrics starting...")
             maintenance_metrics_thread = IonosMaintenanceWindowThreading(dbcm_config)
             dbcmThreads.append(maintenance_metrics_thread)
-            logging.info("Maintenance window metrics started")
+            logging.info("Ionos Maintenance window metrics started")
+            active_modules += 1
+        if os.getenv("PLANNED_MAINTENANCE_METRICS_ENABLED", default = "false").lower() == 'true':
+            logging.info("Planned Maintenance window metrics starting...")
+            planned_maintenance_metrics_thread = PlannedMaintenanceWindowThreading(dbcm_config)
+            dbcmThreads.append(planned_maintenance_metrics_thread)
+            logging.info("Planned Maintenance window metrics started")
             active_modules += 1
         if active_modules == 0:
             logging.error("No module is enabled!")
