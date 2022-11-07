@@ -82,13 +82,9 @@ tolerations: []
 
 affinity: {}
 
-# -- The values below 'dbcnconfigwill be copied via the configmap into the file system of the dbcmetrics pod
+# -- The values below 'dbcmconfig' will be copied via the configmap into the file system of the dbcmetrics pod
 # below the mount point specified in the deployment template which is '/etc/dbcmetrics/dbcm_config.yaml'
 dbcmconfig:
-  features:
-    # -- each supported feature can be disabled or enabled. In additon each feature has its own
-    # configuration section with the same name below
-    version_metrics: enabled
   instances:
     # -- This part contains a list of instances which versions should be observed and provided as Prometheus metrics
     # - the name will be part of the Prometheus value, for the sample the Prometheus value will be 'myinstance_info'
@@ -97,7 +93,7 @@ dbcmconfig:
     - name: "myinstancename" 
       url: "https://myinstance.dbildungscloud.dev"
       shortname: "min"
-  # -- This part hold the feature specif configuration
+  # -- This part holds the version module specific configuration
   # - interval definces the cycle in seconds how often the version information is queried
   # - services contains a list of services the version will be queried with the parte that needs to be added 
   #   to the base url to receive the version information
@@ -107,8 +103,30 @@ dbcmconfig:
       server: /serverversion
       client: /version
       nuxt: /nuxtversion
+  # -- This part holds the maintenance module specific configuration
+  maintenance_metrics:
+    # -- Interval for polling the maintenance windows from the terraform state in minutes
+    window_refresh_interval_min: 30
+    # -- Interval for checking wether a cluster is currently in its maintenace window in seconds
+    metric_refresh_interval_sec: 15
+    # -- Duration of a noodpool maintenance in minutes
+    nodepool_maintenance_duration_min: 240
+    # -- Duration of a cluster maintenance in minutes
+    cluster_maintenance_duration_min: 15
+    # -- Prefix for the terraform state s3 object
+    s3_stage_directory: "env:/dev/"
+    # -- S3 endpoint for the terraform state bucket
+    s3_endpoint: "https://s3-eu-central-1.ionoscloud.com"
+    # -- Name of the terraform state bucket
+    s3_bucket: "sc-tf-remote-state-01"
 
-storage_metrics_enabled: true
+# -- Enables/disables storage module
+storage_metrics_enabled: false
+# -- Enables/disables version module
+version_metrics_enabled: false
+# -- Enables/disables ionosmaintenance module
+ionos_maintenance_metrics_enabled: false
+
 storage_exclude_subfolders: true
 storage_interval: 30
 storage_provider_url: "http://s3-de-central.profitbricks.com"
@@ -119,3 +137,11 @@ storage_bucket_name_key: s3_bucket_name
 storage_access_key_key: s3_access_key
 storage_access_secret_key: s3_access_secret
 storage_access_secret_name: "dbcmetrics-secret"
+
+
+# -- 1Password field name for the S3 access key for the terraform state bucket
+tfstate_s3_access_key_key: s3_access_key
+# -- 1Password field name for the S3 access secret for the terraform state bucket
+tfstate_s3_access_secret_key: s3_access_secret
+# -- Name of the kubernetes secret for the terraform state bucket
+tfstate_s3_secret_name: ionos-maintenance-metrics

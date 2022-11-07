@@ -6,6 +6,8 @@ metadata:
     {{- include "dbcmetrics.labels" . | nindent 4 }}
 data:
   STORAGE_METRICS_ENABLED: {{ .Values.storage_metrics_enabled | quote }}
+  VERSION_METRICS_ENABLED: {{ .Values.version_metrics_enabled | quote }}
+  IONOS_MAINTENANCE_METRICS_ENABLED: {{ .Values.ionos_maintenance_metrics_enabled | quote }}
   STORAGE_EXCLUDE_SUBFOLDERS: {{ .Values.storage_exclude_subfolders | quote }}
   STORAGE_INTERVAL: {{ .Values.storage_interval | quote }}
   STORAGE_PROVIDER_URL: {{ .Values.storage_provider_url }}
