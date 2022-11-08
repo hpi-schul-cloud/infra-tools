@@ -14,7 +14,7 @@ import pytz
 class PlannedMaintenanceWindowThreading(object):
     def __init__(self, configuration: dict):
         try:
-            file_configs = configuration["maintenance_metrics"]
+            file_configs = configuration["planned_maintenance_metrics"]
             self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] 
             self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] 
             self.PLANNNED_MAINTENANCE_DEFAULT_DURATION = datetime.timedelta(minutes=file_configs["default_maintenance_duration_min"])
