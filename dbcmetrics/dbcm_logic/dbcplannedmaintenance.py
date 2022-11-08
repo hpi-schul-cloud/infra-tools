@@ -96,7 +96,7 @@ class PlannedMaintenanceWindowThreading(object):
                     platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
 
                     
-                    logging(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
+                    logging.info(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
                     platform_windows.append([platform_window_start,platform_window_end])
                 
             
