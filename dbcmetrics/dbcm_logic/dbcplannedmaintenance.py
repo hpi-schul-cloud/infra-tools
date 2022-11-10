@@ -67,11 +67,11 @@ class PlannedMaintenanceWindowThreading(object):
                     # load and parse data from response
 
                     try:
-                        logging.info(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['name']}")
+                        logging.info(f"Found Mainenance entry in {platform_name}, title: {maintance_entry['name']}, message: {maintance_entry['message']}")
                     except Exception as e:
                         # Triggered if message field is empty
                         # It is not a requiered field, so code will continue for this entry
-                        logging.warning(f"Couldn't load maintenance entry: message on {platform_name} for entry: {maintance_entry}")
+                        logging.warning(f"Couldn't load maintenance entry: title or message on {platform_name} for entry: {maintance_entry}")
                         logging.error(e)
 
 
