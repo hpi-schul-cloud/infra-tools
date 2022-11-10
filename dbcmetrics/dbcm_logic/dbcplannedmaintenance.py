@@ -44,7 +44,7 @@ class PlannedMaintenanceWindowThreading(object):
 
     def load_planned_maintenance_windows(self):
 
-        # windows is a dict of all platforms e.g.: {"niedersachsen.cloud": [["03.11.2022 13:00","03.11.2022 12:00"]["03.11.2022 13:00","03.11.2022 12:00"]], "next.Platform": ...}
+        # windows is a dict of all platforms e.g.: {"status.plattform1": [["03.11.2022 13:00","03.11.2022 12:00"]["03.11.2022 13:00","03.11.2022 12:00"]], "next.Platform": ...}
         #                                            platform name          window_start_date      window_end_date   window_start_date  window_end_date       ...
         
         for platform in self.PLATFORMS:
@@ -55,8 +55,7 @@ class PlannedMaintenanceWindowThreading(object):
                 url = platform['url'] + "/api/v1/schedules"
 
                 headers = {
-                    "accept": "application/json",
-                    "X-Cachet-Application": "Demo"
+                    "accept": "application/json"
                 }
 
                 response = json.loads(requests.get(url, headers=headers).text)
@@ -72,7 +71,7 @@ class PlannedMaintenanceWindowThreading(object):
                         # Triggered if message field is empty
                         # It is not a requiered field, so code will continue for this entry
                         logging.warning(f"Couldn't load maintenance entry: title or message on {platform_name} for entry: {maintance_entry}")
-                        logging.error(f"\t {e}")
+                        logging.exception(f"\t {e}")
 
 
                     try:
@@ -80,28 +79,26 @@ class PlannedMaintenanceWindowThreading(object):
                     except Exception as e:
                         # Triggered if field for start of platform maintenance window is empty
                         logging.warning(f"Couldn't load maintenance entry: platform_window_start on {platform_name} for entry: {maintance_entry}")
-                        logging.error(f"\t {e}")
+                        logging.exception(f"\t {e}")
                         continue
 
                     try:
-                        dauer_string: str = maintance_entry['message']
-                        stunde_h_string = re.findall(r'[\d][\d]?[ ]*h', dauer_string) # returns e.g.: 2h, 10h, 1 h
-                        stunde = re.findall(r'[\d][\d]?', stunde_h_string[0]) # returns e.g.: 2, 10, 1 as String in a List
-                        start_to_end_window_hours: int = int(stunde[0])
+                        message_string: str = maintance_entry['message']
+                        stunde_result = re.findall(r"([\d]+)\s*h", message_string) # returns e.g.: 2, 10, 1 as String in a List
+                        start_to_end_window_hours: int = int(stunde_result[0])
                         succsessfully_parsed_hours: bool = True
                     except Exception as e:
                         logging.warning(f"\tCouldn't parse hours of end of maintenance window, using default hour offset (0 hours).")
-                        logging.error(f"\t {e}")
+                        logging.exception(f"\t {e}")
                         succsessfully_parsed_hours: bool = False
                         start_to_end_window_hours: int = 0
                     
                     try:
-                        minute_h_string = re.findall(r'[\d][\d]?[ ]*m', dauer_string) # returns e.g.: 2m, 10m, 40 m
-                        minute = re.findall(r'[\d][\d]?', minute_h_string[0]) # returns e.g.: 2, 10, 40 as String in a List
-                        start_to_end_window_min: int = int(minute[0])
+                        minute_result = re.findall(r'([\d]+)\s*m', message_string) # returns e.g.: 2, 10, 40 as String in a List
+                        start_to_end_window_min: int = int(minute_result[0])
                     except Exception as e:
                         logging.warning(f"\tCouldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too.")
-                        logging.error(f"\t {e}")
+                        logging.exception(f"\t {e}")
                         if(succsessfully_parsed_hours):
                             # if hours are correctly parse -> dont add default minutes 
                             start_to_end_window_min: int = 0
@@ -123,7 +120,7 @@ class PlannedMaintenanceWindowThreading(object):
 
             except Exception as e:
                 logging.warning(f"Couldn't load/update maintenance window for {platform}")
-                logging.error(e)
+                logging.exception(e)
 
     def refresh_metrics(self):
         for platform_name, plattform_windows in self.windows.items():

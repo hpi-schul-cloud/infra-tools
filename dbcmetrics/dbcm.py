@@ -46,7 +46,6 @@ if __name__ == '__main__':
             active_modules += 1
         if active_modules == 0:
             logging.warning("No module is enabled!")
-            #sys.exit(1)
         elif active_modules > 1:
             logging.warning("More than one module enabled!")
         while True:
