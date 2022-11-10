@@ -183,6 +183,7 @@ And a section like this for the ionosmaintenance module:
 # TYPE in_hoster_maintenance_window gauge
 in_hoster_maintenance_window{cluster="example-cluster-1"} 0.0
 in_hoster_maintenance_window{cluster="example-cluster-2"} 0.0
+<<<<<<< HEAD
 ```
 And a section like this for the plannedmaintenance module:
 ```
@@ -190,4 +191,6 @@ And a section like this for the plannedmaintenance module:
 # TYPE planned_maintenance_window gauge
 planned_maintenance_window{platform="exampleplatform-1"} 0.0
 planned_maintenance_window{platform="exampleplatform-2"} 1.0
+=======
+>>>>>>> origin/master
 ```
