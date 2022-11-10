@@ -89,7 +89,6 @@ class PlannedMaintenanceWindowThreading(object):
                         succsessfully_parsed_hours: bool = True
                     except Exception as e:
                         logging.warning(f"\tCouldn't parse hours of end of maintenance window, using default hour offset (0 hours).")
-                        logging.exception(f"\t {e}")
                         succsessfully_parsed_hours: bool = False
                         start_to_end_window_hours: int = 0
                     
@@ -98,7 +97,6 @@ class PlannedMaintenanceWindowThreading(object):
                         start_to_end_window_min: int = int(minute_result[0])
                     except Exception as e:
                         logging.warning(f"\tCouldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too.")
-                        logging.exception(f"\t {e}")
                         if(succsessfully_parsed_hours):
                             # if hours are correctly parse -> dont add default minutes 
                             start_to_end_window_min: int = 0
