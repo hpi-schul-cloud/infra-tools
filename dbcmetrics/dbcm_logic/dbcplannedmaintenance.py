@@ -72,7 +72,7 @@ class PlannedMaintenanceWindowThreading(object):
                         # Triggered if message field is empty
                         # It is not a requiered field, so code will continue for this entry
                         logging.warning(f"Couldn't load maintenance entry: title or message on {platform_name} for entry: {maintance_entry}")
-                        logging.error(e)
+                        logging.error(f"\t {e}")
 
 
                     try:
@@ -80,7 +80,7 @@ class PlannedMaintenanceWindowThreading(object):
                     except Exception as e:
                         # Triggered if field for start of platform maintenance window is empty
                         logging.warning(f"Couldn't load maintenance entry: platform_window_start on {platform_name} for entry: {maintance_entry}")
-                        logging.error(e)
+                        logging.error(f"\t {e}")
                         continue
 
                     try:
@@ -90,8 +90,8 @@ class PlannedMaintenanceWindowThreading(object):
                         start_to_end_window_hours: int = int(stunde[0])
                         succsessfully_parsed_hours: bool = True
                     except Exception as e:
-                        logging.warning(f"Couldn't parse hours of end of maintenance window, using default hour offset (0 hours).")
-                        logging.error(e)
+                        logging.warning(f"\tCouldn't parse hours of end of maintenance window, using default hour offset (0 hours).")
+                        logging.error(f"\t {e}")
                         succsessfully_parsed_hours: bool = False
                         start_to_end_window_hours: int = 0
                     
@@ -100,8 +100,8 @@ class PlannedMaintenanceWindowThreading(object):
                         minute = re.findall(r'[\d][\d]?', minute_h_string[0]) # returns e.g.: 2, 10, 40 as String in a List
                         start_to_end_window_min: int = int(minute[0])
                     except Exception as e:
-                        logging.warning(f"Couldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too.")
-                        logging.error(e)
+                        logging.warning(f"\tCouldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too.")
+                        logging.error(f"\t {e}")
                         if(succsessfully_parsed_hours):
                             # if hours are correctly parse -> dont add default minutes 
                             start_to_end_window_min: int = 0
@@ -113,13 +113,13 @@ class PlannedMaintenanceWindowThreading(object):
 
                     platform_window_end = platform_window_start + start_to_end_window_offset
                     
-                    logging.info(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
+                    logging.info(f"\tplatform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
                     platform_windows.append([platform_window_start,platform_window_end])
                 
             
                 # set entry in list
                 self.windows[platform_name] = platform_windows
-                logging.info(f"Saved planned maintenance windows for {platform_name}: {platform_windows}")
+                logging.info(f"\tSaved planned maintenance windows for {platform_name}; window count: {len(platform_windows)}")
 
             except Exception as e:
                 logging.warning(f"Couldn't load/update maintenance window for {platform}")
