@@ -67,7 +67,7 @@ class PlannedMaintenanceWindowThreading(object):
                     # load and parse data from response
 
                     try:
-                        logging.info(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['message']}")
+                        logging.info(f"Found Mainenance entry in {platform_name}, message: {maintance_entry['name']}")
                     except Exception as e:
                         # Triggered if message field is empty
                         # It is not a requiered field, so code will continue for this entry
@@ -85,28 +85,32 @@ class PlannedMaintenanceWindowThreading(object):
 
                     try:
                         dauer_string: str = maintance_entry['message']
-                        stunde_h_string = re.findall(r'[\d][\d]?[ ]*h', dauer_string)
-                        stunde = re.findall(r'[\d][\d]?', stunde_h_string[0])
+                        stunde_h_string = re.findall(r'[\d][\d]?[ ]*h', dauer_string) # returns e.g.: 2h, 10h, 1 h
+                        stunde = re.findall(r'[\d][\d]?', stunde_h_string[0]) # returns e.g.: 2, 10, 1 as String in a List
                         start_to_end_window_hours: int = int(stunde[0])
+                        succsessfully_parsed_hours: bool = True
                     except Exception as e:
-                        logging.warning(f"Couldn't parse hours of end of maintenance window, using default offset (0 hours) on {platform_name} for entry: {maintance_entry}")
+                        logging.warning(f"Couldn't parse hours of end of maintenance window, using default hour offset (0 hours).")
                         logging.error(e)
+                        succsessfully_parsed_hours: bool = False
                         start_to_end_window_hours: int = 0
                     
                     try:
-                        minute_h_string = re.findall(r'[\d][\d]?[ ]*m', dauer_string)
-                        minute = re.findall(r'[\d][\d]?', minute_h_string[0])     
+                        minute_h_string = re.findall(r'[\d][\d]?[ ]*m', dauer_string) # returns e.g.: 2m, 10m, 40 m
+                        minute = re.findall(r'[\d][\d]?', minute_h_string[0]) # returns e.g.: 2, 10, 40 as String in a List
                         start_to_end_window_min: int = int(minute[0])
                     except Exception as e:
-                        logging.warning(f"Couldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too. On {platform_name} for entry: {maintance_entry}")
+                        logging.warning(f"Couldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too.")
                         logging.error(e)
-                        if(start_to_end_window_hours == 0):
-                            start_to_end_window_min: int = self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
-                        else:
+                        if(succsessfully_parsed_hours):
+                            # if hours are correctly parse -> dont add default minutes 
                             start_to_end_window_min: int = 0
+                        else:
+                            start_to_end_window_min: int = self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
                     
-
+                    # Create offset timedelta obj for maintenance duration
                     start_to_end_window_offset = datetime.timedelta(minutes=start_to_end_window_min, hours=start_to_end_window_hours)
+
                     platform_window_end = platform_window_start + start_to_end_window_offset
                     
                     logging.info(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
