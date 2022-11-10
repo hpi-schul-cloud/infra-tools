@@ -1,7 +1,6 @@
 import datetime
 import json
 import logging
-import os
 from time import sleep
 import threading
 import time
@@ -9,6 +8,7 @@ from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
 import requests
 import pytz
+import re
 
 
 class PlannedMaintenanceWindowThreading(object):
@@ -17,7 +17,7 @@ class PlannedMaintenanceWindowThreading(object):
             file_configs = configuration["planned_maintenance_metrics"]
             self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] 
             self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] 
-            self.PLANNNED_MAINTENANCE_DEFAULT_DURATION = datetime.timedelta(minutes=file_configs["default_maintenance_duration_min"])
+            self.PLANNNED_MAINTENANCE_DEFAULT_DURATION = int(file_configs["default_maintenance_duration_min"])
             self.PLATFORMS = file_configs["platforms"]
         except:
             logging.error("Missing or wrong configuration values for planned maintenance metrics")
@@ -83,18 +83,31 @@ class PlannedMaintenanceWindowThreading(object):
                         logging.error(e)
                         continue
 
+                    try:
+                        dauer_string: str = maintance_entry['message']
+                        stunde_h_string = re.findall(r'[\d][\d]?[ ]*h', dauer_string)
+                        stunde = re.findall(r'[\d][\d]?', stunde_h_string[0])
+                        start_to_end_window_hours: int = int(stunde[0])
+                    except Exception as e:
+                        logging.warning(f"Couldn't parse hours of end of maintenance window, using default offset (0 hours) on {platform_name} for entry: {maintance_entry}")
+                        logging.error(e)
+                        start_to_end_window_hours: int = 0
                     
-                    #try:
-                    #    platform_window_end = self.parse_string_to_datetime(maintance_entry['completed_at'])    
-                    #except Exception as e:
-                    #    # Triggered if field for end of platform maintenance window is empty
-                    #    logging.warning(f"Couldn't load maintenance entry: platform_window_end on {platform_name} for entry: {maintance_entry}")
-                    #    logging.warning(f"platform_window_end is set to platform_window_start + {self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min")
-                    #    logging.error(e)
-                    #    platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
+                    try:
+                        minute_h_string = re.findall(r'[\d][\d]?[ ]*m', dauer_string)
+                        minute = re.findall(r'[\d][\d]?', minute_h_string[0])     
+                        start_to_end_window_min: int = int(minute[0])
+                    except Exception as e:
+                        logging.warning(f"Couldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too. On {platform_name} for entry: {maintance_entry}")
+                        logging.error(e)
+                        if(start_to_end_window_hours == 0):
+                            start_to_end_window_min: int = self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
+                        else:
+                            start_to_end_window_min: int = 0
                     
-                    platform_window_end = platform_window_start + self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
 
+                    start_to_end_window_offset = datetime.timedelta(minutes=start_to_end_window_min, hours=start_to_end_window_hours)
+                    platform_window_end = platform_window_start + start_to_end_window_offset
                     
                     logging.info(f"platform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
                     platform_windows.append([platform_window_start,platform_window_end])
