@@ -19,6 +19,7 @@ class PlannedMaintenanceWindowThreading(object):
             self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] 
             self.PLANNNED_MAINTENANCE_DEFAULT_DURATION = int(file_configs["default_maintenance_duration_min"])
             self.PLATFORMS = file_configs["platforms"]
+            self.TIMEZONE = pytz.timezone(file_configs["cachet_timezone"])
         except:
             logging.error("Missing or wrong configuration values for planned maintenance metrics")
             raise DBCMException
@@ -46,13 +47,12 @@ class PlannedMaintenanceWindowThreading(object):
 
         # windows is a dict of all platforms e.g.: {"status.plattform1": [["03.11.2022 13:00","03.11.2022 12:00"]["03.11.2022 13:00","03.11.2022 12:00"]], "next.Platform": ...}
         #                                            platform name          window_start_date      window_end_date   window_start_date  window_end_date       ...
-        
-        for platform in self.PLATFORMS:
-            try:
-                platform_name = platform['name']
-                logging.info(f"platform_name = {platform_name}, plattform_url = {platform['url']}")
 
-                url = platform['url'] + "/api/v1/schedules"
+        for platform_name, platform_url in self.PLATFORMS.items():
+            try:
+                logging.info(f"platform_name = {platform_name}, plattform_url = {platform_url}")
+
+                url = platform_url + "/api/v1/schedules"
 
                 headers = {
                     "accept": "application/json"
@@ -91,7 +91,7 @@ class PlannedMaintenanceWindowThreading(object):
                         logging.warning(f"\tCouldn't parse hours of end of maintenance window, using default hour offset (0 hours).")
                         succsessfully_parsed_hours: bool = False
                         start_to_end_window_hours: int = 0
-                    
+
                     try:
                         minute_result = re.findall(r'([\d]+)\s*m', message_string) # returns e.g.: 2, 10, 40 as String in a List
                         start_to_end_window_min: int = int(minute_result[0])
@@ -102,22 +102,21 @@ class PlannedMaintenanceWindowThreading(object):
                             start_to_end_window_min: int = 0
                         else:
                             start_to_end_window_min: int = self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
-                    
+
                     # Create offset timedelta obj for maintenance duration
                     start_to_end_window_offset = datetime.timedelta(minutes=start_to_end_window_min, hours=start_to_end_window_hours)
 
                     platform_window_end = platform_window_start + start_to_end_window_offset
-                    
+
                     logging.info(f"\tplatform_window_start = {platform_window_start}, platform_window_end = {platform_window_end}")
                     platform_windows.append([platform_window_start,platform_window_end])
-                
-            
+
                 # set entry in list
                 self.windows[platform_name] = platform_windows
                 logging.info(f"\tSaved planned maintenance windows for {platform_name}; window count: {len(platform_windows)}")
 
             except Exception as e:
-                logging.warning(f"Couldn't load/update maintenance window for {platform}")
+                logging.warning(f"Couldn't load/update maintenance window for {platform_name} ({platform_url})")
                 logging.exception(e)
 
     def refresh_metrics(self):
@@ -133,18 +132,15 @@ class PlannedMaintenanceWindowThreading(object):
             else:
                 self.metric.labels(platform=platform_name).set(0)
 
+    def currently_in_window(self, platform_window_start: datetime.datetime, platform_window_end: datetime.datetime) -> bool:
 
-    @staticmethod
-    def currently_in_window(platform_window_start: datetime.datetime, platform_window_end: datetime.datetime) -> bool:
-
-        tz_berlin = pytz.timezone('Europe/Berlin')
-        berlin_now = datetime.datetime.now(tz_berlin)
+        time_now = datetime.datetime.now(self.TIMEZONE)
 
         # The formatting is needed for the calculation with time zones
-        in_window: bool = platform_window_start.strftime('%Y:%m:%d %H:%M:%S') <= berlin_now.strftime('%Y:%m:%d %H:%M:%S') <= platform_window_end.strftime('%Y:%m:%d %H:%M:%S')
+        in_window: bool = platform_window_start.strftime('%Y:%m:%d %H:%M:%S') <= time_now.strftime('%Y:%m:%d %H:%M:%S') <= platform_window_end.strftime('%Y:%m:%d %H:%M:%S')
         return in_window
 
-        
+
     @staticmethod
     def parse_string_to_datetime(datetime_string: str) -> datetime.datetime:
         return datetime.datetime.strptime(datetime_string, '%Y-%m-%d %H:%M:%S') 

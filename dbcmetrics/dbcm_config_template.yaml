@@ -20,7 +20,7 @@ planned_maintenance_metrics:
   window_refresh_interval_min: <value in minutes, how often the maintenance windows are polled from Cachet>
   metric_refresh_interval_sec: <value in seconds, how often the metric is refreshed>
   default_maintenance_duration_min: <value in minutes, duration of a maintenance without specified end time>
+  cachet_timezone: "<timezone of the cachet servers, for example Europe/Berlin>"
   # list of cachet pages 
   platforms:
-      - name: "<platform name>"
-        url: "<Base URL of the cachet pagec, for example: https://status.example.org>"
+      <platform name>: "<Base URL of the cachet page, for example: https://status.example.org>"
