@@ -85,24 +85,26 @@ class PlannedMaintenanceWindowThreading(object):
 
                     try:
                         message_string: str = maintance_entry['message']
-                        stunde_result = re.findall(r"([\d]+)\s*h", message_string) # returns e.g.: 2, 10, 1 as String in a List
-                        start_to_end_window_hours: int = int(stunde_result[0])
-                        succsessfully_parsed_hours: bool = True
-                    except Exception as e:
-                        logging.warning(f"\tCouldn't parse hours of end of maintenance window, using default hour offset (0 hours).")
-                        succsessfully_parsed_hours: bool = False
-                        start_to_end_window_hours: int = 0
 
-                    try:
-                        minute_result = re.findall(r'([\d]+)\s*m', message_string) # returns e.g.: 2, 10, 40 as String in a List
-                        start_to_end_window_min: int = int(minute_result[0])
-                    except Exception as e:
-                        logging.warning(f"\tCouldn't parse minutes of end of maintenance window, using default offset ({self.PLANNNED_MAINTENANCE_DEFAULT_DURATION}min) if parsining hours failed too.")
-                        if(succsessfully_parsed_hours):
-                            # if hours are correctly parse -> dont add default minutes 
-                            start_to_end_window_min: int = 0
+                        regex_result = re.search(r"Dauer:\s*((?P<hours>\d+)\s*h)?\s*((?P<minutes>\d+)\s*m)?", message_string)
+                        hours: int  = regex_result.group('hours')
+                        minutes: int  = regex_result.group('minutes')
+
+                        if hours is not None:
+                            start_to_end_window_hours: int  = int(hours)
                         else:
+                            start_to_end_window_hours: int  = 0 
+                        
+                        if minutes is not None:
+                            start_to_end_window_min: int  = int(minutes)
+                        elif hours is None:
                             start_to_end_window_min: int = self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
+                        else:
+                            start_to_end_window_min: int  = 0
+                    except Exception as e:
+                        logging.warning(f"\tCouldn't parse duration for end of maintenance window, using default offset (60 minutes).")
+                        start_to_end_window_min: int = self.PLANNNED_MAINTENANCE_DEFAULT_DURATION
+                        start_to_end_window_hours: int = 0
 
                     # Create offset timedelta obj for maintenance duration
                     start_to_end_window_offset = datetime.timedelta(minutes=start_to_end_window_min, hours=start_to_end_window_hours)
