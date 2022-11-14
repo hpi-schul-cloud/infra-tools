@@ -93,8 +93,8 @@ class PlannedMaintenanceWindowThreading(object):
                         if hours is not None:
                             start_to_end_window_hours: int  = int(hours)
                         else:
-                            start_to_end_window_hours: int  = 0 
-                        
+                            start_to_end_window_hours: int  = 0
+
                         if minutes is not None:
                             start_to_end_window_min: int  = int(minutes)
                         elif hours is None:
