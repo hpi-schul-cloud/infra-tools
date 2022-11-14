@@ -48,11 +48,12 @@ class PlannedMaintenanceWindowThreading(object):
         # windows is a dict of all platforms e.g.: {"status.plattform1": [["03.11.2022 13:00","03.11.2022 12:00"]["03.11.2022 13:00","03.11.2022 12:00"]], "next.Platform": ...}
         #                                            platform name          window_start_date      window_end_date   window_start_date  window_end_date       ...
 
-        for platform_name, platform_url in self.PLATFORMS.items():
+        for platform in self.PLATFORMS:
             try:
-                logging.info(f"platform_name = {platform_name}, plattform_url = {platform_url}")
+                platform_name = platform["name"]
+                url = platform["url"] + "/api/v1/schedules"
 
-                url = platform_url + "/api/v1/schedules"
+                logging.info(f"platform_name = {platform_name}, platform_url = {url}")
 
                 headers = {
                     "accept": "application/json"
@@ -116,7 +117,7 @@ class PlannedMaintenanceWindowThreading(object):
                 logging.info(f"\tSaved planned maintenance windows for {platform_name}; window count: {len(platform_windows)}")
 
             except Exception as e:
-                logging.warning(f"Couldn't load/update maintenance window for {platform_name} ({platform_url})")
+                logging.warning(f"Couldn't load/update maintenance window for {platform})")
                 logging.exception(e)
 
     def refresh_metrics(self):

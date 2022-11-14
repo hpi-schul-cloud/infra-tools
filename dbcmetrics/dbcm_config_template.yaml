@@ -23,4 +23,5 @@ planned_maintenance_metrics:
   cachet_timezone: "<timezone of the cachet servers, for example Europe/Berlin>"
   # list of cachet pages 
   platforms:
-      <platform name>: "<Base URL of the cachet page, for example: https://status.example.org>"
+    - name: "<platform name>"
+      url: "<Base URL of the cachet page, for example: https://status.example.org>"
