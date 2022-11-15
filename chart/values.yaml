@@ -103,7 +103,7 @@ dbcmconfig:
       server: /serverversion
       client: /version
       nuxt: /nuxtversion
-  # -- This part holds the maintenance module specific configuration
+  # -- This part holds the ionosmaintenance module specific configuration
   maintenance_metrics:
     # -- Interval for polling the maintenance windows from the terraform state in minutes
     window_refresh_interval_min: 30
@@ -119,6 +119,22 @@ dbcmconfig:
     s3_endpoint: "https://s3-eu-central-1.ionoscloud.com"
     # -- Name of the terraform state bucket
     s3_bucket: "sc-tf-remote-state-01"
+  # -- This part holds the plannedmaintenance module specific configuration
+  planned_maintenance_metrics:
+    # -- Interval for polling the maintenance windows from the cachet pages in minutes
+    window_refresh_interval_min: 10
+    # -- Interval for checking if we are currently in a maintenance window in seconds
+    metric_refresh_interval_sec: 15
+    # -- Duration of a maintenance without specified end time in minutes
+    default_maintenance_duration_min: 60
+    # -- Timezone of the cachet pages
+    cachet_timezone: "Europe/Berlin"
+    # -- Cachet pages to monitor with name and base url
+    platforms:
+      - name: "example_name"
+        url: "https://status.exampleplatform.cloud"
+
+
 
 # -- Enables/disables storage module
 storage_metrics_enabled: false
@@ -126,6 +142,8 @@ storage_metrics_enabled: false
 version_metrics_enabled: false
 # -- Enables/disables ionosmaintenance module
 ionos_maintenance_metrics_enabled: false
+# -- Enables/disables plannedmaintenance module
+planned_maintenance_metrics_enabled: false
 
 storage_exclude_subfolders: true
 storage_interval: 30
