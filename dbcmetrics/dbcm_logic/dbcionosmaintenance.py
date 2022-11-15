@@ -54,7 +54,7 @@ class IonosMaintenanceWindowThreading(object):
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
-        logging.info(f"Maintenance Metrics Thread started. UTC Time: {datetime.datetime.utcnow()}")
+        logging.info(f"Hoster Maintenance Metrics Thread started. UTC Time: {datetime.datetime.utcnow()}")
 
     def run(self):
         while True:

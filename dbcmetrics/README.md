@@ -6,11 +6,12 @@ The port where metrics are exposed is currently hard coded to 9000.
 The source code can be found in the [dbcmetrics](https://github.com/hpi-schul-cloud/infra-tools/tree/master/dbcmetrics) folder of the infra-tools repository of hpi-schul-cloud on github.
 
 ## Modules
-| Name             | metrics for       |
-| ---------------- | ----------------- |
-| storage          | S3 buckets        |
-| version          | service versions  |
-| ionosmaintenance | maintenance windows of clusters | 
+| Name               | metrics for       |
+| ------------------ | ----------------- |
+| storage            | S3 buckets        |
+| version            | service versions  |
+| ionosmaintenance   | maintenance windows of clusters | 
+| plannedmaintenance | planned maintenance windows (Cachet) | 
 
 # Configuration
 
@@ -30,6 +31,7 @@ The following environment variables are read by the dbcmetrics application:
 | DBCMCONFIG | - | Path to the `dbcm_config.yaml` file (default is `/etc/dbcmconfig`) | `./dbcm_config.yaml` |
 | VERSION_METRICS_ENABLED | version | Enables or disabled the version monitoring module | `true` |
 | IONOS_MAINTENANCE_METRICS_ENABLED | ionosmaintenance | Enables or disabled the ionosmaintenance monitoring module | `true` |
+| PLANNED_MAINTENANCE_METRICS_ENABLED | plannedmaintenance | Enables or disabled the ionosmaintenance monitoring module | `true` |
 | STORAGE_METRICS_ENABLED | storage | Enables or disabled the storage monitoring module | `true` |
 | STORAGE_INTERVAL | storage | Number of seconds between cycles in which the storage metrics are fetched | `30` |
 | STORAGE_EXCLUDE_SUBFOLDERS | storage | Defines if metric generation for folders inside of top-level folders should be disabled  | `true` |
@@ -67,6 +69,7 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 "STORAGE_METRICS_ENABLED": "true",
                 "VERSION_METRICS_ENABLED": "false",
                 "IONOS_MAINTENANCE_METRICS_ENABLED": "false",
+                "PLANNED_MAINTENANCE_METRICS_ENABLED": "false",
                 "STORAGE_INTERVAL": "30",
                 "STORAGE_EXCLUDE_SUBFOLDERS": "true",
                 "STORAGE_PROVIDER_URL": "<S3 endpoint>",
@@ -98,6 +101,7 @@ docker run `
     -e STORAGE_METRICS_ENABLED="true" `
     -e VERSION_METRICS_ENABLED="false" `
     -e IONOS_MAINTENANCE_METRICS_ENABLED="false" `
+    -e PLANNED_MAINTENANCE_METRICS_ENABLED="false" `
     -e STORAGE_INTERVAL="30" `
     -e STORAGE_EXCLUDE_SUBFOLDERS="true" `
     -e STORAGE_PROVIDER_URL="<S3 endpoint>" `
@@ -179,4 +183,11 @@ And a section like this for the ionosmaintenance module:
 # TYPE in_hoster_maintenance_window gauge
 in_hoster_maintenance_window{cluster="example-cluster-1"} 0.0
 in_hoster_maintenance_window{cluster="example-cluster-2"} 0.0
+```
+And a section like this for the plannedmaintenance module:
+```
+# HELP planned_maintenance_window Platform is in planned maintenance window
+# TYPE planned_maintenance_window gauge
+planned_maintenance_window{platform="exampleplatform-1"} 0.0
+planned_maintenance_window{platform="exampleplatform-2"} 1.0
 ```
