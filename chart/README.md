@@ -88,8 +88,8 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | storage_exclude_subfolders | bool | `true` |  |
 | storage_interval | int | `30` |  |
 | storage_metrics_enabled | bool | `false` | Enables/disables storage module |
-| storage_provider_region | string | `"s3-de-central"` |  |
-| storage_provider_url | string | `"http://s3-de-central.profitbricks.com"` |  |
+| storage_provider_region | string | `"{{ s3_regions[ s3_active_storage_region ].region }}"` |  |
+| storage_provider_url | string | `"{{s3_regions[ s3_active_storage_region ].endpoint}}"` |  |
 | tfstate_s3_access_key_key | string | `"s3_access_key"` | 1Password field name for the S3 access key for the terraform state bucket |
 | tfstate_s3_access_secret_key | string | `"s3_access_secret"` | 1Password field name for the S3 access secret for the terraform state bucket |
 | tfstate_s3_secret_name | string | `"ionos-maintenance-metrics"` | Name of the kubernetes secret for the terraform state bucket |

@@ -147,8 +147,8 @@ planned_maintenance_metrics_enabled: false
 
 storage_exclude_subfolders: true
 storage_interval: 30
-storage_provider_url: "http://s3-de-central.profitbricks.com"
-storage_provider_region: "s3-de-central"
+storage_provider_url: "{{s3_regions[ s3_active_storage_region ].endpoint}}"
+storage_provider_region: "{{ s3_regions[ s3_active_storage_region ].region }}"
 
 # key that will be referenced to get the value
 storage_bucket_name_key: s3_bucket_name
