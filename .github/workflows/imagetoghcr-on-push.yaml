@@ -9,6 +9,11 @@ on:
         description: "Name of the image to build"
         required: true
         type: string
+      context:
+        description: "Directory where the image is built, defaults to repository root"
+        required: false
+        default: "./"
+        type: string
  
 jobs:
   skip_ci:
@@ -50,7 +55,7 @@ jobs:
         id: docker_build_push
         uses: docker/build-push-action@v2
         with:
-          context: ./${{ inputs.image_name }}/
+          context: ${{ inputs.context }}
           platforms: linux/amd64
           push: true
           tags: ${{ steps.docker_meta_img_hub.outputs.tags }}

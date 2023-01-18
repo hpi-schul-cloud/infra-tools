@@ -13,3 +13,4 @@ jobs:
     uses: ./.github/workflows/imagetoghcr-on-push.yaml
     with:
       image_name: "infra-tools"
+      context: "./infra-tools/"
