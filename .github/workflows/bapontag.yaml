@@ -10,4 +10,4 @@ on:
 
 jobs:
   build_and_push:
-    uses: hpi-schul-cloud/infra-tools/.github/workflows/bap.yaml
+    uses: ./.github/workflows/bap.yaml
