@@ -35,3 +35,6 @@ jobs:
       image: schulcloud/${{ needs.outputs.tagName }}
       tag: ${{ needs.outputs.versionName }}
       context: ./${{ needs.outputs.tagName }}/
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
