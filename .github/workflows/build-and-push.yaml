@@ -38,7 +38,7 @@ jobs:
 
       # Ghcr needs "ghcr.io/" prefix and dockerhub doesn't need a prefix
       - name: Compute image name
-        if: inputs.registry = "ghcr.io"
+        if: inputs.registry == "ghcr.io"
         id: image_prefix
         # run: if [[ ${{ inputs.registry }} = "ghcr.io" ]]; then echo "prefix=ghcr.io/"; else echo "prefix="; fi >> GITHUB_OUTPUT
         run: echo "prefix=ghcr.io/" >> GITHUB_OUTPUT
