@@ -40,7 +40,7 @@ jobs:
         id: docker_meta_img_hub
         uses: docker/metadata-action@v3
         with:
-          images: ${{ inputs.registry }}/${{ inputs.image }}
+          images: ${{ inputs.image }}
           tags: |
             type=semver,pattern={{version}},value=${{ inputs.tag }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }}
