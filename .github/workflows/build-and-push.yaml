@@ -41,7 +41,7 @@ jobs:
         if: inputs.registry == 'ghcr.io'
         id: image_prefix
         # run: if [[ ${{ inputs.registry }} = "ghcr.io" ]]; then echo "prefix=ghcr.io/"; else echo "prefix="; fi >> GITHUB_OUTPUT
-        run: echo "prefix=ghcr.io/" >> GITHUB_OUTPUT
+        run: echo "prefix=ghcr.io/" >> $GITHUB_OUTPUT
 
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img_hub
