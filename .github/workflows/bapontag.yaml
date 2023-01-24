@@ -28,7 +28,7 @@ jobs:
           tagRegexGroup: 1
 
       - name: Build and push
-        uses: ./.github/workflows/bap.yaml
+        uses: ./.github/workflows/build-and-push.yaml
         with:
           image: schulcloud/${{ steps.tagName.outputs.tag }}
           tag: ${{ steps.versionName.outputs.tag }}
