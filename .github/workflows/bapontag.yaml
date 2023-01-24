@@ -1,5 +1,5 @@
 ---
-name: BAP Docker Image on Tag
+name: Build and push Docker Image on Tag
 
 on:
   push:
@@ -10,4 +10,26 @@ on:
 
 jobs:
   build_and_push:
-    uses: ./.github/workflows/bap.yaml
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Filter Tag name
+        uses: olegtarasov/get-tag@v2.1
+        id: tagName
+        with:
+          tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name
+          tagRegexGroup: 1
+
+      - name: Filter Version name
+        uses: olegtarasov/get-tag@v2.1
+        id: versionName
+        with:
+          tagRegex: "${{ steps.tagName.outputs.tag }}-(.*)"   # unabhängig von dbmetrics und infra-tools gives name
+          tagRegexGroup: 1
+
+      - name: Build and push
+        uses: ./.github/workflows/bap.yaml
+        with:
+          image: schulcloud/${{ steps.tagName.outputs.tag }}
+          tag: ${{ steps.versionName.outputs.tag }}
+          context: ./${{ steps.tagName.outputs.tag }}/
