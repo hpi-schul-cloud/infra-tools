@@ -22,6 +22,11 @@ on:
         required: false
         default: "./"
         type: string
+    secrets:
+      DOCKER_USERNAME:
+        required: false
+      DOCKER_TOKEN:
+        required: false
 
 jobs:
   build_and_push_docker:
