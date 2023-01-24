@@ -2,9 +2,13 @@
 name: infra-tools Docker Image Trivy Image Vulnerability Scann Cron Job
 
 on:
+  push:
+    branch:
+      - 'OPS-3814-add-Image-Vulnerability-Scanning'  
   schedule:
     # Runs "at 2 a.m. past every day" (see https://crontab.guru)
-    - cron: '0 2 * * *'
+    # - cron: '0 2 * * *'
+    - cron: '38 13 * * *'
 
 jobs:
   build_image_on_push:
@@ -12,6 +16,3 @@ jobs:
     # uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@master
     with:
       image-ref: 'docker.io/schulcloud/infra-tools:latest'
-
-
-
