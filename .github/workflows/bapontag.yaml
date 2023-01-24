@@ -9,9 +9,11 @@ on:
       - 'awx-ee-[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  build_and_push:
+  pre_build:
     runs-on: ubuntu-latest
-
+    outputs:
+      tagName: ${{ steps.tagName.outputs.tag }}
+      versionName: ${{ steps.versionName.outputs.tag }}
     steps:
       - name: Filter Tag name
         uses: olegtarasov/get-tag@v2.1
@@ -26,10 +28,10 @@ jobs:
         with:
           tagRegex: "${{ steps.tagName.outputs.tag }}-(.*)"   # unabhängig von dbmetrics und infra-tools gives name
           tagRegexGroup: 1
-
-      - name: Build and push
-        uses: ./.github/workflows/build-and-push.yaml
-        with:
-          image: schulcloud/${{ steps.tagName.outputs.tag }}
-          tag: ${{ steps.versionName.outputs.tag }}
-          context: ./${{ steps.tagName.outputs.tag }}/
+  build_and_push:
+    needs: pre_build
+    uses: ./.github/workflows/build-and-push.yaml
+    with:
+      image: schulcloud/${{ needs.outputs.tagName }}
+      tag: ${{ needs.outputs.versionName }}
+      context: ./${{ needs.outputs.tagName }}/
