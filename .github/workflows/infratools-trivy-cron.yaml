@@ -7,25 +7,11 @@ on:
     - cron: '0 2 * * *'
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
-        with:
-          image-ref: 'docker.io/schulcloud/infra-tools:latest'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          exit-code: 1
-          ignore-unfixed: true
+  build_image_on_push:
+    uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@OPS-3814-add-Image-Vulnerability-Scanning
+    # uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@master
+    with:
+      image-ref: 'docker.io/schulcloud/infra-tools:latest'
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: ${{ always() }}
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
 
 
