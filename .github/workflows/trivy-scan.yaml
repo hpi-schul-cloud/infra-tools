@@ -1,5 +1,13 @@
 ---
 name: Trivy Image Vulnerability Scann Job
+name: Build and push to GHCR
+on:
+  workflow_call:
+    inputs:
+      image_ref:
+        description: "repository image reference"
+        required: true
+        type: string
 jobs:
   build:
     name: Build
