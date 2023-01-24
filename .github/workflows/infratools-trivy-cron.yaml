@@ -23,11 +23,10 @@ jobs:
     with:
       image-ref: 'docker.io/schulcloud/${{ matrix.image }}:latest'
 
-# Single Image Repro GHA
+# Template Single Image Repro GHA
 # jobs:
 #   trivy_image_scan_cron:
 #     uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@OPS-3814-add-Image-Vulnerability-Scanning
 #     # uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@master
 #     with:
-#       image-ref: 'docker.io/schulcloud/infra-tools:latest'
 #       image-ref: 'docker.io/schulcloud/<IMAGE_NAME>:latest'
