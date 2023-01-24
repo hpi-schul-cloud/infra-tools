@@ -38,14 +38,16 @@ jobs:
 
       # Ghcr needs "ghcr.io/" prefix and dockerhub doesn't need a prefix
       - name: Compute image name
+        if: inputs.registry = "ghcr.io"
         id: image_prefix
-        run: if [[ ${{ inputs.registry }} = "ghcr.io" ]]; then echo "prefix=ghcr.io/"; else echo "prefix="; fi >> GITHUB_OUTPUT
+        # run: if [[ ${{ inputs.registry }} = "ghcr.io" ]]; then echo "prefix=ghcr.io/"; else echo "prefix="; fi >> GITHUB_OUTPUT
+        run: echo "prefix=ghcr.io/" >> GITHUB_OUTPUT
 
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img_hub
         uses: docker/metadata-action@v3
         with:
-          images: ${{ steps.image_prefix.outputs.prefix }}${{ inputs.image }}
+          images: ${{ steps.image_prefix.outputs.prefix || "" }}${{ inputs.image }}
           tags: |
             type=semver,pattern={{version}},value=${{ inputs.tag }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }}
