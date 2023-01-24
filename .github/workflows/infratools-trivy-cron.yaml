@@ -1,5 +1,5 @@
 ---
-name: infra-tools Docker Image Trivy Image Vulnerability Scann Cron Job
+name: Docker Image Trivy Image Vulnerability Scan Cron Job
 on:
   push:
     branch:
