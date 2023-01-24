@@ -36,11 +36,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Ghcr needs "ghcr.io/" prefix and dockerhub doesn't need a prefix
+      # Pushing to GHCR needs "ghcr.io/" before image name but dockerhub needs the image name without a prefix
       - name: Compute image name
         if: inputs.registry == 'ghcr.io'
         id: image_prefix
-        # run: if [[ ${{ inputs.registry }} = "ghcr.io" ]]; then echo "prefix=ghcr.io/"; else echo "prefix="; fi >> GITHUB_OUTPUT
         run: echo "prefix=ghcr.io/" >> $GITHUB_OUTPUT
 
       - name: Docker meta Service Name for docker hub
