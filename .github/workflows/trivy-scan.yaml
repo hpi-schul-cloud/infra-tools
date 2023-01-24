@@ -1,6 +1,5 @@
 ---
 name: Trivy Image Vulnerability Scann Job
-
 jobs:
   build:
     name: Build
