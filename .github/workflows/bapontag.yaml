@@ -32,9 +32,9 @@ jobs:
     needs: pre_build
     uses: ./.github/workflows/build-and-push.yaml
     with:
-      image: schulcloud/${{ needs.outputs.tagName }}
-      tag: ${{ needs.outputs.versionName }}
-      context: ./${{ needs.outputs.tagName }}/
+      image: schulcloud/${{ needs.pre_build.outputs.tagName }}
+      tag: ${{ needs.pre_build.outputs.versionName }}
+      context: ./${{ needs.pre_build.outputs.tagName }}/
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
