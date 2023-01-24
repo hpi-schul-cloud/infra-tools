@@ -47,7 +47,7 @@ jobs:
         id: docker_meta_img_hub
         uses: docker/metadata-action@v3
         with:
-          images: ${{ steps.image_prefix.outputs.prefix || "" }}${{ inputs.image }}
+          images: ${{ steps.image_prefix.outputs.prefix }}${{ inputs.image }}
           tags: |
             type=semver,pattern={{version}},value=${{ inputs.tag }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }}
