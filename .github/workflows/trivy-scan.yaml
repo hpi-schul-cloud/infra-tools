@@ -1,6 +1,5 @@
 ---
 name: Trivy Image Vulnerability Scann Job
-name: Build and push to GHCR
 on:
   workflow_call:
     inputs:
