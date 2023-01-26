@@ -2,7 +2,7 @@
 name: Docker Image Trivy Image Vulnerability Scan Cron Job
 on:
   push:
-    branch:
+    branches:
       - 'OPS-3814-add-Image-Vulnerability-Scanning'  
   schedule:
     # Runs "at 2 a.m. past every day" (see https://crontab.guru)
