@@ -61,10 +61,17 @@ jobs:
           tags: ${{ steps.docker_meta_img_hub.outputs.tags }}
           labels: ${{ steps.docker_meta_img_hub.outputs.labels }}
 
+      # GHCR requires the image to be all lowercase, otherwise trivy can't pull the image
+      - name: Create lowercase image ref
+        id: image_ref_lower
+        env:
+          image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
+        run: echo "output=${image_ref,,}" >> $GITHUB_OUTPUT
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
-          image-ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
+          image-ref: ${{ steps.image_ref_lower.outputs.output }}
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
