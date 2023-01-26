@@ -32,6 +32,7 @@ jobs:
     if: ${{ needs.skip_ci.outputs.canSkip != 'true' }}
     runs-on: ubuntu-latest
     permissions:
+      packages: write
       security-events: write
     steps:
       - name: Checkout Code
