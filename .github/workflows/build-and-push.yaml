@@ -17,6 +17,11 @@ on:
         description: "Tag of the image to build"
         required: true
         type: string
+      suffix:
+        description: "Docker tag suffix"
+        required: false
+        default: ""
+        type: string
       context:
         description: "Directory where the image is built, defaults to repository root"
         required: false
@@ -52,7 +57,7 @@ jobs:
         with:
           images: ${{ steps.image_prefix.outputs.prefix }}${{ inputs.image }}
           tags: |
-            type=semver,pattern={{version}},value=${{ inputs.tag }}
+            type=semver,pattern={{version}},value=${{ inputs.tag }},suffix={{ inputs.suffix }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }}
 
       - name: Log into dockerhub
