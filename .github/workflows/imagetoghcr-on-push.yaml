@@ -9,6 +9,11 @@ on:
         description: "Name of the image to build"
         required: true
         type: string
+      context:
+        description: "Directory where the image is built, defaults to repository root"
+        required: false
+        default: "./"
+        type: string
  
 jobs:
   skip_ci:
@@ -26,7 +31,9 @@ jobs:
     # And only run the build if canSkip isn't 'true'.
     if: ${{ needs.skip_ci.outputs.canSkip != 'true' }}
     runs-on: ubuntu-latest
-
+    permissions:
+      packages: write
+      security-events: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -50,16 +57,23 @@ jobs:
         id: docker_build_push
         uses: docker/build-push-action@v2
         with:
-          context: ./${{ inputs.image_name }}/
+          context: ${{ inputs.context }}
           platforms: linux/amd64
           push: true
           tags: ${{ steps.docker_meta_img_hub.outputs.tags }}
           labels: ${{ steps.docker_meta_img_hub.outputs.labels }}
 
+      # GHCR requires the image to be all lowercase, otherwise trivy can't pull the image
+      - name: Create lowercase image ref
+        id: image_ref_lower
+        env:
+          image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
+        run: echo "output=${image_ref,,}" >> $GITHUB_OUTPUT
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
-          image-ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
+          image-ref: ${{ steps.image_ref_lower.outputs.output }}
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
