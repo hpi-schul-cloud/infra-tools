@@ -57,7 +57,7 @@ jobs:
         with:
           images: ${{ steps.image_prefix.outputs.prefix }}${{ inputs.image }}
           tags: |
-            type=semver,pattern={{version}},value=${{ inputs.tag }},suffix={{ inputs.suffix }}
+            type=semver,pattern={{version}},value=${{ inputs.tag }},suffix=${{ inputs.suffix }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }}
 
       - name: Log into dockerhub
