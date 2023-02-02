@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Verify registry
-        if: inputs.registry != 'ghcr.io' && inputs.registy != 'dockerhub'
+        if: inputs.registry != 'ghcr.io' && inputs.registry != 'dockerhub'
         run: exit 1
 
       - name: Checkout Code
