@@ -115,7 +115,7 @@ class StorageMetricsThreading(object):
                     incomplete = response['IsTruncated']
                     object_list = [*object_list, *response['Contents']]
             except Exception as ex:
-                logging.error("The bucket {} is not available".format(self.storage_bucket_name))
+                logging.error("The bucket {} is not available (Cause: {})".format(self.storage_bucket_name, repr(ex)))
                 self.bucket_availability_gauge.labels(
                     name=self.storage_bucket_name,
                     storage_provider_url=self.storage_provider_url,
