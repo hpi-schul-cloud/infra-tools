@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.10-alpine
 WORKDIR /usr/src/app
 
 ## Un-comment below lines to install dependencies
