@@ -98,6 +98,18 @@ class OnePwd(object):
         """
         return json.loads(run_op_command_in_shell(command, input=json_item.encode()))
 
+    def create_empty_item(self, category, title, vault=None, url=None):
+        vault_flag = get_optional_flag(vault=vault)
+        url_flag = get_optional_flag(url=url)
+
+        command = f"""
+            {self.op} item  create --category={category} - \
+            --title='{title}' \
+            --session={self.session_token} \
+            {vault_flag} {url_flag}
+        """
+        return json.loads(run_op_command_in_shell(command))
+
     # used in the ansible action 'upload_s3_secret'
     def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
         fields_to_change = ""
@@ -135,10 +147,12 @@ class OnePwd(object):
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
         return self.edit_item(title, fields_to_change, vault)
 
-    def edit_item(self, title, assignment_statements:str, vault=None):
+    def edit_item(self, title, assignment_statements:str, vault=None, dry_run=False):
         vault_flag = get_optional_flag(vault=vault)
-        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {assignment_statements} """
-        return run_op_command_in_shell(command)
+        dry_run_flag = get_optional_flag(dry_run=dry_run)
+        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {dry_run_flag} {assignment_statements} """
+        print(command)
+        return json.loads(run_op_command_in_shell(command))
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -258,7 +272,7 @@ def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) 
 
 def get_optional_flag(**kwargs):
     key, value = list(kwargs.items())[0]
-    return (f"--{key}='{value}'"
+    return (f"--{key.replace('_', '-')}='{value}'"
             if value
             else "")
 
