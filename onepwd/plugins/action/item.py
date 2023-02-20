@@ -3,8 +3,48 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
-Provides the ability to set fields in 1Password items and create them if necessary.
-For possible field types, see https://developer.1password.com/docs/cli/reference/management-commands/item/#item-edit
+module: item
+short_description: Manage 1Password items
+description:
+  - Create 1Password items
+  - Add and remove fields
+options:
+  vault:
+    description:
+      - Vault of the item being managed
+    type: str
+    required: yes
+  name:
+    description:
+      - Name of the item being managed
+    type: str
+    required: yes
+  state:
+    description:
+      - If C(absent) item will be deleted
+      - If C(present) item will be created/updated
+      - Default is C(present)
+    type: str
+    choices:
+      - absent
+      - present
+  category:
+    description:
+      - Type of the item being managed.
+      - This is ignored if an item with the right name and vault already exists
+      - Default is password
+    type: str
+  fields:
+    description:
+      - Fields to add/remove from the item, see https://developer.1password.com/docs/cli/reference/management-commands/item/#item-edit
+      - Supported properties are name, type, value, section
+    type: list
+attributes:
+  check_mode:
+    support: full
+  diff_mode:
+    support: full
+    details: Will print the values of secrets
 '''
 
 EXAMPLES = """
