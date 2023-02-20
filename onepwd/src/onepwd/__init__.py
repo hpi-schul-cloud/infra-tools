@@ -98,15 +98,30 @@ class OnePwd(object):
         """
         return json.loads(run_op_command_in_shell(command, input=json_item.encode()))
 
-    def create_empty_item(self, category, title, vault=None, url=None):
+    def create_item_string(self, category, title, assignment_statements, vault=None, url=None, dry_run=False):
         vault_flag = get_optional_flag(vault=vault)
         url_flag = get_optional_flag(url=url)
+        dry_run_flag = get_optional_flag(dry_run=dry_run)
 
         command = f"""
             {self.op} item  create --category={category} - \
             --title='{title}' \
             --session={self.session_token} \
-            {vault_flag} {url_flag}
+            {vault_flag} {url_flag} \
+            {assignment_statements} {dry_run_flag}
+        """
+        return json.loads(run_op_command_in_shell(command))
+
+    def create_empty_item(self, category, title, vault=None, url=None, dry_run=False):
+        vault_flag = get_optional_flag(vault=vault)
+        url_flag = get_optional_flag(url=url)
+        dry_run_flag = get_optional_flag(dry_run=dry_run)
+
+        command = f"""
+            {self.op} item  create --category={category} - \
+            --title='{title}' \
+            --session={self.session_token} \
+            {vault_flag} {dry_run_flag} {url_flag}
         """
         return json.loads(run_op_command_in_shell(command))
 
@@ -151,7 +166,6 @@ class OnePwd(object):
         vault_flag = get_optional_flag(vault=vault)
         dry_run_flag = get_optional_flag(dry_run=dry_run)
         command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {dry_run_flag} {assignment_statements} """
-        print(command)
         return json.loads(run_op_command_in_shell(command))
 
     def delete_item(self, item_name, vault=None):
