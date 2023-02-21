@@ -3,48 +3,48 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = '''
+---
 module: item
 short_description: Manage 1Password items
 description:
   - Create 1Password items
   - Add and remove fields
+version_added: 2.12.3
+author: DBC SRE Team
 options:
   vault:
     description:
-      - Vault of the item being managed
+      - Vault of the item being managed.
     type: str
     required: yes
   name:
     description:
-      - Name of the item being managed
+      - Name of the item being managed.
     type: str
     required: yes
   state:
     description:
-      - If C(absent) item will be deleted
-      - If C(present) item will be created/updated
-      - Default is C(present)
+      - If C(absent) the item will be deleted.
+      - If C(present) the item will be created/updated.
+      - Default is C(present).
     type: str
+    default: present
     choices:
       - absent
       - present
   category:
     description:
       - Type of the item being managed.
-      - This is ignored if an item with the right name and vault already exists
-      - Default is password
+      - This is ignored if an item with the right name and vault already exists.
+      - Default is password.
     type: str
+    default: password
   fields:
     description:
       - Fields to add/remove from the item, see https://developer.1password.com/docs/cli/reference/management-commands/item/#item-edit
       - Supported properties are name, type, value, section
     type: list
-attributes:
-  check_mode:
-    support: full
-  diff_mode:
-    support: full
-    details: Will print the values of secrets
+    default: []
 '''
 
 EXAMPLES = """
@@ -110,19 +110,6 @@ class ActionModule(ActionBase):
         if state == 'absent':
             result = self.run_absent(op, name, vault, check)
         return result
-
-        # new_task = self._task.copy()
-        # new_task.args['category'] = category
-        # new_task.args['state'] = 'present'
-
-        # create_action = self._shared_loader_obj.action_loader.get('dbildungscloud.onepwd.create_delete_item',
-        #                                                                 task=new_task,
-        #                                                                 connection=self._connection,
-        #                                                                 play_context=self._play_context,
-        #                                                                 loader=self._loader,
-        #                                                                 templar=self._templar,
-        #                                                                 shared_loader_obj=self._shared_loader_obj)
-        # create_result = create_action.run(task_vars=task_vars)
     
     def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, check):
         assignment_statements = ""

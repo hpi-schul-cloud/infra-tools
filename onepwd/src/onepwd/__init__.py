@@ -204,6 +204,16 @@ class OnePwd(object):
             return run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
             raise UnknownResourceItem(f"document: {item_name}")
+    
+    def share(self, item_name, vault=None, emails=[], expiry=None, view_once=False):
+        vault_flag = get_optional_flag(vault=vault)
+        emails_list = ",".join(emails)
+        emails_flag = get_optional_flag(emails=emails_list)
+        view_once_flag = "--view-once" if view_once else ""
+        
+        op_command = f"{self.op} item share '{item_name}' {vault_flag} {emails_flag} {view_once_flag}"
+        return run_op_command_in_shell(op_command)
+
 
     def create_session_dir(self):
         try:
