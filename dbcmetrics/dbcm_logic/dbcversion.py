@@ -56,7 +56,7 @@ class VersionMetricsThreading(object):
             response = requests.get(version_url)
             resp_json = json.loads(response.text)
             for component_name, component_info in resp_json.items():
-                if "version" in component_info:
+                if isinstance(component_info, dict) and "version" in component_info:
                     version = component_info["version"]
                     labels[component_name] = version
                     logging.info(f"{component_name} version of {instance.name}: {version}")
