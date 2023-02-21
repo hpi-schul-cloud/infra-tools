@@ -33,20 +33,18 @@ class VersionMetricsThreading(object):
             logging.error("Missing or wrong 'instances' value in configuration file.")
             raise DBCMException
 
-        label_names = ['app_instance', 'dashboard']
-        self.pmc_infos: Info = Info('version', 'Version Information', label_names)
+        self.pmc_infos: Info = Info('version', 'Version Information')
         self.thread = threading.Thread(target=self.run)
         self.thread.daemon = True
         self.thread.start()
 
     def run(self):
         while True:
-            self.pmc_infos.clear()
             for i in self.instances:
-                labels: Dict = self.get_instance_versions(i)
-                labels['app_instance'] = i.name
-                labels['dashboard'] = 'version_dashboard'
-                self.pmc_infos.labels(**labels)
+                info: Dict = self.get_instance_versions(i)
+                info['app_instance'] = i.name
+                info['dashboard'] = 'version_dashboard'
+                self.pmc_infos.info(info)
             sleep(self.interval)
 
     def get_instance_versions(self, instance: DBCMInstance):
