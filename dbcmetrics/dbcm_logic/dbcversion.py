@@ -2,6 +2,7 @@
 Modul for a class that query the configured dBildungscloud instances for their known service versions and provide the version via Prometheus compatible metrics.
 '''
 import logging
+import re
 from time import sleep
 import threading, requests, json, urllib.parse
 from typing import Dict
@@ -58,7 +59,9 @@ class VersionMetricsThreading(object):
             for component_name, component_info in resp_json.items():
                 if isinstance(component_info, dict) and "version" in component_info:
                     version = component_info["version"]
-                    labels[component_name] = version
+                    # Only alphanumerics and underscores allowed
+                    name_sanitized = re.sub("\\W+", "_", component_name)
+                    labels[name_sanitized] = version
                     logging.info(f"{component_name} version of {instance.name}: {version}")
         except:
                 logging.error("Getting versions for {} failed!".format(instance.name))
