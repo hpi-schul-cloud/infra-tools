@@ -211,7 +211,7 @@ class OnePwd(object):
         emails_flag = get_optional_flag(emails=emails_list)
         view_once_flag = "--view-once" if view_once else ""
         
-        op_command = f"{self.op} item share '{item_name}' {vault_flag} {emails_flag} {view_once_flag}"
+        op_command = f"{self.op} item share '{item_name}' {vault_flag} {emails_flag} {view_once_flag} --session={self.session_token}"
         return run_op_command_in_shell(op_command)
 
 

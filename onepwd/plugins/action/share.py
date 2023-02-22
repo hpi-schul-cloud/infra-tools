@@ -97,5 +97,5 @@ class ActionModule(ActionBase):
             share_result['link'] = 'dummy-link'
         else:
             share_result = op.share(name, vault=vault, emails=emails, expiry=expiry, view_once=view_once)
-        result['link'] = share_result['link']
+        result['link'] = share_result
         return result
