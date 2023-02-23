@@ -2,61 +2,6 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
-name: share
-short_description: Create 1Password item share links
-description:
-  - Share existing 1Password items with links.
-  - Supports link expiry, view once and restriction to certain emails
-version_added: 2.12.3
-author: DBC SRE Team
-options:
-  vault:
-    description:
-      - Vault of the item to share.
-    type: str
-    required: yes
-  name:
-    description:
-      - Name of the item to share.
-    type: str
-    required: yes
-  emails:
-    description:
-      - List of email addresses to share with.
-    type: list
-    default: []
-  expiry:
-    description:
-      - Link expiring after the specified duration in (s)econds, (m)inutes, or (h)ours.
-    type: str
-    default: 7h
-  view_once:
-    description:
-      - Expire link after a single view.
-    type: bool
-    default: false
-'''
-
-EXAMPLES = """
-- name: Share Secret
-  dbildungscloud.onepwd.share:
-    vault: "vault"
-    name: "name"
-- name: Share with email
-  dbildungscloud.onepwd.item:
-    vault: "vault"
-    name: secret
-    emails:
-      - email@example.com
-    expiry: 24h
-"""
-
-RETURN = """
-Returns the share link.
-"""
-
 import os
 import onepwd
 from ansible.plugins.action import ActionBase
@@ -83,9 +28,6 @@ class ActionModule(ActionBase):
                 view_once = view_once.lower() == 'true'
             else:
                 raise AnsibleActionFail('View once must be a boolean')
-        # if view_once_raw not in ['true', 'false']:
-        #     raise AnsibleActionFail('View_once must be one of true, false.')
-        # view_once = view_once_raw == 'true'
         if view_once and expiry != None:
             raise AnsibleActionFail("View_once and expiry can be used simultaneously.")
         check = self._task.check_mode

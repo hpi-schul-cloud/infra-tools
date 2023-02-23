@@ -1,7 +1,7 @@
 ---
 s3_backup_configuration:
   # Instance definitions. S3 backups are done per instance.
-  # See also https://docs.hpi-schul-cloud.org/display/PROD/Infrastructure+Conventions+Schul-Cloud
+  # See also https://docs.dbildungscloud.de/display/PROD/Infrastructure+Conventions+Schul-Cloud
   #
   # instancename: A unique name. Used to identify the backup.
   # instancename_short: Abbreviation of the instance name.
@@ -487,5 +487,5 @@ s3_backup_configuration:
   mail:
     # mail address for error reporting
     # receiver_mail_addresses: [ markus.bartels@guest.hpi.de ]
-    # receiver_mail_addresses: [ devops@hpi-schul-cloud.de ]
+    # receiver_mail_addresses: [ devops@dbildungscloud.de ]
     receiver_mail_addresses: [ devops@dbildungscloud.de ]

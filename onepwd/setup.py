@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="onepwd",
-    version="2.0.3",
+    version="2.1.0",
     author="HPI Schulcloud",
-    author_email="devops@hpi-schul-cloud.de",
+    author_email="devops@dbildungscloud.de",
     description="Utilities to work with 1password",
     long_description=long_description,
     url="https://github.com/hpi-schul-cloud/infra-tools",

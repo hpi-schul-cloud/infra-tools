@@ -11,6 +11,7 @@ import pexpect
 import argparse
 import yaml
 import pyotp
+from shlex import quote
 
 # Quelle: https://github.com/lettdigital/onepassword-python/blob/master/onepassword.py
 
@@ -432,6 +433,19 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
 def oct2int(x):
    return int(x, 8)
+
+def build_assignment_statement(field):
+    statement = ""
+    if 'section' in field:
+        statement += f"{field['section']}."
+    statement += field['name']
+    if 'type' in field:
+        statement += f"[{field['type']}]"
+    statement += "="
+    if 'value' in field:
+        statement += f"{field['value']}"
+    escaped_statement = quote(statement)
+    return escaped_statement
 
 def main():
     parser=argparse.ArgumentParser(description="Generate secrets yaml file")

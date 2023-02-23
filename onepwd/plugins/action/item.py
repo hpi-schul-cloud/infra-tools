@@ -2,83 +2,10 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-DOCUMENTATION = '''
----
-module: item
-short_description: Manage 1Password items
-description:
-  - Create 1Password items
-  - Add and remove fields
-version_added: 2.12.3
-author: DBC SRE Team
-options:
-  vault:
-    description:
-      - Vault of the item being managed.
-    type: str
-    required: yes
-  name:
-    description:
-      - Name of the item being managed.
-    type: str
-    required: yes
-  state:
-    description:
-      - If C(absent) the item will be deleted.
-      - If C(present) the item will be created/updated.
-      - Default is C(present).
-    type: str
-    default: present
-    choices:
-      - absent
-      - present
-  category:
-    description:
-      - Type of the item being managed.
-      - This is ignored if an item with the right name and vault already exists.
-      - Default is password.
-    type: str
-    default: password
-  fields:
-    description:
-      - Fields to add/remove from the item, see https://developer.1password.com/docs/cli/reference/management-commands/item/#item-edit
-      - Supported properties are name, type, value, section
-    type: list
-    default: []
-'''
-
-EXAMPLES = """
-- name: Create Secret
-  dbildungscloud.onepwd.item:
-    vault: "vault"
-    category: "password"
-    name: "name"
-    fields:
-      - name: admin_password
-        type: password
-        value: password123
-      - section: Section 1
-        name: username
-        type: text
-        value: admin
-      - name: old password
-        type: delete
-- name: Delete Secret
-  dbildungscloud.onepwd.item:
-    state: absent
-    vault: "vault"
-    name: secret
-"""
-
-RETURN = """
-Returns the updated item.
-"""
-
 import os
 import onepwd
 from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleError, AnsibleFileNotFound, AnsibleAction, AnsibleActionFail
-from shlex import quote
 
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None, **kwargs):
@@ -114,13 +41,12 @@ class ActionModule(ActionBase):
     def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, check):
         assignment_statements = ""
         for field in fields:
-            assignment_statements += " " + build_assignment_statement(field)
+            assignment_statements += " " + onepwd.build_assignment_statement(field)
 
         result = {}
         diff = {}
         try:
             get_result = op.get('item', item_name=name, vault=vault)
-            # name_or_id = get_item_result['id']
             edit_result = op.edit_item(name, assignment_statements, vault=vault, dry_run=check)
             changed = not items_equal(get_result, edit_result)
             if changed:
@@ -162,19 +88,6 @@ def validate_field(field):
     for key in ['name', 'type', 'section', 'value']:
         if not isinstance(key, str):
             raise AnsibleActionFail(f"{key} must be a string.")
-
-def build_assignment_statement(field):
-    statement = ""
-    if 'section' in field:
-        statement += f"{field['section']}."
-    statement += field['name']
-    if 'type' in field:
-        statement += f"[{field['type']}]"
-    statement += "="
-    if 'value' in field:
-        statement += f"{field['value']}"
-    escaped_statement = quote(statement)
-    return escaped_statement
 
 def items_equal(before, after):
     before_fields = before.get('fields', {})
