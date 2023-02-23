@@ -11,6 +11,7 @@ import pexpect
 import argparse
 import yaml
 import pyotp
+from shlex import quote
 
 # Quelle: https://github.com/lettdigital/onepassword-python/blob/master/onepassword.py
 
@@ -98,6 +99,20 @@ class OnePwd(object):
         """
         return json.loads(run_op_command_in_shell(command, input=json_item.encode()))
 
+    def create_item_string(self, category, title, assignment_statements:str, vault=None, url=None, dry_run=False):
+        vault_flag = get_optional_flag(vault=vault)
+        url_flag = get_optional_flag(url=url)
+        dry_run_flag = get_optional_flag(dry_run=dry_run)
+
+        command = f"""
+            {self.op} item  create --category={category} - \
+            --title='{title}' \
+            --session={self.session_token} \
+            {vault_flag} {url_flag} \
+            {assignment_statements} {dry_run_flag}
+        """
+        return json.loads(run_op_command_in_shell(command))
+
     # used in the ansible action 'upload_s3_secret'
     def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None ):
         fields_to_change = ""
@@ -135,10 +150,11 @@ class OnePwd(object):
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
         return self.edit_item(title, fields_to_change, vault)
 
-    def edit_item(self, title, assignment_statements:str, vault=None):
+    def edit_item(self, title, assignment_statements:str, vault=None, dry_run=False):
         vault_flag = get_optional_flag(vault=vault)
-        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {assignment_statements} """
-        return run_op_command_in_shell(command)
+        dry_run_flag = get_optional_flag(dry_run=dry_run)
+        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {dry_run_flag} {assignment_statements} """
+        return json.loads(run_op_command_in_shell(command))
 
     def delete_item(self, item_name, vault=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -176,6 +192,16 @@ class OnePwd(object):
             return run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
             raise UnknownResourceItem(f"document: {item_name}")
+    
+    def share(self, item_name, vault=None, emails=[], expiry=None, view_once=False):
+        vault_flag = get_optional_flag(vault=vault)
+        emails_list = ",".join(emails)
+        emails_flag = get_optional_flag(emails=emails_list)
+        view_once_flag = "--view-once" if view_once else ""
+        
+        op_command = f"{self.op} item share '{item_name}' {vault_flag} {emails_flag} {view_once_flag} --session={self.session_token}"
+        return run_op_command_in_shell(op_command)
+
 
     def create_session_dir(self):
         try:
@@ -258,7 +284,7 @@ def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) 
 
 def get_optional_flag(**kwargs):
     key, value = list(kwargs.items())[0]
-    return (f"--{key}='{value}'"
+    return (f"--{key.replace('_', '-')}='{value}'"
             if value
             else "")
 
@@ -407,6 +433,19 @@ def get_secret_values_list_from_section(op, item_name,  vault=None, section=None
 # Converts a string with octal numbers to integer represantion to use it as permission parameter for chmod
 def oct2int(x):
    return int(x, 8)
+
+def build_assignment_statement(field):
+    statement = ""
+    if 'section' in field:
+        statement += f"{field['section']}."
+    statement += field['name']
+    if 'type' in field:
+        statement += f"[{field['type']}]"
+    statement += "="
+    if 'value' in field:
+        statement += f"{field['value']}"
+    escaped_statement = quote(statement)
+    return escaped_statement
 
 def main():
     parser=argparse.ArgumentParser(description="Generate secrets yaml file")

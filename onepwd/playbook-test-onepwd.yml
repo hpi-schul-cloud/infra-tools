@@ -1,0 +1,138 @@
+---
+- name: Test
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Run the tests
+      block:
+        - name: Create item
+          dbildungscloud.onepwd.item:
+            vault: Private
+            name: create-test
+            category: password
+          register: op
+        - name: Create empty item
+          assert:
+            that:
+              - op.changed
+              - op.item is defined
+              - op.item.title == 'create-test'
+              - op.item.category | lower == 'password'
+
+        - name: Item already exists
+          dbildungscloud.onepwd.item:
+            state: present
+            vault: Private
+            name: create-test
+          register: op
+        - name: Item already exists
+          assert:
+            that:
+              - not op.changed
+              - op.item is defined
+              - op.item.title == 'create-test'
+              - op.item.category | lower == 'password'
+
+        - name: Item already exists, add fields
+          dbildungscloud.onepwd.item:
+            vault: Private
+            name: create-test
+            fields:
+              - name: username_add
+                type: text
+                value: admin@example.com
+              - name: password_add
+                type: password
+                value: "12345!&"
+          register: op
+        - name: Item already exists, add fields
+          assert:
+            that:
+              - op.changed
+              - op.item is defined
+              - op.item.title == 'create-test'
+              - op.item.category | lower == 'password'
+              - op.item.fields | length >= 2
+        - name: Field have the correct values
+          vars:
+            fields:
+              - name: username_add
+                type: text
+                value: admin@example.com
+              - name: password_add
+                type: password
+                value: "12345!&"
+            field: "{{ op.item.fields | selectattr('label', 'equalto', item.name) | first }}"
+          assert:
+            that:
+              - field.label == item.name
+              - field.value == item.value
+          loop: "{{ fields }}"
+
+        - name: Item already exists, no changes
+          dbildungscloud.onepwd.item:
+            vault: Private
+            name: create-test
+            fields:
+              - name: username_add
+                type: text
+                value: admin@example.com
+          register: op
+        - name: Item already exists, no changes
+          vars:
+            field: "{{ op.item.fields | selectattr('label', 'equalto', 'username_add') | first }}"
+          assert:
+            that:
+              - not op.changed
+              - op.item is defined
+              - op.item.title == 'create-test'
+              - op.item.category | lower == 'password'
+              - op.item.fields | length >= 1
+              - field.label == 'username_add'
+              - field.value == 'admin@example.com'
+
+        - name: Item exists, remove field
+          dbildungscloud.onepwd.item:
+            vault: Private
+            name: create-test
+            fields:
+              - name: username_add
+                type: delete
+          register: op
+        - name: Item already exists, remove field
+          assert:
+            that:
+              - op.changed
+              - op.item is defined
+              - op.item.title == 'create-test'
+              - op.item.category | lower == 'password'
+              - op.item.fields | selectattr('label', 'equalto', 'username_add') | length == 0
+
+        - name: Share item
+          dbildungscloud.onepwd.share:
+            vault: Private
+            name: create-test
+            view_once: true
+          register: op
+        - name: Share item
+          assert:
+            that:
+              - op.changed
+              - op.link is defined
+              - op.link | length > 0
+        - name: Share item
+          uri:
+            url: "{{ op.link }}"
+
+      always:
+        - name: Delete item
+          dbildungscloud.onepwd.item:
+            vault: Private
+            name: create-test
+            category: password
+            state: absent
+          register: op
+        - name: Delete item
+          assert:
+            that:
+              - op.changed
