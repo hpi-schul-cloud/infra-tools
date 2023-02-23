@@ -94,15 +94,11 @@ dbcmconfig:
       url: "https://myinstance.dbildungscloud.dev"
       shortname: "min"
   # -- This part holds the version module specific configuration
-  # - interval definces the cycle in seconds how often the version information is queried
-  # - services contains a list of services the version will be queried with the parte that needs to be added 
-  #   to the base url to receive the version information
+  # - interval defines the cycle in seconds how often the version information is queried
+  # - endpoint defines the part that needs to be added to the base url to receive the version information
   version_metrics:
     interval: 600
-    services:
-      server: /serverversion
-      client: /version
-      nuxt: /nuxtversion
+    endpoint: "/version"
   # -- This part holds the ionosmaintenance module specific configuration
   maintenance_metrics:
     # -- Interval for polling the maintenance windows from the terraform state in minutes
