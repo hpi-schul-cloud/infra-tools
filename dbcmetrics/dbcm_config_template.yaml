@@ -5,9 +5,7 @@ instances:
     shortname: "<abbreviated name of the naem>"
 version_metrics:
   interval: <value in seconds, how often the version is polled>
-  services:
-    # list of services and URL suffixes as key/value pair of services to be checked for a version
-    <service a>: <suffix a>
+  endpoint: "<URL suffix used to get the version info>"
 maintenance_metrics:
   window_refresh_interval_min: <value in minutes, how often the maintenance windows are polled from the terraform state>
   metric_refresh_interval_sec: <value in seconds, how often the metric is refreshed>
