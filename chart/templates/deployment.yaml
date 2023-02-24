@@ -53,10 +53,7 @@ spec:
           env:
             {{- if .Values.storage_metrics_enabled }}
             - name: STORAGE_BUCKET_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.storage_access_secret_name }}
-                  key: {{ .Values.storage_bucket_name_key }}
+              value: {{ .Values.storage_bucket_name }}
             - name: STORAGE_ACCESS_KEY
               valueFrom:
                 secretKeyRef:

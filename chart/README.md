@@ -84,7 +84,7 @@ helm install chart_name ./dbcmetrics -f values.yaml
 | storage_access_key_key | string | `"s3_access_key"` |  |
 | storage_access_secret_key | string | `"s3_access_secret"` |  |
 | storage_access_secret_name | string | `"dbcmetrics-secret"` |  |
-| storage_bucket_name_key | string | `"s3_bucket_name"` |  |
+| storage_bucket_name | string | `"s3_bucket_name"` |  |
 | storage_exclude_subfolders | bool | `true` |  |
 | storage_interval | int | `30` |  |
 | storage_metrics_enabled | bool | `false` | Enables/disables storage module |

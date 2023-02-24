@@ -147,7 +147,7 @@ storage_provider_url: "https://s3-eu-central-1.ionoscloud.com"
 storage_provider_region: "s3-eu-central-1"
 
 # key that will be referenced to get the value
-storage_bucket_name_key: s3_bucket_name
+storage_bucket_name: "s3_bucket_name"
 storage_access_key_key: s3_access_key
 storage_access_secret_key: s3_access_secret
 storage_access_secret_name: "dbcmetrics-secret"
