@@ -1,8 +1,8 @@
 instances:
   # list of instances to be monitored
   - name: "<name used in the metric label app_instance>"
-    url: "<Full quallified URL which should be monitored>"
-    shortname: "<abbreviated name of the naem>"
+    url: "<Full qualified URL which should be monitored>"
+    shortname: "<abbreviated name>"
 version_metrics:
   interval: <value in seconds, how often the version is polled>
   endpoint: "<URL suffix used to get the version info>"
@@ -19,7 +19,20 @@ planned_maintenance_metrics:
   metric_refresh_interval_sec: <value in seconds, how often the metric is refreshed>
   default_maintenance_duration_min: <value in minutes, duration of a maintenance without specified end time>
   cachet_timezone: "<timezone of the cachet servers, for example Europe/Berlin>"
-  # list of cachet pages 
+  # list of cachet pages
   platforms:
     - name: "<platform name>"
       url: "<Base URL of the cachet page, for example: https://status.example.org>"
+storage_metrics:
+  url: "<URL of the S3 endpoint for the bucket>"
+  region: "<Region of the bucket>"
+  bucket_name: "<Name of the bucket>"
+  availability:
+    enabled: "<Monitoring availability: True/False>"
+    interval_sec: <value in seconds, how often availability is checked>
+  stats:
+    enabled: "<Fetching bucket stats: True/False>"
+    interval_min: <value in minutes, how often the bucket stats are fetched>
+    exclude_subfolders: "<Only metrics for top-level folders: True/False>"
+    retries: <how often a failed request is retried before the fetching run is aborted>
+    backoff_sec: <value in seconds, how long to wait between the retries>
