@@ -22,13 +22,13 @@ class StorageMetricsThreading(object):
             self.URL = file_configs["url"]
             self.REGION = file_configs["region"]
             self.BUCKET_NAME = file_configs["bucket_name"]
-            self.AVAILABILITY_ENABLED = availability_config["enabled"].lower() == 'true'
+            self.AVAILABILITY_ENABLED = availability_config["enabled"]
             self.AVAILABILITY_INTERVAL = timedelta(seconds=availability_config["interval_sec"])
-            self.STATS_ENABLED = stats_config["enabled"].lower() == 'true'
+            self.STATS_ENABLED = stats_config["enabled"]
             self.STATS_INTERVAL = timedelta(minutes=stats_config["interval_min"])
             self.STATS_RETRIES = stats_config["retries"]
             self.STATS_BACKOFF_SEC = stats_config["backoff_sec"]
-            self.EXCLUDE_SUBFOLDERS = stats_config["exclude_subfolders"].lower() == 'true'
+            self.EXCLUDE_SUBFOLDERS = stats_config["exclude_subfolders"]
         except Exception as ex:
             logging.error("Missing or wrong configuration values for storage metrics:{}".format(repr(ex)))
             raise DBCMException

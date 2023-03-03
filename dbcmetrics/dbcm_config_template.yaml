@@ -28,11 +28,11 @@ storage_metrics:
   region: "<Region of the bucket>"
   bucket_name: "<Name of the bucket>"
   availability:
-    enabled: "<Monitoring availability: True/False>"
+    enabled: <Monitoring availability: true/false>
     interval_sec: <value in seconds, how often availability is checked>
   stats:
-    enabled: "<Fetching bucket stats: True/False>"
+    enabled: <Fetching bucket stats: true/false>
     interval_min: <value in minutes, how often the bucket stats are fetched>
-    exclude_subfolders: "<Only metrics for top-level folders: True/False>"
+    exclude_subfolders: <Only metrics for top-level folders: true/false>
     retries: <how often a failed request is retried before the fetching run is aborted>
     backoff_sec: <value in seconds, how long to wait between the retries>
