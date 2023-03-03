@@ -134,7 +134,7 @@ class StorageMetricsThreading(object):
         self.output_bucket_stats(bucket_stats)
 
     def output_bucket_stats(self, bucket_stats):
-        for folder_name, stats in bucket_stats.folder_stats:
+        for folder_name, stats in bucket_stats.folder_stats.items():
             file_count = stats["file_count"]
             folder_size = stats["size"]
             logging.info("The total number of files in the folder {} is {}".format(folder_name, file_count))
