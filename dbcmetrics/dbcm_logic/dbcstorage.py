@@ -122,7 +122,7 @@ class StorageMetricsThreading(object):
             except Exception as ex:
                 fails += 1
                 logging.warning("Listing objects of bucket {} failed {} time(s) (Cause: {})"
-                              .format(self.BUCKET_NAME, fails, repr(ex)))
+                                .format(self.BUCKET_NAME, fails, repr(ex)))
                 if fails <= self.STATS_RETRIES:
                     logging.warning("Trying again in {} seconds.".format(self.STATS_BACKOFF_SEC))
                     sleep(self.STATS_BACKOFF_SEC)

@@ -11,6 +11,7 @@ import threading
 import time
 import boto3
 from dbcm_common.dbcmexception import DBCMException
+from dbcm_common.repeating_thread import RepeatingThread
 from prometheus_client import Gauge
 
 STATEFILE = "terraform.tfstate"
@@ -22,7 +23,7 @@ class IonosMaintenanceWindowThreading(object):
         try:
             file_configs = configuration["maintenance_metrics"]
             self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] 
-            self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] 
+            self.METRICS_INTERVAL = datetime.timedelta(seconds=file_configs["metric_refresh_interval_sec"])
             self.NODEPOOL_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["nodepool_maintenance_duration_min"]) 
             self.CLUSTER_MAINTENANCE_DURATION = datetime.timedelta(minutes=file_configs["cluster_maintenance_duration_min"])
             self.PREFIX = file_configs["s3_stage_directory"] 
@@ -51,18 +52,14 @@ class IonosMaintenanceWindowThreading(object):
         self.load_maintenance_windows()
         self.last_time_windows_loaded = time.time()
         # Start Thread
-        self.thread = threading.Thread(target=self.run)
-        self.thread.daemon = True
-        self.thread.start()
+        RepeatingThread(interval=self.METRICS_INTERVAL, name="Metrics Refresh", target=self.run)
         logging.info(f"Hoster Maintenance Metrics Thread started. UTC Time: {datetime.datetime.utcnow()}")
 
     def run(self):
-        while True:
-            if (time.time() - self.last_time_windows_loaded)/60 > self.LOADING_INTERVAL_MIN:
-                self.load_maintenance_windows()
-                self.last_time_windows_loaded = time.time()
-            self.refresh_metrics()
-            sleep(self.METRICS_INTERVAL_SEC)
+        if (time.time() - self.last_time_windows_loaded)/60 > self.LOADING_INTERVAL_MIN:
+            self.load_maintenance_windows()
+            self.last_time_windows_loaded = time.time()
+        self.refresh_metrics()
 
     def refresh_metrics(self):
         for cluster_name, windows in self.windows.items():
@@ -98,7 +95,7 @@ class IonosMaintenanceWindowThreading(object):
                         self.windows[cluster_name] = cluster_window
                         logging.info(f"Saved maintenance windows for {cluster_name}: {cluster_window}")
                 except:
-                  logging.error(f"Couldn't load/update maintenance window for {cluster_name}")
+                    logging.error(f"Couldn't load/update maintenance window for {cluster_name}")
         except:
             logging.error(f"Couldn't get list of S3 objects with prefix {self.PREFIX}")
 

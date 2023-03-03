@@ -1,13 +1,14 @@
 '''
 Modul for a class that query the configured dBildungscloud instances for their known service versions and provide the version via Prometheus compatible metrics.
 '''
+from datetime import timedelta
 import logging
 import re
-from time import sleep
-import threading, requests, json, urllib.parse
+import requests, json, urllib.parse
 from typing import Dict
 from typing import List
 from dbcm_common.dbcmexception import DBCMException
+from dbcm_common.repeating_thread import RepeatingThread
 from prometheus_client import Info
 from dbcm_data.dbcm_instance import DBCMInstance
 
@@ -17,7 +18,7 @@ class VersionMetricsThreading(object):
         try:
             version_data = configuration_content['version_metrics']
             self.endpoint = version_data['endpoint']
-            self.interval = version_data['interval']
+            self.interval = timedelta(seconds=version_data['interval'])
         except:
             logging.error("Missing or wrong 'version_metrics' value in configuration file.")
             raise DBCMException
@@ -35,18 +36,14 @@ class VersionMetricsThreading(object):
             raise DBCMException
 
         self.pmc_infos: Info = Info('version', 'Version Information')
-        self.thread = threading.Thread(target=self.run)
-        self.thread.daemon = True
-        self.thread.start()
+        RepeatingThread(interval=self.interval, name="Version Check", target=self.get_versions)
 
-    def run(self):
-        while True:
-            for i in self.instances:
-                info: Dict = self.get_instance_versions(i)
-                info['app_instance'] = i.name
-                info['dashboard'] = 'version_dashboard'
-                self.pmc_infos.info(info)
-            sleep(self.interval)
+    def get_versions(self):
+        for i in self.instances:
+            info: Dict = self.get_instance_versions(i)
+            info['app_instance'] = i.name
+            info['dashboard'] = 'version_dashboard'
+            self.pmc_infos.info(info)
 
     def get_instance_versions(self, instance: DBCMInstance):
         # Get the version info, loop over all entries/components and 
