@@ -52,8 +52,6 @@ spec:
               name: {{ include "dbcmetrics.fullname" . }}-configmap
           env:
             {{- if .Values.storage_metrics_enabled }}
-            - name: STORAGE_BUCKET_NAME
-              value: {{ .Values.storage_bucket_name }}
             - name: STORAGE_ACCESS_KEY
               valueFrom:
                 secretKeyRef:

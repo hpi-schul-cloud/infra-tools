@@ -9,9 +9,5 @@ data:
   VERSION_METRICS_ENABLED: {{ .Values.version_metrics_enabled | quote }}
   IONOS_MAINTENANCE_METRICS_ENABLED: {{ .Values.ionos_maintenance_metrics_enabled | quote }}
   PLANNED_MAINTENANCE_METRICS_ENABLED: {{ .Values.planned_maintenance_metrics_enabled | quote }}
-  STORAGE_EXCLUDE_SUBFOLDERS: {{ .Values.storage_exclude_subfolders | quote }}
-  STORAGE_INTERVAL: {{ .Values.storage_interval | quote }}
-  STORAGE_PROVIDER_URL: {{ .Values.storage_provider_url }}
-  STORAGE_PROVIDER_REGION: {{ .Values.storage_provider_region }}
   dbcm_config.yaml: |
     {{- toYaml .Values.dbcmconfig | nindent 4 }}

@@ -129,7 +129,32 @@ dbcmconfig:
     platforms:
       - name: "example_name"
         url: "https://status.exampleplatform.cloud"
-
+  # -- This part holds the storage module specific configuration
+  storage_metrics:
+    # -- URL of the S3 endpoint for the bucket
+    url: "https://s3-eu-central-1.ionoscloud.com"
+    # -- Region of the bucket
+    region: "s3-eu-central-1"
+    # -- Name of the bucket
+    bucket_name: "s3_bucket_name"
+    # -- Configuration for bucket availability metrics
+    availability:
+      # -- Monitoring availability: True/False
+      enabled: true
+      # -- Interval for checking the availability in seconds
+      interval_sec: 60
+    # -- Configuration for bucket stats metrics
+    stats:
+      # -- Provide bucket stats (file count, size): True/False
+      enabled: true
+      # -- Interval for fetching the bucket stats in minutes
+      interval_min: 1440
+      # -- Only provide metrics for top-level folders: True/False
+      exclude_subfolders: true
+      # -- How often a failed request is retried before the fetching run is aborted
+      retries: 3
+      # -- Duration to wait between the retries in seconds
+      backoff_sec: 60
 
 
 # -- Enables/disables storage module
@@ -141,13 +166,7 @@ ionos_maintenance_metrics_enabled: false
 # -- Enables/disables plannedmaintenance module
 planned_maintenance_metrics_enabled: false
 
-storage_exclude_subfolders: true
-storage_interval: 30
-storage_provider_url: "https://s3-eu-central-1.ionoscloud.com"
-storage_provider_region: "s3-eu-central-1"
-
 # key that will be referenced to get the value
-storage_bucket_name: "s3_bucket_name"
 storage_access_key_key: s3_access_key
 storage_access_secret_key: s3_access_secret
 storage_access_secret_name: "dbcmetrics-secret"
