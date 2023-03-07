@@ -14,7 +14,7 @@ def read_configuration() -> dict:
     read from the config file specified in the environment variable DBCMCONFIG else terminate with error
     '''
     global_configuration_file = get_absolute_path(os.path.join(GLOBAL_CONFIGDIR, CONFIGFILE_NAME))
-    local_configuration_file = os.environ.get("DBCMCONFIG")
+    local_configuration_file = os.environ.get("DBCMCONFIG", CONFIGFILE_NAME)
 
     if os.path.exists(global_configuration_file):
         config_yaml_file = open(global_configuration_file, encoding="utf-8")

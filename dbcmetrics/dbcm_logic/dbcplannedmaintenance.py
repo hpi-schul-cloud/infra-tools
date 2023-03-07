@@ -1,9 +1,8 @@
 import datetime
 import json
 import logging
-from time import sleep
-import threading
 import time
+from dbcm_common.repeating_thread import RepeatingThread
 from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
 import requests
@@ -16,7 +15,7 @@ class PlannedMaintenanceWindowThreading(object):
         try:
             file_configs = configuration["planned_maintenance_metrics"]
             self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"] 
-            self.METRICS_INTERVAL_SEC = file_configs["metric_refresh_interval_sec"] 
+            self.METRICS_INTERVAL = datetime.timedelta(seconds=file_configs["metric_refresh_interval_sec"])
             self.PLANNNED_MAINTENANCE_DEFAULT_DURATION = int(file_configs["default_maintenance_duration_min"])
             self.PLATFORMS = file_configs["platforms"]
             self.TIMEZONE = pytz.timezone(file_configs["cachet_timezone"])
@@ -29,18 +28,14 @@ class PlannedMaintenanceWindowThreading(object):
         self.load_planned_maintenance_windows()
         self.last_time_windows_loaded = time.time()
         # Start Thread
-        self.thread = threading.Thread(target=self.run)
-        self.thread.daemon = True
-        self.thread.start()
+        RepeatingThread(interval=self.METRICS_INTERVAL, name="Metrics Refresh", target=self.run)
         logging.info(f"Planned Maintenance Metrics Thread started. UTC Time: {datetime.datetime.utcnow()}")
 
     def run(self):
-        while True:
-            if (time.time() - self.last_time_windows_loaded)/60 > self.LOADING_INTERVAL_MIN:
-                self.load_planned_maintenance_windows()
-                self.last_time_windows_loaded = time.time()
-            self.refresh_metrics()
-            sleep(self.METRICS_INTERVAL_SEC)
+        if (time.time() - self.last_time_windows_loaded)/60 > self.LOADING_INTERVAL_MIN:
+            self.load_planned_maintenance_windows()
+            self.last_time_windows_loaded = time.time()
+        self.refresh_metrics()
 
 
     def load_planned_maintenance_windows(self):

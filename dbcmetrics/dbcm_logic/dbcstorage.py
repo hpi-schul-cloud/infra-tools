@@ -1,109 +1,112 @@
-'''
-Module for a class that queries a s3 bucket for their size and the number of files to provide them as Prometheus Gauge Metrics
-'''
-from datetime import datetime, timedelta
+"""
+Module for providing Prometheus Gauge Metrics for a s3 bucket (availability, size, number of files)
+"""
+from datetime import timedelta
 import logging
 import os
 from time import sleep
-import threading
+from dbcm_common.repeating_thread import RepeatingThread
+from dbcm_common.dbcmexception import DBCMException
 from prometheus_client import Gauge
 import boto3
 
 
 class StorageMetricsThreading(object):
-    '''
-    Module to get metrics about an object storage
-    '''
-    def __init__(self):
-        self.storage_interval = int(os.getenv("STORAGE_INTERVAL"))
-        self.storage_exclude_subfolders = True if os.getenv("STORAGE_EXCLUDE_SUBFOLDERS").lower() == 'true' else False
-        self.storage_provider_url = os.getenv("STORAGE_PROVIDER_URL")
-        self.storage_provider_region = os.getenv("STORAGE_PROVIDER_REGION")
-        self.storage_bucket_name = os.getenv("STORAGE_BUCKET_NAME")
-        self.storage_access_key = os.getenv("STORAGE_ACCESS_KEY")
-        self.storage_access_secret = os.getenv("STORAGE_ACCESS_SECRET")
 
-        logging.info("Connecting with Access Key {} to S3 region {} by using the storage provider url: {}".format(self.storage_access_key, self.storage_provider_region, self.storage_provider_url))
-        logging.info("Fetching S3 bucket metrics every {} seconds".format(self.storage_interval))
-        logging.info("Exclude subfolders when generating metrics: {}".format(self.storage_exclude_subfolders))
+    def __init__(self, configuration: dict):
+        try:
+            file_configs = configuration["storage_metrics"]
+            availability_config = file_configs["availability"]
+            stats_config = file_configs["stats"]
 
+            self.URL = file_configs["url"]
+            self.REGION = file_configs["region"]
+            self.BUCKET_NAME = file_configs["bucket_name"]
+            self.AVAILABILITY_ENABLED = availability_config["enabled"]
+            self.AVAILABILITY_INTERVAL = timedelta(seconds=availability_config["interval_sec"])
+            self.STATS_ENABLED = stats_config["enabled"]
+            self.STATS_INTERVAL = timedelta(minutes=stats_config["interval_min"])
+            self.STATS_RETRIES = stats_config["retries"]
+            self.STATS_BACKOFF_SEC = stats_config["backoff_sec"]
+            self.EXCLUDE_SUBFOLDERS = stats_config["exclude_subfolders"]
+        except Exception as ex:
+            logging.error("Missing or wrong configuration values for storage metrics:{}".format(repr(ex)))
+            raise DBCMException
+
+        if not self.AVAILABILITY_ENABLED and not self.STATS_ENABLED:
+            logging.error("Neither bucket availability nor stats metrics enabled")
+            raise DBCMException
+
+        self.S3_ACCESS_KEY = os.getenv("STORAGE_ACCESS_KEY")
+        s3_secret_key = os.getenv("STORAGE_ACCESS_SECRET")
+
+        if self.S3_ACCESS_KEY is None or s3_secret_key is None:
+            logging.error("Missing S3 key values for maintenance metrics")
+            raise DBCMException
+
+        logging.info("Connecting with Access Key {} to S3 region {} by using the storage provider url: {}"
+                     .format(self.S3_ACCESS_KEY, self.REGION, self.URL))
         self.s3_client = boto3.client(
             's3',
-            region_name=self.storage_provider_region,
-            aws_access_key_id=self.storage_access_key,
-            aws_secret_access_key=self.storage_access_secret,
-            endpoint_url=self.storage_provider_url,
+            region_name=self.REGION,
+            aws_access_key_id=self.S3_ACCESS_KEY,
+            aws_secret_access_key=s3_secret_key,
+            endpoint_url=self.URL
         )
 
-        buckets = self.s3_client.list_buckets()['Buckets']
-        logging.debug("For Access Key {} available S3 Buckets: {}".format(self.storage_access_key, buckets))
+        if self.AVAILABILITY_ENABLED:
+            self.availability_gauge = Gauge('storage_bucket_availability', 'Indicates if the target bucket is available',
+                                            ['name', 'storage_provider_url', 'access_key'])
+            RepeatingThread(name="Availability Check", interval=self.AVAILABILITY_INTERVAL, target=self.check_availability)
 
-        self.bucket_availability_gauge = Gauge('storage_bucket_availability','Indicates if the target bucket is available',[
-            'name',
-            'storage_provider_url',
-            'access_key',
-        ])
+        if self.STATS_ENABLED:
+            self.size_bucket_gauge = Gauge('storage_size_bucket', 'The total size in bytes of all files in a bucket',
+                                           ['name', 'storage_provider_url', 'access_key'])
+            self.file_count_bucket_gauge = Gauge('storage_file_count_bucket', 'The total number of files in a bucket',
+                                                 ['name', 'storage_provider_url', 'access_key'])
+            self.size_folder_gauge = Gauge('storage_size_folder', 'The total size in bytes of all files in a folder',
+                                           ['name', 'bucket', 'storage_provider_url', 'access_key'])
+            self.file_count_folder_gauge = Gauge('storage_file_count_folder', 'The total number of files in a folder',
+                                                 ['name', 'bucket', 'storage_provider_url', 'access_key'])
+            RepeatingThread(name="Bucket Stats Fetching", interval=self.STATS_INTERVAL, target=self.fetch_storage_metrics)
 
-        self.size_bucket_gauge = Gauge('storage_size_bucket','The total size in bytes of all files in a bucket',[
-            'name',
-            'storage_provider_url',
-            'access_key',
-        ])
+    def check_availability(self):
+        try:
+            # Check if request for list of objects is successful
+            self.s3_client.list_objects_v2(Bucket=self.BUCKET_NAME, FetchOwner=False)['KeyCount']
+            self.availability_gauge.labels(name=self.BUCKET_NAME, storage_provider_url=self.URL,
+                                           access_key=self.S3_ACCESS_KEY).set(1.0)
+        except Exception as ex:
+            logging.error("The bucket {} is not available (Cause: {})".format(self.BUCKET_NAME, repr(ex)))
+            # To help find the cause of the unavailability list buckets accessible with the given key
+            self.list_buckets_for_key()
+            self.availability_gauge.labels(name=self.BUCKET_NAME, storage_provider_url=self.URL,
+                                           access_key=self.S3_ACCESS_KEY).set(0.0)
 
-        self.file_count_bucket_gauge = Gauge('storage_file_count_bucket','The total number of files in a bucket',[
-            'name',
-            'storage_provider_url',
-            'access_key',
-        ])
+    def list_buckets_for_key(self):
+        try:
+            buckets = self.s3_client.list_buckets()['Buckets']
+            logging.info("For Access Key {} available S3 Buckets: {}".format(self.S3_ACCESS_KEY, buckets))
+        except Exception as ex:
+            logging.error("Couldn't list Buckets for Access Key {} (Cause: {})".format(self.S3_ACCESS_KEY, repr(ex)))
 
-        self.size_folder_gauge = Gauge('storage_size_folder','The total size in bytes of all files in a folder',[
-            'name',
-            'bucket',
-            'storage_provider_url',
-            'access_key',
-        ])
-
-        self.file_count_folder_gauge = Gauge('storage_file_count_folder','The total number of files in a folder',[
-            'name',
-            'bucket',
-            'storage_provider_url',
-            'access_key',
-        ])
-
-        self.thread = threading.Thread(target=self.run)
-        self.thread.daemon = True
-        self.thread.start()
-
-    def run(self):
-        '''
-        Function that calls metric functions and waits in a loop until the stop event is send from the main thread
-        '''
-        while True:
-            start_time = datetime.now()
-            end_time = start_time + timedelta(seconds=self.storage_interval)
-            self.fetchStorageMetrics()
-            if datetime.now() < end_time:
-                remaining_time = end_time - datetime.now()
-                logging.info("Wait for {} until the next fetching".format(remaining_time))
-                sleep(remaining_time.seconds)
-
-    def fetchStorageMetrics(self):
-        '''
-        Function that calls the S3 API to fetch all objects in a bucket and calculates the total number of objects and the total size for the whole bucket and for each folder
-        '''
+    def fetch_storage_metrics(self):
+        """
+        Function that calls the S3 API to fetch all objects in a bucket and calculates the total number of objects
+        and the total size for the whole bucket and for each folder
+        """
         incomplete = True
-        marker = ""
+        continuation_token = ""
         total_keys = 0
-        total_size = 0
-        object_list = []
-        folder_list = []
+        fails = 0
+        bucket_stats = BucketStats(exclude_subfolders=self.EXCLUDE_SUBFOLDERS)
+        logging.info("Start fetching the object list of bucket {}".format(self.BUCKET_NAME))
 
-        logging.info("Start fetching the object list of bucket {}".format(self.storage_bucket_name))
         while incomplete:
             try:
                 response = self.s3_client.list_objects_v2(
-                    Bucket=self.storage_bucket_name,
-                    ContinuationToken=marker,
+                    Bucket=self.BUCKET_NAME,
+                    ContinuationToken=continuation_token,
                     FetchOwner=False,
                 )
                 key_count = response['KeyCount']
@@ -111,80 +114,74 @@ class StorageMetricsThreading(object):
                 if key_count == 0:
                     incomplete = False
                 else:
-                    marker = response.get('NextContinuationToken')
+                    continuation_token = response.get('NextContinuationToken')
                     incomplete = response['IsTruncated']
-                    object_list = [*object_list, *response['Contents']]
+                    for s3_object in response["Contents"]:
+                        bucket_stats.add_object(s3_object)
+                fails = 0
             except Exception as ex:
-                logging.error("The bucket {} is not available (Cause: {})".format(self.storage_bucket_name, repr(ex)))
-                self.bucket_availability_gauge.labels(
-                    name=self.storage_bucket_name,
-                    storage_provider_url=self.storage_provider_url,
-                    access_key=self.storage_access_key,
-                ).set(0.0)
-                return
+                fails += 1
+                logging.warning("Listing objects of bucket {} failed {} time(s) (Cause: {})"
+                                .format(self.BUCKET_NAME, fails, repr(ex)))
+                if fails <= self.STATS_RETRIES:
+                    logging.warning("Trying again in {} seconds.".format(self.STATS_BACKOFF_SEC))
+                    sleep(self.STATS_BACKOFF_SEC)
+                else:
+                    logging.error("Max retries reached. Stopping this bucket stats run.".format(self.STATS_BACKOFF_SEC))
+                    return
 
-        logging.debug("The total number of keys in the bucket {} is {}".format(self.storage_bucket_name, total_keys))
-        logging.info("The total number of objects in the bucket {} is {}".format(self.storage_bucket_name, len(object_list)))
-        self.bucket_availability_gauge.labels(
-            name=self.storage_bucket_name,
-            storage_provider_url=self.storage_provider_url,
-            access_key=self.storage_access_key,
-        ).set(1.0)
+        logging.debug("The total number of keys in the bucket {} is {}".format(self.BUCKET_NAME, total_keys))
+        self.output_bucket_stats(bucket_stats)
 
-        # Remove folder objects from object_list because files can be in folders by adding a slash to the path without the folders themselfes existing as objects in the bucket
-        file_list = [obj for obj in object_list if obj['Key'].endswith('/') == False]
-
-        for file in file_list:
-            total_size += file['Size']
-            file_path_parts = file['Key'].split('/')
-
-            # if subfolders should be excluded, add just the top-level folder, else, add also every subfolder
-            deepest_folder_level = min(len(file_path_parts),2) - 2 if self.storage_exclude_subfolders == True else len(file_path_parts) - 2
-            for current_folder_level in range(deepest_folder_level, -1, -1):
-                folder_name = ""
-                for sub_current_folder_level in range(0, current_folder_level + 1):
-                    folder_name += file_path_parts[sub_current_folder_level] + "/"
-                if folder_name not in folder_list:
-                    folder_list.append(folder_name)
-
-        logging.info("The total number of folders in the bucket {} is {}".format(self.storage_bucket_name, len(folder_list)))
-        logging.info("The total number of files in the bucket {} is {}".format(self.storage_bucket_name, len(file_list)))
-        logging.info("The total size of all objects in the bucket {} is {}".format(self.storage_bucket_name, total_size))
-
-        self.file_count_bucket_gauge.labels(
-            name=self.storage_bucket_name,
-            storage_provider_url=self.storage_provider_url,
-            access_key=self.storage_access_key,
-        ).set(total_keys)
-
-        self.size_bucket_gauge.labels(
-            name=self.storage_bucket_name,
-            storage_provider_url=self.storage_provider_url,
-            access_key=self.storage_access_key,
-        ).set(total_size)
-
-        for folder_name in folder_list:
-            folder_file_list = [file for file in file_list if folder_name in file['Key']]
-            folder_file_count = len(folder_file_list)
-
-            logging.info("The total number of files in the folder {} is {}".format(folder_name, folder_file_count))
-            self.file_count_folder_gauge.labels(
-                name=folder_name,
-                bucket=self.storage_bucket_name,
-                storage_provider_url=self.storage_provider_url,
-                access_key=self.storage_access_key,
-            ).set(folder_file_count)
-
-            folder_size = 0
-            for file in folder_file_list:
-                folder_size += file['Size']
-
+    def output_bucket_stats(self, bucket_stats):
+        for folder_name, stats in bucket_stats.folder_stats.items():
+            file_count = stats["file_count"]
+            folder_size = stats["size"]
+            logging.info("The total number of files in the folder {} is {}".format(folder_name, file_count))
+            self.file_count_folder_gauge.labels(name=folder_name, bucket=self.BUCKET_NAME, storage_provider_url=self.URL,
+                                                access_key=self.S3_ACCESS_KEY).set(file_count)
             logging.info("The size of all files in the folder {} is {}".format(folder_name, folder_size))
-            self.size_folder_gauge.labels(
-                name=folder_name,
-                bucket=self.storage_bucket_name,
-                storage_provider_url=self.storage_provider_url,
-                access_key=self.storage_access_key,
-            ).set(folder_size)
+            self.size_folder_gauge.labels(name=folder_name, bucket=self.BUCKET_NAME, storage_provider_url=self.URL,
+                                          access_key=self.S3_ACCESS_KEY).set(folder_size)
 
-        return
+        logging.info("The total number of folders in the bucket {} is {}"
+                     .format(self.BUCKET_NAME, len(bucket_stats.folder_stats)))
+        logging.info("The total number of files in the bucket {} is {}".format(self.BUCKET_NAME, bucket_stats.file_count))
+        self.file_count_bucket_gauge.labels(name=self.BUCKET_NAME, storage_provider_url=self.URL,
+                                            access_key=self.S3_ACCESS_KEY).set(bucket_stats.file_count)
+        logging.info("The total size of all objects in the bucket {} is {}".format(self.BUCKET_NAME, bucket_stats.total_size))
+        self.size_bucket_gauge.labels(name=self.BUCKET_NAME, storage_provider_url=self.URL,
+                                      access_key=self.S3_ACCESS_KEY).set(bucket_stats.total_size)
+
+
+class BucketStats(object):
+    """
+    Helper class for calculating and storing the bucket stats
+    """
+    def __init__(self, exclude_subfolders: bool):
+        self.exclude_subfolders = exclude_subfolders
+        self.folder_stats = {}
+        self.total_size = 0
+        self.file_count = 0
+
+    def add_object(self, s3_object: dict):
+        # Ignore folder objects because files can be in folders by adding a slash to the path
+        # without the folders themselves existing as objects in the bucket
+        if s3_object['Key'].endswith('/'):
+            return
+        file_size = s3_object["Size"]
+        self.total_size += file_size
+        self.file_count += 1
+        file_path_parts = s3_object['Key'].split('/')
+        deepest_folder_level = len(file_path_parts) - 2  # File outside of folder: Level -1
+        if self.exclude_subfolders:
+            deepest_folder_level = min(deepest_folder_level, 0)
+        # Add stats to folder and all parent folders
+        for current_folder_level in range(deepest_folder_level, -1, -1):
+            folder_name = ""
+            for sub_current_folder_level in range(0, current_folder_level + 1):
+                folder_name += file_path_parts[sub_current_folder_level] + "/"
+            if folder_name not in self.folder_stats:
+                self.folder_stats[folder_name] = {"file_count": 0, "size": 0}
+            self.folder_stats[folder_name]["file_count"] += 1
+            self.folder_stats[folder_name]["size"] += file_size

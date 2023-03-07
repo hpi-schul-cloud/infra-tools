@@ -28,7 +28,7 @@ if __name__ == '__main__':
             logging.info("Version metrics started")
             active_modules += 1
         if os.getenv("STORAGE_METRICS_ENABLED", default = "false").lower() == 'true':
-            smtr = StorageMetricsThreading()
+            smtr = StorageMetricsThreading(dbcm_config)
             dbcmThreads.append(smtr)
             logging.info("Storage metrics started")
             active_modules += 1
