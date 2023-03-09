@@ -2,6 +2,11 @@
 - name: Test
   hosts: localhost
   gather_facts: false
+  vars:
+    document_original_content: |-
+      Test file.
+    document_updated_content: |-
+      Updated file.
   tasks:
     - name: Run the tests
       block:
@@ -124,6 +129,43 @@
           uri:
             url: "{{ op.link }}"
 
+        - name: Create file to upload
+          copy:
+            content: "{{ document_original_content }}"
+            dest: /tmp/original-file.txt
+            mode: 0600
+        - name: Create document
+          dbildungscloud.onepwd.document:
+            vault: Private
+            name: document-test
+            path: /tmp/original-file.txt
+        - name: Get document
+          set_fact:
+            onepassword_document: "{{ lookup('dbildungscloud.onepwd.onepwd', secret_name='document-test', vault='Private') }}"
+        - name: Create document
+          assert:
+            that:
+              - onepassword_document == document_original_content
+
+        - name: Create updated file to upload
+          copy:
+            content: "{{ document_updated_content }}"
+            dest: /tmp/updated-file.txt
+            mode: 0600
+        - name: Update document
+          dbildungscloud.onepwd.document:
+            vault: Private
+            name: document-test
+            path: /tmp/updated-file.txt
+        - name: Get document
+          set_fact:
+            onepassword_document: "{{ lookup('dbildungscloud.onepwd.onepwd', secret_name='document-test', vault='Private') }}"
+        - name: Create document
+          assert:
+            that:
+              - onepassword_document != document_original_content
+              - onepassword_document == document_updated_content
+
       always:
         - name: Delete item
           dbildungscloud.onepwd.item:
@@ -136,3 +178,9 @@
           assert:
             that:
               - op.changed
+        - name: Delete document
+          dbildungscloud.onepwd.item:
+            vault: Private
+            name: document-test
+            state: absent
+          register: op

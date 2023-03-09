@@ -192,7 +192,28 @@ class OnePwd(object):
             return run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
             raise UnknownResourceItem(f"document: {item_name}")
-    
+
+    def create_document_from_file(self, path, title, vault=None):
+        vault_flag = get_optional_flag(vault=vault)
+
+        command = f"""
+            {self.op} document create {path} \
+            --title='{title}' \
+            --session={self.session_token} \
+            {vault_flag}
+        """
+        return run_op_command_in_shell(command)
+
+    def edit_document_from_file(self, path, title, vault=None):
+        vault_flag = get_optional_flag(vault=vault)
+
+        command = f"""
+            {self.op} document edit {title} {path} \
+            --session={self.session_token} \
+            {vault_flag}
+        """
+        return run_op_command_in_shell(command)
+
     def share(self, item_name, vault=None, emails=[], expiry=None, view_once=False):
         vault_flag = get_optional_flag(vault=vault)
         emails_list = ",".join(emails)
