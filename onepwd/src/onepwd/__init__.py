@@ -92,7 +92,7 @@ class OnePwd(object):
         url_flag = get_optional_flag(url=url)
 
         command = f"""
-            {self.op} item  create --category={category} - \
+            {self.op} item  create --category={quote(category)} - \
             --title='{title}' \
             --session={self.session_token} \
             {vault_flag} {url_flag}
@@ -105,7 +105,7 @@ class OnePwd(object):
         dry_run_flag = get_optional_flag(dry_run=dry_run)
 
         command = f"""
-            {self.op} item  create --category={category} - \
+            {self.op} item  create --category={quote(category)} - \
             --title='{title}' \
             --session={self.session_token} \
             {vault_flag} {url_flag} \
