@@ -10,7 +10,7 @@ from ansible.errors import AnsibleError, AnsibleFileNotFound, AnsibleAction, Ans
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None, **kwargs):
         login_secret=onepwd.get_op_login()
-        session_shorthand=kwargs.get('session_shorthand', os.getenv('USER'))
+        session_shorthand=kwargs.get('session_shorthand', 'ansible-run') # os.getenv('USER'))
         session_timeout=kwargs.get('session_timeout', 30)
         op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
 
