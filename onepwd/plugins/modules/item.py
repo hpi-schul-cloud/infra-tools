@@ -42,6 +42,12 @@ options:
       - Supported properties are name, type, value, section
     type: list
     default: []
+  session_shorthand:
+    description:
+      - Session shorthand used by the 1Password CLI.
+      - Must be set when running in AWX.
+    type: str
+    default: the USER environment variable
 '''
 
 EXAMPLES = r'''

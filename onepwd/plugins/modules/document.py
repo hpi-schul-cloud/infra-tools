@@ -25,6 +25,12 @@ options:
         - Path to the file to upload.
     type: str
     required: yes
+  session_shorthand:
+    description:
+      - Session shorthand used by the 1Password CLI.
+      - Must be set when running in AWX.
+    type: str
+    default: the USER environment variable
 '''
 
 EXAMPLES = r'''
