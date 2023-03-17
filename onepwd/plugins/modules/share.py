@@ -34,6 +34,12 @@ options:
       - Expire link after a single view.
     type: bool
     default: false
+  session_shorthand:
+    description:
+      - Session shorthand used by the 1Password CLI.
+      - Must be set when running in AWX.
+    type: str
+    default: the USER environment variable
 '''
 
 EXAMPLES = r'''
