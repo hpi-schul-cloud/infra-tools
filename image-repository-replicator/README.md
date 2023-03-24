@@ -9,6 +9,8 @@ The following environment variables are read by the image-repository-replication
 | Name        | Description | Example Value |
 | ----------- | ----------- | ------------- |
 | SOURCE_REPOSITORY_URL | The source container image repository for the replication | `docker.io/schulcloud/schulcloud-server` |
+| SOURCE_REGISTRY_USER | The user to authenticate crane at the source registry | `mustermann` |
+| SOURCE_REGISTRY_PASSWORD | The user password to authenticate at the source registry | `4GXJXE9fenD3jZnzjQFa` (random generated) |
 | DEST_REPOSITORY_URL | The destination container image repository for the replication | `docker.io/schulcloud/schulcloud-server` |
-| REGISTRY_USER | The container image registry user which is used to authenticate crane at the registry | `mustermann` |
-| REGISTRY_PASSWORD | The password of the container image registry user | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
+| DEST_REGISTRY_USER | The user to authenticate crane at the destination registry | `musterfrau` |
+| DEST_REGISTRY_PASSWORD | The user password to authenticate at the destination registry | `m29VK2uezrzaRCYUiVPD` (random generated) |
