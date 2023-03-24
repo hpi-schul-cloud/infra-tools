@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 log_in_registry () {
   echo "log in with user $2 in registry $1"
@@ -10,9 +10,9 @@ get_repository_image_tags () {
 }
 
 copy_repository () {
-  while read -r image_tag ; do
+  echo "$image_tags" | while read -r image_tag ; do
     copy_image $1 $2 ${image_tag}
-  done <<< "$image_tags"
+  done
 }
 
 copy_image () {
@@ -28,7 +28,7 @@ echo $(log_in_registry ${SOURCE_REPOSITORY_URL%%/*} ${SOURCE_REGISTRY_USER} ${SO
 echo $(log_in_registry ${DEST_REPOSITORY_URL%%/*} ${DEST_REGISTRY_USER} ${DEST_REGISTRY_PASSWORD})
 
 image_tags="$(get_repository_image_tags ${SOURCE_REPOSITORY_URL})"
-number_of_image_tags="$(wc -l <<< "$image_tags")"
+number_of_image_tags="$(echo "$image_tags" | wc -l )"
 echo "Copy ${number_of_image_tags} tagged images from repository ${SOURCE_REPOSITORY_URL} to ${DEST_REPOSITORY_URL}"
 echo $(copy_repository ${SOURCE_REPOSITORY_URL} ${DEST_REPOSITORY_URL})
 
