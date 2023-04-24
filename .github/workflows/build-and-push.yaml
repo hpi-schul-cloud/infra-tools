@@ -35,7 +35,7 @@ on:
       file:
         description: "Which Dockerfile to use, defaults to Dockerfile in context"
         required: false
-        default: "${{ inputs.context }}/Dockerfile"
+        default: "Dockerfile"
         type: string
     secrets:
       DOCKER_USERNAME:
@@ -93,4 +93,4 @@ jobs:
           push: true
           tags: ${{ steps.docker_meta_img_hub.outputs.tags }}
           labels: ${{ steps.docker_meta_img_hub.outputs.labels }}
-          file: ${{ inputs.file }}
+          file: ${{ inputs.context }}/${{ inputs.file }}
