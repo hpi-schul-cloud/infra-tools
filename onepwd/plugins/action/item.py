@@ -29,16 +29,18 @@ class ActionModule(ActionBase):
         state = self._task.args.get('state', 'present')
         if state not in ('present', 'absent'):
             raise AnsibleActionFail('State must be one of absent, present.')
+        generate_password = self._task.args.get('generate_password', None)
+        overwrite = self._task.args.get('overwrite', True)
         check = self._task.check_mode
 
         result = {}
         if state == 'present':
-            result = self.run_present(op, category, name, vault, fields, check)
+            result = self.run_present(op, category, name, vault, fields, generate_password, overwrite, check)
         if state == 'absent':
             result = self.run_absent(op, name, vault, check)
         return result
     
-    def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, check):
+    def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, generate_password, overwrite, check):
         assignment_statements = ""
         for field in fields:
             assignment_statements += " " + onepwd.build_assignment_statement(field)
@@ -47,18 +49,18 @@ class ActionModule(ActionBase):
         diff = {}
         try:
             get_result = op.get('item', item_name=name, vault=vault)
-            edit_result = op.edit_item(name, assignment_statements, vault=vault, dry_run=check)
-            changed = not items_equal(get_result, edit_result)
+            edit_result = op.edit_item(name, assignment_statements, vault=vault, generate_password=generate_password, dry_run=True)
+            changed = not items_equal(get_result, edit_result) and overwrite
             if changed:
                 if not check:
-                    edit_result = op.edit_item(name, assignment_statements, vault=vault)
+                    edit_result = op.edit_item(name, assignment_statements, vault=vault, generate_password=generate_password)
                 diff['before'] = get_result
                 diff['after'] = edit_result
                 result['item'] = edit_result
             else:
                 result['item'] = get_result
         except onepwd.UnknownResourceItem:
-            create_result = op.create_item_string(category, name, assignment_statements, vault=vault, dry_run=check)
+            create_result = op.create_item_string(category, name, assignment_statements, vault=vault, generate_password=generate_password, dry_run=check)
             diff['before'] = {}
             diff['after'] = create_result
             result['item'] = create_result

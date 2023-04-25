@@ -99,9 +99,10 @@ class OnePwd(object):
         """
         return json.loads(run_op_command_in_shell(command, input=json_item.encode()))
 
-    def create_item_string(self, category, title, assignment_statements:str, vault=None, url=None, dry_run=False):
+    def create_item_string(self, category, title, assignment_statements:str, vault=None, url=None, generate_password:str=None, dry_run=False):
         vault_flag = get_optional_flag(vault=vault)
         url_flag = get_optional_flag(url=url)
+        generate_password_flag = get_optional_flag(generate_password=generate_password)
         dry_run_flag = get_optional_flag(dry_run=dry_run)
 
         command = f"""
@@ -109,7 +110,7 @@ class OnePwd(object):
             --title='{title}' \
             --session={self.session_token} \
             {vault_flag} {url_flag} \
-            {assignment_statements} {dry_run_flag}
+            {generate_password_flag} {assignment_statements} {dry_run_flag}
         """
         return json.loads(run_op_command_in_shell(command))
 
@@ -150,10 +151,11 @@ class OnePwd(object):
             fields_to_change += f"s3_endpoint_url={ENDPOINT_URL} "
         return self.edit_item(title, fields_to_change, vault)
 
-    def edit_item(self, title, assignment_statements:str, vault=None, dry_run=False):
+    def edit_item(self, title, assignment_statements:str, vault=None, generate_password:str=None, dry_run=False):
         vault_flag = get_optional_flag(vault=vault)
         dry_run_flag = get_optional_flag(dry_run=dry_run)
-        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {dry_run_flag} {assignment_statements} """
+        generate_password_flag = get_optional_flag(generate_password=generate_password)
+        command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {generate_password_flag} {dry_run_flag} {assignment_statements} """
         return json.loads(run_op_command_in_shell(command))
 
     def delete_item(self, item_name, vault=None):
@@ -364,7 +366,7 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
             if field is None:
                 field = "password"
             for f in item["fields"]:
-                if f["label"]==field:
+                if "label" in f and f["label"]==field:
                     secret_value=f["value"]
         elif item["category"]=='DOCUMENT': # File template type
             sname=item["title"]
@@ -393,13 +395,13 @@ def get_single_secret(op:OnePwd, item_name:str, field=None, vault=None) -> str:
     if item["category"]=='LOGIN': # Login template type
         if field:
             for f in item["fields"]:
-                if f["label"]==field:
+                if "label" in f and f["label"]==field:
                     secret_value=f["value"]
     elif item["category"]=='PASSWORD': # Password template type
         if field is None:
             field = "password"
         for f in item["fields"]:
-                if f["label"]==field and "value" in f:
+                if "label" in f and f["label"]==field and "value" in f:
                     secret_value=f["value"]
     elif item["category"]=='DOCUMENT': # File template type
         document=op.get_document(item['id'])

@@ -48,6 +48,17 @@ options:
       - Must be set when running in AWX.
     type: str
     default: the USER environment variable
+  generate_password:
+    description:
+      - 1Password generates the password 
+      - Password properties can be set (e.g. "letters,digits,symbols,32"), see https://developer.1password.com/docs/cli/create-item/#create-an-item
+    type: str
+  overwrite:
+    description:
+      - If True (default) existing items are changed if there are differences
+      - If False existing items are not changed if there are differences (usefull if item should be generated only once)
+    type: bool
+    default: True
 '''
 
 EXAMPLES = r'''
