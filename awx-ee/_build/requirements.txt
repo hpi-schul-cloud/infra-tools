@@ -1,8 +1,8 @@
 awxkit>=19.4.0
-cryptography >= 3.0
+cryptography>=3.0
 ipaddress
 jsonpatch
-kubernetes>= 12.0.0
-PyYAML >= 3.11
-requests >= 1.1
-urllib3
+kubernetes>=12.0.0
+PyYAML>=3.11
+requests>=1.1
+urllib3~=1.26

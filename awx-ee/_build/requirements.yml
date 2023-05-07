@@ -5,3 +5,8 @@ collections:
   - name: ansible.posix
   - name: ansible.windows
   - name: community.general
+roles:
+  - name: geerlingguy.docker
+    version: 6.0.4
+  - name: geerlingguy.certbot
+    version: 5.0.2
