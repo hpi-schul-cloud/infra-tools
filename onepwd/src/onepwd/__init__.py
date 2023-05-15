@@ -252,7 +252,7 @@ class OnePwd(object):
         if not os.environ.get("OP_DEVICE"):
             os.environ["OP_DEVICE"] = base64.b32encode(os.urandom(16)).decode().lower().rstrip("=")
         session_flag=get_optional_flag(session=self.session_token)
-        child = pexpect.spawn(f"{self.op} account add --signin --address {secret['signin_address']} --email {secret['email']} --secret-key {secret['secret_key']} --raw --shorthand={shorthand} {session_flag}",
+        child = pexpect.spawn(f"{self.op} account add --signin --address {secret['signin_address']} --email {secret['email']} --raw --shorthand={shorthand} {session_flag} ",
                               env=os.environ)
         child.expect("Enter the password for")
         child.sendline(secret['password'])
