@@ -31,10 +31,12 @@ def setSystemtools():
     if sys.platform.startswith("linux"):
         # linux or wsl
         rc = os.system('uname -a | grep -i microsoft 2>&1 > /dev/null')
-        if rc == 0: # wsl
-            sct_sudo = "gsudo.exe"
-            sct_hostctl = "hostctl.exe"
-            sct_windows = True
+        if rc == 0: # wsl or dev-container, booth are using MS generated Linux systems
+            rc = os.system('uname -a | grep -i microsoft 2>&1 > /dev/null')
+            if not os.environ.get('REMOTE_CONTAINERS'):
+                sct_sudo = "gsudo.exe"
+                sct_hostctl = "hostctl.exe"
+                sct_windows = True
     elif sys.platform.startswith("win32"):
         sct_sudo = "gsudo.exe"
         sct_hostctl = "hostctl.exe"
