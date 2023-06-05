@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as release
+FROM ubuntu:22.04 as release
 
 ARG BUILD_BRANCH
 ARG BUILD_HASH
@@ -12,8 +12,8 @@ LABEL build.hash="${BUILD_HASH}"
 RUN set -x \
     && apt-get -y update \
     && apt-get -y install wget gnupg \
-    && wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - \
-    && echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list \
+    && wget -qO - https://pgp.mongodb.com/server-4.4.asc | gpg -o /usr/share/keyrings/mongodb-server-4.4.gpg --dearmor \
+    && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-4.4.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
     && apt-get -y update \
     && apt-get -y install \
         curl \
@@ -28,8 +28,8 @@ RUN set -x \
         traceroute \
         dnsutils \
         redis-tools \
-        mongodb-org-shell \
-        mongodb-org-tools \
+        mongodb-mongosh \
+        mongodb-database-tools \
         vim-nox \
         mc \
         gpg \
