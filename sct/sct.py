@@ -22,6 +22,8 @@ from sct_logic.list import listCluster
 from sct_logic.update import updateKubeconfigs
 from sct_common.run_command import run_command, run_command_no_output
 from sct_common.sct_tools import *
+from sct_data.shellcmd import ShellCmd
+
 
 
 def parseArguments():
@@ -43,6 +45,7 @@ def parseArguments():
   
 if __name__ == '__main__':
     sc_tunnel_config = None
+    sc_hostctl_cmd = None 
     connectThreads: List = []
     openedPorts: Dict = {}
     try:
@@ -113,8 +116,10 @@ if __name__ == '__main__':
                             while cThread.isUp():
                                 continue
                             cThread.join()
-                        sct_sudo, sct_hostctl, sct_windows = setSystemtools()
-                        run_command([sct_sudo, sct_hostctl, 'remove', 'sc'])
+                        sct_sudo, sct_hostctl, sct_windows = getSystemtools()
+                        sct_hostctl.addArg('remove')
+                        sct_hostctl.addArg('sc')
+                        run_command(sct_hostctl.args)
                         disableSudochache()
                         print("Tunneling terminated")
                         break
