@@ -32,7 +32,7 @@ def getSystemtools():
     sct_hostctl: ShellCmd = ShellCmd()
     sct_windows = False
     user_home = ""
-    IPAddr = "127.0.0.1"
+    ip_addr = "127.0.0.1"
     if sys.platform.startswith("linux"):
         # linux or wsl
         user_home = pathlib.Path.home()
@@ -57,7 +57,7 @@ def getSystemtools():
                 sct_hostfile = os.path.join(pathlib.Path.home(),'.hosts')
                 sct_hostctl.addArg(sct_hostfile)
                 sct_hostctl.addArg ('--ip')
-                sct_hostctl.addArg (IPAddr)
+                sct_hostctl.addArg (ip_addr)
         else:
                 sct_sudo = "sudo"
                 sct_hostctl.addArg('sudo')

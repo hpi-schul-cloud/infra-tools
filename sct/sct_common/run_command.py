@@ -19,7 +19,7 @@ def run_command_no_output(popenargs):
 
 def run_command(popenargs):
     logger = logging.getLogger()
-    print (popenargs)
+    logger.log(logging.INFO, popenargs)
     with subprocess.Popen(popenargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
         (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
         proc.wait()
