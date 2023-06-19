@@ -47,6 +47,7 @@ def getSystemtools():
                 sct_hostctl.addArg('hostctl.exe')
                 sct_windows = True
             else:
+                # Remote container
                 sct_sudo = "sudo"
                 sct_hostctl.addArg('sudo')
                 sct_hostctl.addArg('hostctl')
