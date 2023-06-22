@@ -7,7 +7,7 @@ import paramiko
 import sshtunnel
 from sct_common.run_command import run_command
 from sct_common.sct_tools import getSystemtools
-from sct_data.shellcmd import ShellCmd
+from sct_data.systemtools import SCT_OS
 
 class TunnelThreading(object):
     '''
@@ -29,12 +29,19 @@ class TunnelThreading(object):
                 sleep(2)
             self.tunnel_is_up = True
             # 
-            sct_sudo, sct_hostctl, sct_windows = getSystemtools()
-            sct_hostctl.addArg('add')
-            sct_hostctl.addArg('domains')
-            sct_hostctl.addArg('sc')
-            sct_hostctl.addArg(api_server_host)
-            run_command(sct_hostctl.args)
+            sct_systemtools = getSystemtools()
+            sct_systemtools.addArg('add', sct_systemtools.os)
+            if sct_systemtools.os == SCT_OS.DEVCONTAINER: sct_systemtools.addArg('add', SCT_OS.WSL2)
+            sct_systemtools.addArg('domains', sct_systemtools.os)
+            if sct_systemtools.os == SCT_OS.DEVCONTAINER: sct_systemtools.addArg('domains', SCT_OS.WSL2)
+            sct_systemtools.addArg('sc', sct_systemtools.os)
+            if sct_systemtools.os == SCT_OS.DEVCONTAINER: sct_systemtools.addArg('sc', SCT_OS.WSL2)
+            sct_systemtools.addArg(api_server_host, sct_systemtools.os)
+            if sct_systemtools.os == SCT_OS.DEVCONTAINER: sct_systemtools.addArg(api_server_host, SCT_OS.WSL2)
+
+            run_command(sct_systemtools.getArgs(sct_systemtools.os))
+            if sct_systemtools.os == SCT_OS.DEVCONTAINER: run_command(sct_systemtools.getArgs(SCT_OS.WSL2))
+
             while True:
                 if not stopper.is_set():
                     stopper.wait(2)
