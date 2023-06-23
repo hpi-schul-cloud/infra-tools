@@ -19,7 +19,6 @@ from sct_data.configuration import SCTConfiguration
 from sct_data.cluster import Cluster
 from sct_logic.tunnel import TunnelThreading
 from sct_logic.list import listCluster
-from sct_logic.update import updateKubeconfigs
 from sct_common.run_command import run_command, run_command_no_output
 from sct_common.sct_tools import *
 from sct_data.systemtools import SCT_OS
@@ -34,7 +33,6 @@ def parseArguments():
 
     parser.add_argument('--version', action='version', version='1.0.0')
     parser.add_argument("--list", action='store_true', help = "Lists the locally available IONOS K8S cluster to be used for tunneling.")
-    parser.add_argument("--update", action='store_true', help = "Update the locally available IONOS K8S clusterin $(HOME)/.kube/.")
     parser.add_argument("--connect-all", dest='connectall', action='store_true', help = "Open a tunnel to all clusters")
     parser.add_argument("--connect", dest='clusters', type=str, nargs='+', required=False, default='', help = "Cluster name to open  a tunnel for, e.g. sc-prod-admin.")
     parser.add_argument("--tunnel", dest='tunnels', type=str, nargs='+', required=False, default='', help = "Server to tunnel, <host>:<port>, e.g. gitea.example.com:2345.")
@@ -57,9 +55,6 @@ if __name__ == '__main__':
         parsedArgs = parseArguments()
         configuration_file = parsedArgs.configfile
         sct_tunnel_config: SCTConfiguration = read_configuration(configuration_file)
-        if 'update' in parsedArgs:
-            if parsedArgs.update is True:
-                updateKubeconfigs(sct_tunnel_config.ionos_username, sct_tunnel_config.ionos_password)
         if 'list' in parsedArgs:
             if parsedArgs.list is True:
                 listCluster(sct_tunnel_config)
