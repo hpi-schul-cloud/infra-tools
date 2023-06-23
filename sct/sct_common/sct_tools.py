@@ -1,6 +1,6 @@
 import os, sys, pathlib
 from sct_common.sctexception import SCTException
-from sct_data.shellcmd import ShellCmd
+from sct_data.systemtools import SystemTools, SCT_OS
 import socket    
 
 def sizeof_fmt(num, suffix='B'):
@@ -28,57 +28,64 @@ def get_absolute_path(a_file):
     return a_file_abs
 
 def getSystemtools():
-    sct_sudo = "sudo"
-    sct_hostctl: ShellCmd = ShellCmd()
-    sct_windows = False
-    user_home = ""
+    sct_systemtools: SystemTools = SystemTools()
     ip_addr = "127.0.0.1"
+    user_home = pathlib.Path.home()
+    if user_home == None:
+        sys.exit(1)
     if sys.platform.startswith("linux"):
         # linux or wsl
-        user_home = pathlib.Path.home()
-        if user_home == None:
-            sys.exit(1)
         rc = os.system('uname -a | grep -i microsoft 2>&1 > /dev/null')
         if rc == 0: # wsl or dev-container, booth are using MS generated Linux systems
             rc = os.system('uname -a | grep -i microsoft 2>&1 > /dev/null')
             if not os.environ.get('REMOTE_CONTAINERS'):
-                sct_sudo = "gsudo.exe"
-                sct_hostctl.addArg('gsudo.exe')
-                sct_hostctl.addArg('hostctl.exe')
-                sct_windows = True
+                # WSL
+                sct_systemtools.sudo = "gsudo.exe"
+                sct_systemtools.addArg('gsudo.exe', SCT_OS.WSL2)
+                sct_systemtools.addArg('hostctl.exe', SCT_OS.WSL2)
+                sct_systemtools.os = SCT_OS.WSL2
             else:
                 # Remote container
-                sct_sudo = "sudo"
-                sct_hostctl.addArg('sudo')
-                sct_hostctl.addArg('hostctl')
+                # This will modify the mounted hosts file in WSL2
+                sct_systemtools.sudo = "sudo"
+                sct_systemtools.addArg('sudo', SCT_OS.WSL2)
+                sct_systemtools.addArg('hostctl', SCT_OS.WSL2)
                 hostname = socket.gethostname()    
-                IPAddr = socket.gethostbyname(hostname)
-                sct_hostctl.addArg('--host-file')
+                ip_addr = socket.gethostbyname(hostname)
+                sct_systemtools.addArg('--host-file', SCT_OS.WSL2)
                 sct_hostfile = os.path.join(pathlib.Path.home(),'.hosts')
-                sct_hostctl.addArg(sct_hostfile)
-                sct_hostctl.addArg ('--ip')
-                sct_hostctl.addArg (ip_addr)
+                sct_systemtools.addArg(sct_hostfile, SCT_OS.WSL2)
+                sct_systemtools.addArg ('--ip', SCT_OS.WSL2)
+                sct_systemtools.addArg (ip_addr, SCT_OS.WSL2)
+                sct_systemtools.os = SCT_OS.DEVCONTAINER
+                # Setting the host entry also inside the devcontainer
+                sct_systemtools.addArg('sudo', SCT_OS.DEVCONTAINER)
+                sct_systemtools.addArg('hostctl', SCT_OS.DEVCONTAINER)
         else:
-                sct_sudo = "sudo"
-                sct_hostctl.addArg('sudo')
-                sct_hostctl.addArg('hostctl')
-                sct_windows = False
+            # Plain Linux
+            sct_systemtools.sudo = "sudo"
+            sct_systemtools.addArg('sudo', SCT_OS.LINUX)
+            sct_systemtools.addArg('hostctl', SCT_OS.LINUX)
+            sct_systemtools.os = SCT_OS.LINUX
     elif sys.platform.startswith("win32"):
-        sct_sudo = "gsudo.exe"
-        sct_hostctl.addArg('gsudo.exe')
-        sct_hostctl.addArg('hostctl.exe')
-        sct_windows = True
-    return (sct_sudo, sct_hostctl, sct_windows)
+        # WIndows
+        sct_systemtools.sudo = "gsudo.exe"
+        sct_systemtools.addArg('gsudo.exe', SCT_OS.WINDOWS)
+        sct_systemtools.addArg('hostctl.exe', SCT_OS.WINDOWS)
+        sct_systemtools.os = SCT_OS.WINDOWS
+    else:
+        return None
+    return sct_systemtools
 
 def enableSudochache ():
-    sct_sudo, sct_hostctl, sct_windows = getSystemtools()
-    if sct_windows:
+    sct_systemtools = getSystemtools()
+    if sct_systemtools.os == SCT_OS.WINDOWS:
 #        os.system('{} --loglevel none'.format(sct_sudo))
-        os.system('{} --loglevel none cache on -d -1'.format(sct_sudo))
+        os.system('{} --loglevel none cache on -d -1'.format(sct_systemtools.sudo))
 
 def disableSudochache ():
-    sct_sudo, sct_hostctl, sct_windows = getSystemtools()
-    if sct_windows:
+    sct_systemtools = getSystemtools()
+    if sct_systemtools.os == SCT_OS.WINDOWS:
 #        os.system('{} config --global --reset'.format(sct_sudo))
-        os.system('{} --loglevel none cache off'.format(sct_sudo))
+        os.system('{} --loglevel none cache off'.format(sct_systemtools.sudo))
 
