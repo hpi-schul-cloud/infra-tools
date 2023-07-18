@@ -22,6 +22,8 @@ from sct_logic.list import listCluster
 from sct_logic.update import updateKubeconfigs
 from sct_common.run_command import run_command, run_command_no_output
 from sct_common.sct_tools import *
+from sct_data.systemtools import SCT_OS
+
 
 
 def parseArguments():
@@ -43,6 +45,7 @@ def parseArguments():
   
 if __name__ == '__main__':
     sc_tunnel_config = None
+    sc_hostctl_cmd = None 
     connectThreads: List = []
     openedPorts: Dict = {}
     try:
@@ -113,8 +116,24 @@ if __name__ == '__main__':
                             while cThread.isUp():
                                 continue
                             cThread.join()
-                        sct_sudo, sct_hostctl, sct_windows = setSystemtools()
-                        run_command([sct_sudo, sct_hostctl, 'remove', 'sc'])
+                        sct_systemtools = getSystemtools()
+                        if sct_systemtools.os == SCT_OS.DEVCONTAINER:
+                            sct_removeargs = list()
+                            sct_addargs = sct_systemtools.getArgs(SCT_OS.WSL2)
+                            sct_removeargs.append(sct_addargs[0])
+                            sct_removeargs.append(sct_addargs[1])
+                            sct_removeargs.append(sct_addargs[2])
+                            sct_removeargs.append(sct_addargs[3])
+                            sct_removeargs.append('remove')
+                            sct_removeargs.append('sc')
+                            run_command(sct_removeargs)
+                            sct_systemtools.addArg('remove', SCT_OS.DEVCONTAINER)
+                            sct_systemtools.addArg('sc', SCT_OS.DEVCONTAINER)
+                            run_command(sct_systemtools.getArgs(SCT_OS.DEVCONTAINER))
+                        else:
+                            sct_systemtools.addArg('remove', sct_systemtools.os)
+                            sct_systemtools.addArg('sc', sct_systemtools.os)
+                            run_command(sct_systemtools.getArgs(sct_systemtools.os))
                         disableSudochache()
                         print("Tunneling terminated")
                         break
