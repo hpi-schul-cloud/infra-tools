@@ -1,8 +1,10 @@
+ansible==8.2.0
+ansible-core==2.15.2
 awxkit>=19.4.0
-cryptography >= 3.0
-ipaddress
-jsonpatch
-kubernetes>= 12.0.0
-PyYAML >= 3.11
-requests >= 1.1
-urllib3
+cryptography>=39.0.0
+ipaddress>=1.0.0
+jsonpatch>=1.32
+kubernetes>=12.0.0
+PyYAML>=3.11
+requests>=2.31.0
+urllib3>=1.26.0
