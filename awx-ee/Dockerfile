@@ -1,6 +1,6 @@
 ARG EE_BASE_IMAGE="quay.io/centos/centos:stream8"
-ARG PYCMD="/usr/bin/python3.11"
-ARG PYPKG="python311"
+ARG PYCMD="/usr/bin/python3.9"
+ARG PYPKG="python39"
 ARG PKGMGR_PRESERVE_CACHE=""
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""

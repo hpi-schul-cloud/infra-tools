@@ -11,8 +11,8 @@ dependencies:
   galaxy: _build/requirements.yml
   system: _build/bindep.txt
   python_interpreter:
-    package_system: "python311"
-    python_path: "/usr/bin/python3.11"
+    package_system: "python39"
+    python_path: "/usr/bin/python3.9"
   python: _build/requirements.txt
 additional_build_steps:
   prepend_final: |
