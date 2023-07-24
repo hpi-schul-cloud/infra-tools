@@ -1,10 +1,10 @@
 ARG EE_BASE_IMAGE="quay.io/centos/centos:stream8"
-ARG PYCMD="/usr/bin/python3.9"
-ARG PYPKG="python39"
+ARG PYCMD="/usr/bin/python3.8"
+ARG PYPKG="python38"
 ARG PKGMGR_PRESERVE_CACHE=""
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""
-ARG ANSIBLE_INSTALL_REFS="ansible-core==2.15.2 ansible-runner"
+ARG ANSIBLE_INSTALL_REFS="ansible-core==2.13.7 ansible-runner"
 ARG PKGMGR="/usr/bin/dnf"
 
 # Base build stage
