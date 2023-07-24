@@ -10,5 +10,3 @@ venv
 dbcmetrics/dbcm_config.yaml
 prod-container-list/*.csv
 prod-container-list/*.log
-
-awx-ee/_build/scripts/*
