@@ -4,7 +4,8 @@ In this repository we configure our AWX Execution Environment. An execution envi
 The Dockerfile is automatically create by the execution-environment.yml 
 
 ## Ansible Builder 
-We use Ansible Builder to generate the Dockerfile. Run this commmand and the Dockerfile gets created/updated. 
+We use Ansible Builder to generate the Dockerfile. For the ansible-builder version 3 at least python 3.9 is required. Run this commmand and the Dockerfile gets created/updated. 
+
 ```
 ansible-builder build -c . --tag=<sometag> 
 ```
