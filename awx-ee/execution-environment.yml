@@ -5,7 +5,7 @@ images:
     name: quay.io/centos/centos:stream8
 dependencies:
   ansible_core:
-    package_pip: ansible-core==2.13.7
+    package_pip: ansible-core==2.15.2
   ansible_runner:
     package_pip: ansible-runner==2.2.1
   galaxy: _build/requirements.yml

@@ -4,7 +4,7 @@ ARG PYPKG="python39"
 ARG PKGMGR_PRESERVE_CACHE=""
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""
-ARG ANSIBLE_INSTALL_REFS="ansible-core==2.13.7 ansible-runner==2.2.1"
+ARG ANSIBLE_INSTALL_REFS="ansible-core==2.15.2 ansible-runner==2.2.1"
 ARG PKGMGR="/usr/bin/dnf"
 
 # Base build stage
