@@ -16,7 +16,7 @@ dependencies:
     python_path: "/usr/bin/python3.9"
   python: _build/requirements.txt
 options:
-  user: root
+  user: '1000'
 additional_build_steps:
   prepend_final: |
     ARG HELM_VERSION=3.12.1
@@ -34,5 +34,6 @@ additional_build_steps:
     RUN cd /tmp && curl -LO https://cache.agilebits.com/dist/1P/op2/pkg/v$OP_VERSION/op_linux_amd64_v$OP_VERSION.zip && unzip op_linux_amd64_v$OP_VERSION.zip && install -o root -g root -m 0755 op /usr/local/bin/op
     RUN dnf install -y openssl
     RUN export LANGUAGE="C.UTF-8" 
+    RUN rm /tmp/helm-v$HELM_VERSION-linux-amd64.tar.gz /tmp/op /tmp/op.sig /tmp/op_linux_amd64_v$OP_VERSION.zip /tmp/terraform /tmp/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
   append_final:
     - RUN alternatives --set python /usr/bin/python3
