@@ -14,6 +14,8 @@ dependencies:
     package_system: "python39"
     python_path: "/usr/bin/python3.9"
   python: _build/requirements.txt
+options:
+  user: root
 additional_build_steps:
   prepend_final: |
     ARG HELM_VERSION=3.12.1

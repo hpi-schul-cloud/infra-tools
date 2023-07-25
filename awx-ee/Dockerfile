@@ -103,6 +103,6 @@ RUN echo This is a post-install command!
 RUN alternatives --set python /usr/bin/python3
 RUN rm -rf /output
 LABEL ansible-execution-environment=true
-USER 1000
+USER root
 ENTRYPOINT ["/opt/builder/bin/entrypoint", "dumb-init"]
 CMD ["bash"]
