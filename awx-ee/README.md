@@ -9,6 +9,7 @@ We use Ansible Builder to generate the Dockerfile. For the ansible-builder versi
 ```
 ansible-builder build -c . --tag=<sometag> 
 ```
+The files in the folder _build/scrpt/* are also created and maintained by ansible-builder. 
 
 ## Documentation
 - [Confluence](https://docs.dbildungscloud.de/display/PROD/AWX+Execution+Environment) 
