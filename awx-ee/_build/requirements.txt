@@ -1,5 +1,5 @@
 git+https://github.com/hpi-schul-cloud/infra-tools.git#subdirectory=onepwd
-# ansible==6.2.0
+ansible==8.0.0
 ansible-core==2.15.2
 awxkit>=19.4.0
 cryptography>=39.0.0

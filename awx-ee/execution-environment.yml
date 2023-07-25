@@ -14,6 +14,7 @@ dependencies:
     package_system: "python39"
     python_path: "/usr/bin/python3.9"
   python: _build/requirements.txt
+  # man könnte probieren das als user laufen zu lassen 
 options:
   user: root
 additional_build_steps:
