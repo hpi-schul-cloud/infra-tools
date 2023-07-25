@@ -11,10 +11,10 @@ dependencies:
   galaxy: _build/requirements.yml
   system: _build/bindep.txt
   python_interpreter:
+    # 3.10 is not available and 3.11 has dependency problem with pyyaml (requested by molecule==3.3.4)
     package_system: "python39"
     python_path: "/usr/bin/python3.9"
   python: _build/requirements.txt
-  # man könnte probieren das als user laufen zu lassen 
 options:
   user: root
 additional_build_steps:
