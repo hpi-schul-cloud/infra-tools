@@ -19,6 +19,7 @@ ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
 ARG ANSIBLE_INSTALL_REFS
 ARG PKGMGR
 
+
 RUN $PKGMGR install $PYPKG -y ; if [ -z $PKGMGR_PRESERVE_CACHE ]; then $PKGMGR clean all; fi
 RUN $PYCMD -m ensurepip
 RUN $PYCMD -m pip install --no-cache-dir $ANSIBLE_INSTALL_REFS
