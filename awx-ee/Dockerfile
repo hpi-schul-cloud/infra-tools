@@ -1,6 +1,6 @@
-ARG EE_BASE_IMAGE="quay.io/centos/centos:stream8"
-ARG PYCMD="/usr/bin/python3.9"
-ARG PYPKG="python39"
+ARG EE_BASE_IMAGE="quay.io/centos/centos:stream9"
+ARG PYCMD="/usr/bin/python3.10"
+ARG PYPKG="python310"
 ARG PKGMGR_PRESERVE_CACHE=""
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=""
 ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS=""
@@ -79,18 +79,16 @@ ARG HELM_VERSION=3.12.1
 ARG TERRAFORM_VERSION=1.1.4
 ARG KUBECTL_VERSION=1.23.16
 ARG OP_VERSION=2.18.0
-RUN whoami
-RUN cat /etc/os-release
 RUN pip3 install --upgrade pip setuptools
 RUN dnf install -y unzip
+RUN dnf install -y openssl
 RUN cd /tmp && curl -LO https://releases.hashicorp.com/terraform/$TERRAFORM_VERSION/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && install -o root -g root -m 0755 terraform /usr/local/bin/terraform
 RUN curl -LO https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl
 RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 RUN cd /tmp && curl -LO https://get.helm.sh/helm-v$HELM_VERSION-linux-amd64.tar.gz &&  tar -xf helm-v$HELM_VERSION-linux-amd64.tar.gz && install -o root -g root -m 0755 linux-amd64/helm /usr/local/bin/helm
 RUN cd /tmp && curl -LO https://cache.agilebits.com/dist/1P/op2/pkg/v$OP_VERSION/op_linux_amd64_v$OP_VERSION.zip && unzip op_linux_amd64_v$OP_VERSION.zip && install -o root -g root -m 0755 op /usr/local/bin/op
-RUN dnf install -y openssl
-RUN export LANGUAGE="C.UTF-8" 
 RUN rm /tmp/helm-v$HELM_VERSION-linux-amd64.tar.gz /tmp/op /tmp/op.sig /tmp/op_linux_amd64_v$OP_VERSION.zip /tmp/terraform /tmp/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+RUN export LANGUAGE="C.UTF-8"
 RUN /output/scripts/check_ansible $PYCMD
 
 COPY --from=galaxy /usr/share/ansible /usr/share/ansible
@@ -101,7 +99,7 @@ RUN chmod ug+rw /etc/passwd
 RUN mkdir -p /runner && chgrp 0 /runner && chmod -R ug+rwx /runner
 WORKDIR /runner
 RUN $PYCMD -m pip install --no-cache-dir 'dumb-init==1.2.5'
-RUN alternatives --set python /usr/bin/python3
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 RUN rm -rf /output
 LABEL ansible-execution-environment=true
 USER 1000
