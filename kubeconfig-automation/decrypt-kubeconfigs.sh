@@ -41,7 +41,7 @@ else
     clear_files
     exit 1
   fi
-  openssl pkeyutl -decrypt -inkey privateKey.tmp -in $password -out ${password%.enc} -passin env:TMP_PASSPHRASE || { echo "Decrypting password failed! Are you using the correct key?"; clear_files; exit 1; }
+  openssl pkeyutl -decrypt -passin env:TMP_PASSPHRASE -inkey privateKey.tmp -in $password -out ${password%.enc} || { echo "Decrypting password failed! Are you using the correct key?"; clear_files; exit 1; }
 fi
 
 openssl enc -d -aes-256-cbc -pbkdf2 -in $kubeconfigs -out ${kubeconfigs%.enc} -kfile ${password%.enc} || { echo "Decrypting kubeconfigs failed!"; clear_files; exit 1; }
