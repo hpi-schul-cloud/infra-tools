@@ -1,7 +1,7 @@
 git+https://github.com/hpi-schul-cloud/infra-tools.git#subdirectory=onepwd
 ansible==8.0.0
 ansible-core==2.15.2
-molecule==3.3.4
+molecule==4.0.4
 kubernetes==17.17.0
 ionoscloud==6.1.3
 pyotp==2.6.0
