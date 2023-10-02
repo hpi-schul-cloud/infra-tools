@@ -36,6 +36,6 @@ jobs:
           pip3 install awxkit==${{ inputs.awxkit_version }}
       - name: Run the job
         env:
-          TOWER_OAUTH_TOKEN: ${{ AWX_TOKEN }}
+          TOWER_OAUTH_TOKEN: ${{ secrets.AWX_TOKEN }}
         run: |
           awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} --wait --interval 10
