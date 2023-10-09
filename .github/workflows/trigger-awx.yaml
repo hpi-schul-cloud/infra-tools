@@ -1,0 +1,42 @@
+---
+name: Trigger AWX job
+
+on:
+  workflow_call:
+    inputs:
+      awxkit_version:
+        description: "Version of awxkit to use"
+        required: false
+        default: 23.2.0
+        type: string
+      host:
+        description: "The AWX host to trigger"
+        required: false
+        default: "https://awx.dbildungscloud.de"
+        type: string
+      job_id:
+        description: "The ID of the AWX job to trigger"
+        required: true
+        type: string
+      job_type:
+        description: "Playbook run or check"
+        required: false
+        default: run
+        type: string
+    secrets:
+      AWX_TOKEN:
+        required: true
+
+jobs:
+  run_awx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install awxkit
+        run: |
+          pip3 install awxkit==${{ inputs.awxkit_version }}
+      - name: Run the job
+        env:
+          TOWER_HOST: ${{ inputs.host }}
+          TOWER_OAUTH_TOKEN: ${{ secrets.AWX_TOKEN }}
+        run: |
+          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} --wait --interval 10
