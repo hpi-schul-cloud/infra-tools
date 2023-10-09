@@ -7,7 +7,7 @@ on:
       awxkit_version:
         description: "Version of awxkit to use"
         required: false
-        default: 23.2..0
+        default: 23.2.0
         type: string
       host:
         description: "The AWX host to trigger"
