@@ -155,32 +155,7 @@ s3_backup_configuration:
       backupdrive: False
 
   # Buckets marked as defective are skipped during the backup process.
-  defect_buckets:
-    # change to "defect_buckets: []" if list is empty
-    # OPS-1531: solved
-    #- drivename: hidrivethueringen3
-    #  bucketname: bucket-5e97b98f4fccb20029058807
-    
-    # OPS-2560 Check S3 Backup Status
-    # SerializationError: failed to decode REST XML response
-    
-    # test fix OPS-5235-Fix-STRATO-S3-Backup-exclude-list
-    - drivename: hidrivebrandenburg2
-      bucketname: bucket-5ece4282a631c6002a32d55f
-    # - drivename: hidrive
-    #   bucketname: bucket-5c1b5be388997c0012b9efe5
-    # - drivename: hidrive
-    #   bucketname: bucket-5dcc032c81b60a0036e65ce8
-    # - drivename: hidrive2
-    #   bucketname: bucket-5e8b2b1c27d0b30029982ce8
-    # - drivename: hidrive2
-    #   bucketname: bucket-5e8b3a41fe4da60029feefa5
-    # - drivename: hidrive2
-    #   bucketname: bucket-5e8dc04969cb76002946c22e
-    # - drivename: hidrive3
-    #   bucketname: bucket-5ef4582c381e5b00291e9331
-    # - drivename: hidrivethueringen
-    #   bucketname: bucket-5e8bdc0fc6ed86002ac9dea1
+  defect_buckets: []
   # Files marked as defective are skipped during the backup process.
   # Will be passed to rclone as exclusion.
   defect_files:
