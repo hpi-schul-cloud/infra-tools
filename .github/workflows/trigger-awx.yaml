@@ -39,4 +39,7 @@ jobs:
           TOWER_HOST: ${{ inputs.host }}
           TOWER_OAUTH_TOKEN: ${{ secrets.AWX_TOKEN }}
         run: |
-          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} --wait --interval 10
+          # Needed to keep the exit code of the AWX command after piping the output to jq
+          set -o pipefail
+          # Only keep job URL and job status
+          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} --wait --interval 10 | jq '{"url": "https://awx.dbildungscloud.de/#/jobs/\(.job)", "status": .status }'
