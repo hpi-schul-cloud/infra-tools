@@ -29,11 +29,11 @@ on:
         required: false
         default: ''
         type: string
-      # branch:
-      #   description: "Optional branch override"
-      #   required: false
-      #   default: ""
-      #   type: string
+      scm_branch:
+        description: "Optional branch override"
+        required: false
+        default: ""
+        type: string
     secrets:
       AWX_TOKEN:
         required: true
@@ -48,6 +48,9 @@ jobs:
       - name: Set limit flag env
         run: echo "LIMIT_FLAG=--limit ${{ inputs.limit }}" >> $GITHUB_ENV
         if: ${{ inputs.limit != '' }}
+      - name: Set scm_branch flag env
+        run: echo "SCM_BRANCH_FLAG=--limit ${{ inputs.scm_branch }}" >> $GITHUB_ENV
+        if: ${{ inputs.scm_branch != '' }}
       - name: Run the job
         env:
           TOWER_HOST: ${{ inputs.host }}
@@ -57,4 +60,4 @@ jobs:
           set -o pipefail
           # Only keep job URL, job status and detail which contains error messages
           # We don't use the awx jq output format because it doesn't show error messages
-          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} $LIMIT_FLAG --wait --interval 10 | jq '{"url": "https://awx.dbildungscloud.de/#/jobs/\(.job)", "status": .status, "detail": .detail }'
+          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} $LIMIT_FLAG $SCM_BRANCH_FLAG --wait --interval 10 | jq '{"url": "https://awx.dbildungscloud.de/#/jobs/\(.job)", "status": .status, "detail": .detail }'
