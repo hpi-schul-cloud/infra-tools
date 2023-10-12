@@ -31,7 +31,7 @@ jobs:
   run_awx:
     runs-on: ubuntu-latest
     steps:
-      - name: Pip nstall awxkit and jq
+      - name: Pip install awxkit and jq
         run: |
           pip3 install awxkit==${{ inputs.awxkit_version }} jq
       - name: Run the job
@@ -41,5 +41,5 @@ jobs:
         run: |
           # Needed to keep the exit code of the AWX command after piping the output to jq
           set -o pipefail
-          # Only keep job URL and job status
-          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} --wait --interval 10 -f jq --filter '{"url": "https://awx.dbildungscloud.de/#/jobs/\(.job)", "status": .status }'
+          # Only keep job URL, job status and detail which contains error messages
+          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} --wait --interval 10 -f jq --filter '{"url": "https://awx.dbildungscloud.de/#/jobs/\(.job)", "status": .status, "detail": .detail }'
