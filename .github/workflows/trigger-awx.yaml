@@ -49,7 +49,7 @@ jobs:
         run: echo "LIMIT_FLAG=--limit ${{ inputs.limit }}" >> $GITHUB_ENV
         if: ${{ inputs.limit != '' }}
       - name: Set scm_branch flag env
-        run: echo "SCM_BRANCH_FLAG=--limit ${{ inputs.scm_branch }}" >> $GITHUB_ENV
+        run: echo "SCM_BRANCH_FLAG=--scm_branch ${{ inputs.scm_branch }}" >> $GITHUB_ENV
         if: ${{ inputs.scm_branch != '' }}
       - name: Run the job
         env:
