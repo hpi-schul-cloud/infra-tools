@@ -27,7 +27,7 @@ on:
       limit:
         description: "Optional limit override, if empty uses the job default, not all hosts"
         required: false
-        default: ""
+        default: ''
         type: string
       # branch:
       #   description: "Optional branch override"
@@ -47,7 +47,7 @@ jobs:
           pip3 install awxkit==${{ inputs.awxkit_version }}
       - name: Set limit flag env
         run: echo "LIMIT_FLAG=--limit ${{ inputs.limit }}" >> $GITHUB_ENV
-        if: ${{ inputs.limit != "" }}
+        if: ${{ inputs.limit != '' }}
       - name: Run the job
         env:
           TOWER_HOST: ${{ inputs.host }}
