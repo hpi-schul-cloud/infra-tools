@@ -31,9 +31,9 @@ jobs:
   run_awx:
     runs-on: ubuntu-latest
     steps:
-      - name: Install awxkit
+      - name: Pip nstall awxkit and jq
         run: |
-          pip3 install awxkit==${{ inputs.awxkit_version }}
+          pip3 install awxkit==${{ inputs.awxkit_version }} jq
       - name: Run the job
         env:
           TOWER_HOST: ${{ inputs.host }}
