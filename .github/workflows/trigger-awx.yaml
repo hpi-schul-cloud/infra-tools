@@ -60,7 +60,7 @@ jobs:
       - name: Set extra_vars flag env
         env:
           EXTRA_VARS: ${{ inputs.extra_vars }}
-        run: echo "EXTRA_VARS_FLAG=--extra_vars $(echo $EXTRA_VARS | jq -c .)" >> $GITHUB_ENV
+        run: echo "EXTRA_VARS_FLAG=--extra_vars '$(echo $EXTRA_VARS | jq -c .)'" >> $GITHUB_ENV
         if: ${{ inputs.extra_vars != '' }}
       - name: Run the job
         env:
