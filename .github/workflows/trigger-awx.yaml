@@ -19,6 +19,7 @@ on:
         required: true
         type: string
       # The following inputs allow overriding job settings, this only works if the AWX job allows this, otherwise they are ignored
+      # When using this keep in mind what an attacker could do with a compromised token and setup your jobs to restrict this as much as possible
       job_type:
         description: "Playbook run or check"
         required: false
@@ -31,6 +32,11 @@ on:
         type: string
       scm_branch:
         description: "Optional branch override"
+        required: false
+        default: ""
+        type: string
+      extra_vars:
+        description: "Optional extra variables, must be valid json"
         required: false
         default: ""
         type: string
@@ -51,6 +57,11 @@ jobs:
       - name: Set scm_branch flag env
         run: echo "SCM_BRANCH_FLAG=--scm_branch ${{ inputs.scm_branch }}" >> $GITHUB_ENV
         if: ${{ inputs.scm_branch != '' }}
+      - name: Set extra_vars flag env
+        env:
+          EXTRA_VARS: ${{ inputs.extra_vars }}
+        run: echo "EXTRA_VARS_FLAG=--extra_vars $(echo $EXTRA_VARS | jq -c .)" >> $GITHUB_ENV
+        if: ${{ inputs.extra_vars != '' }}
       - name: Run the job
         env:
           TOWER_HOST: ${{ inputs.host }}
@@ -60,4 +71,4 @@ jobs:
           set -o pipefail
           # Only keep job URL, job status and detail which contains error messages
           # We don't use the awx jq output format because it doesn't show error messages
-          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} $LIMIT_FLAG $SCM_BRANCH_FLAG --wait --interval 10 | jq '{"url": "https://awx.dbildungscloud.de/#/jobs/\(.job)", "status": .status, "detail": .detail }'
+          awx job_template launch ${{ inputs.job_id }} --job_type ${{ inputs.job_type }} $LIMIT_FLAG $SCM_BRANCH_FLAG $EXTRA_VARS_FLAG --wait --interval 10 | jq '{"url": "https://awx.dbildungscloud.de/#/jobs/\(.job)", "status": .status, "detail": .detail }'
