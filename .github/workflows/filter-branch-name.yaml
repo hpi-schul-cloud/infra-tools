@@ -10,10 +10,8 @@ on:
         type: string
     outputs:
       ticket:
-        type: string
         value: ${{ jobs.job.outputs.ticket }}
       scope:
-        type: string
         value: ${{ jobs.job.outputs.ticket }}
 
 jobs:
