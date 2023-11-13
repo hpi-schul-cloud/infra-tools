@@ -12,20 +12,17 @@ on:
       ticket:
         value: ${{ jobs.job.outputs.ticket }}
       scope:
-        value: ${{ jobs.job.outputs.ticket }}
+        value: ${{ jobs.job.outputs.scope }}
 
 jobs:
   job:
     runs-on: ubuntu-latest
     outputs:
-      ticket: ${{ steps.ticket.outputs.ticket }}
-      scope: ${{ steps.scope.outputs.scope }}
+      ticket: ${{ steps.step.outputs.ticket }}
+      scope: ${{ steps.step.outputs.scope }}
     steps:
-      - name: Filter ticket
-        id: ticket
+      - name: Filter branch name
+        id: step
         run: |
           echo "ticket=$(echo ${{ inputs.branch_name }} | grep -oE '[a-zA-Z]+-[0-9]+')" >> $GITHUB_OUTPUT
-      - name: Filter scope
-        id: scope
-        run: |
           echo "scope=$(echo ${{ inputs.branch_name }} | grep -oE '[a-zA-Z]+-[0-9]+-[a-z]+' | grep -oE '[a-z]+$')" >> $GITHUB_OUTPUT
