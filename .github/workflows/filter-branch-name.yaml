@@ -1,0 +1,30 @@
+---
+name: Filter branch name for ticket and scope
+
+on:
+  workflow_call:
+    inputs:
+      branch_name:
+        description: "Branch name to filter"
+        required: true
+        type: string
+    outputs:
+      ticket:
+        type: string
+        value: ${{ jobs.job.outputs.ticket }}
+      scope:
+        type: string
+        value: ${{ jobs.job.outputs.ticket }}
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    outputs:
+      ticket: ${{ steps.step.outputs.ticket }}
+      scope: ${{ steps.step.outputs.scope }}
+    steps:
+      - name: Filter branch name
+        id: step
+        run: |
+          echo "ticket=$(echo ${{ inputs.branch_name }} | grep -oE '[a-zA-Z]+-[0-9]+')" >> $GITHUB_OUTPUT
+          echo "scope=$(echo ${{ inputs.branch_name }} | grep -oE '[a-zA-Z]+-[0-9]+-[a-z]+' | grep -oE '[a-z]+$')" >> $GITHUB_OUTPUT
