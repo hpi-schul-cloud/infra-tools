@@ -29,4 +29,5 @@ jobs:
         run: |
           # Only keep Ansible in the pip requirements
           pip3 install $(grep ansible $GITHUB_WORKSPACE/${{ inputs.requirements_file }})
+          echo "count=$(ansible-inventory -i $GITHUB_WORKSPACE/${{ inputs.inventory_file }} --list -l ${{ inputs.limit }} | jq -e '._meta.hostvars | keys | length')"
           echo "count=$(ansible-inventory -i $GITHUB_WORKSPACE/${{ inputs.inventory_file }} --list -l ${{ inputs.limit }} | jq -e '._meta.hostvars | keys | length')" >> $GITHUB_OUTPUT
