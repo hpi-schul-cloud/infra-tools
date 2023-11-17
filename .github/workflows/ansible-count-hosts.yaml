@@ -1,0 +1,35 @@
+---
+name: Count Ansible hosts
+
+on:
+  workflow_call:
+    inputs:
+      inventory_file:
+        type: string
+        description: "Relative path to the inventory file in the repository"
+        required: true
+      limit:
+        type: string
+        description: "Ansible limit that will have its hosts counted"
+        required: true
+      requirements_file:
+        type: string
+        description: "Relative path to the requirements file containing the Ansible version"
+        default: requirements.txt
+    outputs:
+      count:
+        value: ${{ jobs.job.outputs.count }}
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.count_hosts.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Count hosts in limit
+        id: count_hosts
+        run: |
+          # Only keep Ansible in the pip requirements
+          pip3 install $(grep ansible $GITHUB_WORKSPACE/${{ inputs.requirements_file }})
+          echo "count=$(ansible-inventory -i $GITHUB_WORKSPACE/${{ inputs.inventory_file }} --list -l ${{ inputs.limit }} | jq -e '._meta.hostvars | keys | length')" >> $GITHUB_OUTPUT
