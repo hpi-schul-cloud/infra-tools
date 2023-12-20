@@ -21,7 +21,7 @@ additional_build_steps:
   prepend_final: |
     ARG HELM_VERSION=3.13.2
     ARG TERRAFORM_VERSION=1.6.3
-    ARG KUBECTL_VERSION=1.26.10
+    ARG KUBECTL_VERSION=1.26.11
     ARG OP_VERSION=2.22.0
     RUN pip3 install --upgrade pip setuptools
     RUN dnf install -y unzip
