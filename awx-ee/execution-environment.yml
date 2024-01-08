@@ -19,10 +19,10 @@ options:
   user: '1000'
 additional_build_steps:
   prepend_final: |
-    ARG HELM_VERSION=3.13.2
-    ARG TERRAFORM_VERSION=1.6.3
+    ARG HELM_VERSION=3.13.3
+    ARG TERRAFORM_VERSION=1.6.6
     ARG KUBECTL_VERSION=1.26.11
-    ARG OP_VERSION=2.22.0
+    ARG OP_VERSION=2.24.0
     RUN pip3 install --upgrade pip setuptools
     RUN dnf install -y unzip
     RUN dnf install -y openssl
