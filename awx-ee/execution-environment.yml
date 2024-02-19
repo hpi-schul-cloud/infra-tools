@@ -21,7 +21,7 @@ additional_build_steps:
   prepend_final: |
     ARG HELM_VERSION=3.13.3
     ARG TERRAFORM_VERSION=1.6.6
-    ARG KUBECTL_VERSION=1.26.11
+    ARG KUBECTL_VERSION=1.27.10
     ARG OP_VERSION=2.24.0
     RUN pip3 install --upgrade pip setuptools
     RUN dnf install -y unzip
@@ -33,5 +33,7 @@ additional_build_steps:
     RUN cd /tmp && curl -LO https://cache.agilebits.com/dist/1P/op2/pkg/v$OP_VERSION/op_linux_amd64_v$OP_VERSION.zip && unzip op_linux_amd64_v$OP_VERSION.zip && install -o root -g root -m 0755 op /usr/local/bin/op
     RUN rm /tmp/helm-v$HELM_VERSION-linux-amd64.tar.gz /tmp/op /tmp/op.sig /tmp/op_linux_amd64_v$OP_VERSION.zip /tmp/terraform /tmp/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     RUN export LANGUAGE="C.UTF-8" 
+    # mitigate CVEs
+    RUN 
   append_final:
     - RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
