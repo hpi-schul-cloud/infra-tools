@@ -101,8 +101,6 @@ RUN mkdir -p /runner && chgrp 0 /runner && chmod -R ug+rwx /runner
 WORKDIR /runner
 RUN $PYCMD -m pip install --no-cache-dir 'dumb-init==1.2.5'
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
-RUN pip install cryptography==42.0.4
-RUN pip install pyOpenSSL==24.0.0
 RUN rm -rf /output
 LABEL ansible-execution-environment=true
 USER 1000
