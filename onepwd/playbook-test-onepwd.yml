@@ -68,13 +68,10 @@
                 value: "12345!&hello"
                 overwrite: False
           register: op
-        - name: Item already exists, overwrite False, do not add field
+        - name: Item already exists, Field already exists, field overwrite False, do not add field
           assert:
             that:
               - not op.changed
-              - op.item is defined
-              - field.label == 'password_add'
-              - field.value == '12345!&'
         - name: Field have the correct values
           vars:
             fields:
