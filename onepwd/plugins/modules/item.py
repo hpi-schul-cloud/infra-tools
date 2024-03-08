@@ -6,7 +6,7 @@ short_description: Manage 1Password items
 description:
   - Create 1Password items
   - Add and remove fields
-version_added: 2.12.4
+version_added: 2.13.0
 author: DBC SRE Team
 options:
   vault:
