@@ -43,7 +43,16 @@ class ActionModule(ActionBase):
     def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, generate_password, overwrite, check):
         assignment_statements = ""
         for field in fields:
-            assignment_statements += " " + onepwd.build_assignment_statement(field)
+            if 'overwrite' in field and field['overwrite'] is False:
+                labels = op.get('item', item_name=name, vault=vault)
+                label_existing  = False
+                for element in labels["fields"]:
+                    if field['name'] == element["label"]:
+                        label_existing = True
+                if not label_existing:
+                    assignment_statements += " " + onepwd.build_assignment_statement(field)
+            else:
+                assignment_statements += " " + onepwd.build_assignment_statement(field)
 
         result = {}
         diff = {}

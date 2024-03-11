@@ -6,7 +6,7 @@ short_description: Manage 1Password items
 description:
   - Create 1Password items
   - Add and remove fields
-version_added: 2.12.3
+version_added: 2.13.0
 author: DBC SRE Team
 options:
   vault:
@@ -39,7 +39,8 @@ options:
   fields:
     description:
       - Fields to add/remove from the item, see https://developer.1password.com/docs/cli/reference/management-commands/item/#item-edit
-      - Supported properties are name, type, value, section
+      - Supported properties are name, type, value, section, overwrite 
+      - The overwrite on a single field only applies to that one field (useful for randomly generated password)
     type: list
     default: []
   session_shorthand:
@@ -71,6 +72,7 @@ EXAMPLES = r'''
       - name: admin_password
         type: password
         value: password123
+        overwrite: False
       - section: Section 1
         name: username
         type: text

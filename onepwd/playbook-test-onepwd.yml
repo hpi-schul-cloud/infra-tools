@@ -58,6 +58,20 @@
               - op.item.title == 'create-test'
               - op.item.category | lower == 'password'
               - op.item.fields | length >= 2
+        - name: Item already exists, field already exists (overwrite set to False)
+          dbildungscloud.onepwd.item:
+            vault: Private
+            name: create-test
+            fields:
+              - name: password_add
+                type: password
+                value: "12345!&hello"
+                overwrite: False
+          register: op
+        - name: Item already exists, Field already exists, field overwrite False, do not add field
+          assert:
+            that:
+              - not op.changed
         - name: Field have the correct values
           vars:
             fields:
