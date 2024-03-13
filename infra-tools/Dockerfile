@@ -14,6 +14,8 @@ RUN set -x \
     && apt-get -y install wget gnupg \
     && wget -qO - https://pgp.mongodb.com/server-4.4.asc | gpg -o /usr/share/keyrings/mongodb-server-4.4.gpg --dearmor \
     && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-4.4.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+    && echo "deb https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc > /etc/apt/trusted.gpg.d/postgres.asc \
     && apt-get -y update \
     && apt-get -y install \
         curl \
@@ -35,7 +37,7 @@ RUN set -x \
         gpg \
         duply \
         python3-boto3 \
-        postgresql-client \
+        postgresql-client-16 \
         procps \
         screen \
         tmux \
