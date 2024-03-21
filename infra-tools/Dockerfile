@@ -37,7 +37,7 @@ RUN set -x \
         gpg \
         duply \
         python3-boto3 \
-        postgresql-client-16 \
+        postgresql-client-15 \
         procps \
         screen \
         tmux \
