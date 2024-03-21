@@ -11,10 +11,10 @@ on:
 jobs:
   build_image_on_push:
     permissions:
-        packages: write
-        security-events: write
-        actions: read
-        contents: read
+      packages: write
+      security-events: write
+      actions: read
+      contents: read
     uses: ./.github/workflows/imagetoghcr-on-push.yaml
     with:
       image_name: "infra-tools"
