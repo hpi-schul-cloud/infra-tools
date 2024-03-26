@@ -62,14 +62,20 @@ jobs:
       # Pushing to GHCR needs "ghcr.io/" before image name but dockerhub needs the image name without a prefix
       - name: Compute image name
         if: inputs.registry == 'ghcr.io'
-        id: image_ghcr_prefix
+        id: image_prefix
         run: echo "prefix=ghcr.io/" >> $GITHUB_OUTPUT
+
+      # Pushing to quay.io needs "quay.io/" before image name but dockerhub needs the image name without a prefix
+      - name: Compute image name
+        if: inputs.registry == 'quay.io'
+        id: image_prefix
+        run: echo "prefix=quay.io/" >> $GITHUB_OUTPUT
 
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img_hub
         uses: docker/metadata-action@v3
         with:
-          images: ${{ steps.image_ghcr_prefix.outputs.prefix }}${{ inputs.image }}
+          images: ${{ steps.image_prefix.outputs.prefix }}${{ inputs.image }}
           tags: |
             type=semver,pattern={{version}},value=${{ inputs.tag }},prefix=${{ inputs.prefix }},suffix=${{ inputs.suffix }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }},prefix=${{ inputs.prefix }}
