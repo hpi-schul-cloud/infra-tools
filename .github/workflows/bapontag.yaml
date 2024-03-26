@@ -31,7 +31,6 @@ jobs:
   
   build_and_push:
     needs: pre_build
-    if: false
     uses: ./.github/workflows/build-and-push.yaml
     with:
       image: schulcloud/${{ needs.pre_build.outputs.tagName }}
