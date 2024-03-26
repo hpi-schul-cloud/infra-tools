@@ -65,9 +65,9 @@ jobs:
       - name: Compute image name
         id: image_prefix
         run: | 
-          if [[ inputs.registry == 'ghcr.io' ]]; then
+          if [[ "${{ inputs.registry }}" == 'ghcr.io' ]]; then
             echo "prefix=ghcr.io/" >> $GITHUB_OUTPUT
-          elif [[ inputs.registry == 'quay.io' ]]; then
+          elif [[ "${{ inputs.registry }}" == 'quay.io' ]]; then
             echo "prefix=quay.io/" >> $GITHUB_OUTPUT
           fi
 
