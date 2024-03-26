@@ -28,6 +28,7 @@ jobs:
         with:
           tagRegex: "${{ steps.tagName.outputs.tag }}-(.*)"   # unabhängig von dbmetrics und infra-tools gives name
           tagRegexGroup: 1
+  
   build_and_push:
     needs: pre_build
     uses: ./.github/workflows/build-and-push.yaml
@@ -38,3 +39,16 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  
+  build_and_push_to_quay:
+    needs: pre_build
+    if: ${{ needs.pre_build.outputs.tagName }} == 'infra-tools'
+    uses: ./.github/workflows/build-and-push.yaml
+    with:
+      registry: quay.io
+      image: schulcloudverbund/${{ needs.pre_build.outputs.tagName }}
+      tag: ${{ needs.pre_build.outputs.versionName }}
+      context: ./${{ needs.pre_build.outputs.tagName }}/
+    secrets:
+      QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+      QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
