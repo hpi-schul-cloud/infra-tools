@@ -47,6 +47,7 @@ jobs:
     permissions:
       packages: write
       contents: read
+      security-events: write
     with:
       image_name: ${{ needs.pre_build.outputs.nameTag }}
       container_registry: ${{ needs.pre_build.outputs.registries }}
