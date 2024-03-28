@@ -12,43 +12,51 @@ jobs:
   pre_build:
     runs-on: ubuntu-latest
     outputs:
-      tagName: ${{ steps.tagName.outputs.tag }}
-      versionName: ${{ steps.versionName.outputs.tag }}
+      nameTag: ${{ steps.nameTag.outputs.tag }}
+      versionTag: ${{ steps.versionTag.outputs.tag }}
+      registries: ${{ steps.registries.outputs.registries }}
     steps:
       - name: Filter Tag name
         uses: olegtarasov/get-tag@v2.1
-        id: tagName
+        id: nameTag
         with:
           tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name
           tagRegexGroup: 1
 
       - name: Filter Version name
         uses: olegtarasov/get-tag@v2.1
-        id: versionName
+        id: versionTag
         with:
-          tagRegex: "${{ steps.tagName.outputs.tag }}-(.*)"   # unabhängig von dbmetrics und infra-tools gives name
+          tagRegex: "${{ steps.nameTag.outputs.tag }}-(.*)"   # unabhängig von dbmetrics und infra-tools gives name
           tagRegexGroup: 1
+      
+      - name: Determine registries
+        id: registries
+        run: |
+          if [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools' ]]; then
+            echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'dbcmetrics' ]]; then
+            echo "registries=dockerhub" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
+            echo "registries=dockerhub" >> $GITHUB_OUTPUT
+          fi
   
   build_and_push:
     needs: pre_build
-    uses: ./.github/workflows/build-and-push.yaml
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@OPS-6222-enable-multi-registry-pushes
+    permissions:
+      packages: write
+      contents: read
     with:
-      image: schulcloud/${{ needs.pre_build.outputs.tagName }}
-      tag: ${{ needs.pre_build.outputs.versionName }}
-      context: ./${{ needs.pre_build.outputs.tagName }}/
+      image_name: ${{ needs.pre_build.outputs.nameTag }}
+      container_registry: ${{ needs.pre_build.outputs.registries }}
+      dockerhub_repository_owner: "schucloud"
+      quay_repository_owner: "schulcloudverbund"
+      add_latest_tag: false # while testing
+      custom_image_tag: ${{ needs.pre_build.outputs.versionTag }}
+      run_trivy_scan: false
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  
-  build_and_push_to_quay:
-    needs: pre_build
-    if: ${{ needs.pre_build.outputs.tagName }} == 'infra-tools'
-    uses: ./.github/workflows/build-and-push.yaml
-    with:
-      registry: quay.io
-      image: schulcloudverbund/${{ needs.pre_build.outputs.tagName }}
-      tag: ${{ needs.pre_build.outputs.versionName }}
-      context: ./${{ needs.pre_build.outputs.tagName }}/
-    secrets:
       QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-      QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+      QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}      
