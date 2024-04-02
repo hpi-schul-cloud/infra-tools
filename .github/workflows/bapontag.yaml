@@ -56,6 +56,7 @@ jobs:
       add_latest_tag: false # while testing
       image_tag_generation: "version_custom_git_tag"
       custom_image_tag: ${{ needs.pre_build.outputs.versionTag }}
+      context: ${{ needs.pre_build.outputs.nameTag }}
       run_trivy_scan: false
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
