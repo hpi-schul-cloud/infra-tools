@@ -54,7 +54,7 @@ jobs:
       dockerhub_repository_owner: "schucloud"
       quay_repository_owner: "schulcloudverbund"
       add_latest_tag: false # while testing
-      image_tag_generation: "version_git_tag"
+      image_tag_generation: "version_custom_git_tag"
       custom_image_tag: ${{ needs.pre_build.outputs.versionTag }}
       run_trivy_scan: false
     secrets:
