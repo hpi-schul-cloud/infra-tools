@@ -51,7 +51,7 @@ jobs:
     with:
       image_name: ${{ needs.pre_build.outputs.nameTag }}
       container_registry: ${{ needs.pre_build.outputs.registries }}
-      dockerhub_repository_owner: "schucloud"
+      dockerhub_repository_owner: "schulcloud"
       quay_repository_owner: "schulcloudverbund"
       add_latest_tag: false # while testing
       image_tag_generation: "version_custom_git_tag"
