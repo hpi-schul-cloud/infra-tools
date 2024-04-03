@@ -34,7 +34,7 @@ jobs:
         id: registries
         run: |
           if [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools' ]]; then
-            echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
+            echo "registries=dockerhub,quay.io,ghcr.io" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'dbcmetrics' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
