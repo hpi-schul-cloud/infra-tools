@@ -34,7 +34,7 @@ jobs:
         id: registries
         run: |
           if [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools' ]]; then
-            echo "registries=dockerhub,quay.io,ghcr.io" >> $GITHUB_OUTPUT
+            echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'dbcmetrics' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
@@ -52,11 +52,11 @@ jobs:
       image_name: ${{ needs.pre_build.outputs.nameTag }}
       container_registry: ${{ needs.pre_build.outputs.registries }}
       dockerhub_repository_owner: "schulcloud"
-      # quay_repository_owner: "schulcloudverbund"
+      quay_repository_owner: "schulcloudverbund"
       add_latest_tag: false # while testing
       image_tag_generation: "mmp_git_tag"
       context: ${{ needs.pre_build.outputs.nameTag }}
-      run_trivy_scan: false
+      run_trivy_scan: true
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
