@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       nameTag: ${{ steps.nameTag.outputs.tag }}
-      versionTag: ${{ steps.versionTag.outputs.tag }}
       registries: ${{ steps.registries.outputs.registries }}
     steps:
       - name: Filter Tag name
@@ -21,13 +20,6 @@ jobs:
         id: nameTag
         with:
           tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name
-          tagRegexGroup: 1
-
-      - name: Filter Version name
-        uses: olegtarasov/get-tag@v2.1
-        id: versionTag
-        with:
-          tagRegex: "${{ steps.nameTag.outputs.tag }}-(.*)"   # unabhängig von dbmetrics und infra-tools gives name
           tagRegexGroup: 1
       
       - name: Determine registries
