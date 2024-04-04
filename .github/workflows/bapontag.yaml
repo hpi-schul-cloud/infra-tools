@@ -35,7 +35,7 @@ jobs:
   
   build_and_push:
     needs: pre_build
-    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@OPS-6222-enable-multi-registry-pushes
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@6
     permissions:
       packages: write
       contents: read
@@ -45,10 +45,10 @@ jobs:
       container_registry: ${{ needs.pre_build.outputs.registries }}
       dockerhub_repository_owner: "schulcloud"
       quay_repository_owner: "schulcloudverbund"
-      add_latest_tag: false # while testing
-      image_tag_generation: "mmp_git_tag"
+      add_latest_tag: true
+      image_tag_generation: "mmp_git_tag,mm_git_tag"
       context: ${{ needs.pre_build.outputs.nameTag }}
-      run_trivy_scan: true
+      run_trivy_scan: false
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
