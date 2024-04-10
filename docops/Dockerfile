@@ -29,6 +29,8 @@ RUN \
     curl -Lo dtcw https://doctoolchain.org/dtcw && \
     chmod +x ./dtcw && \
     ./dtcw install doctoolchain; \
-    ./dtcw install java;
+    ./dtcw install java; \
+    # Install community.general collection, it contains the 'archive' module used in the doctoolchain playbook
+    ansible-galaxy collection install community.general;
 
 CMD ["/bin/bash"]
