@@ -4,7 +4,7 @@ USER root
 
 RUN \
     # Add non-privileged user
-    adduser docops --uid 1001 --gid 0 && \
+    adduser docops --uid 1000 --gid 0 && \
     # Install drawio
     dnf install -y wget && \
     mkdir /home/docops/drawio && \
