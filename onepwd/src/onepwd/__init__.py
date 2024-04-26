@@ -27,8 +27,8 @@ class UnauthorizedError(Exception):
 
 
 class MissingCredentialsError(Exception):
-    def __init__(self, missing_keys: str, code=None):
-        message = f'Missing credentials to login to 1password: {missing_keys}'
+    def __init__(self, missing_keys: str, extra_message=None, code=None):
+        message = f'Missing credentials to login to 1password: {missing_keys}{f" ({extra_message})" if extra_message else ""}'
         super().__init__(message)
 
 
@@ -314,19 +314,13 @@ def get_optional_flag(**kwargs):
 
 def get_op_login():
     if not os.environ.get("OP_EMAIL"):
-        raise MissingCredentialsError('OP_EMAIL')
+        raise MissingCredentialsError('OP_EMAIL', extra_message="Check if env vars are set up properly")
     if not os.environ.get("OP_PASSWORD"):
-        raise MissingCredentialsError('OP_PASSWORD')
+        raise MissingCredentialsError('OP_PASSWORD', extra_message="Check if env vars are set up properly")
     if not os.environ.get("OP_SUBDOMAIN"):
-        raise MissingCredentialsError('OP_SUBDOMAIN')
+        raise MissingCredentialsError('OP_SUBDOMAIN', extra_message="Check if env vars are set up properly")
     if not os.environ.get("OP_SECRET_KEY"):
-        raise MissingCredentialsError('OP_SECRET_KEY')
-    twofact_token=os.environ.get("OP_2FA_TOKEN", "")
-    return {"password": os.environ.get("OP_PASSWORD"),
-             "email": os.environ.get("OP_EMAIL"),
-             "signin_address": os.environ.get("OP_SUBDOMAIN"),
-             "secret_key": os.environ.get("OP_SECRET_KEY"),
-             "2fa_token": twofact_token}
+        raise MissingCredentialsError('OP_SECRET_KEY', extra_message="Check if env vars are set up properly")
 
 def convert_dot_notation(key, val) -> dict:
     split_list = key.split('.')
