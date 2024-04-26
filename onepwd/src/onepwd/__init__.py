@@ -6,7 +6,6 @@ import subprocess
 from sys import path
 import time
 from uuid import uuid4
-import sys
 import pexpect
 import argparse
 import yaml
