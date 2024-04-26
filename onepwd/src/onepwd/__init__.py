@@ -29,6 +29,8 @@ class UnauthorizedError(Exception):
 
 class MissingCredentialsError(Exception):
     def __init__(self, missing_keys: str, code=None):
+        message = f'Missing credentials to login to 1password: {missing_keys}'
+        super().__init__(message)
 
 
 class SigninFailureError(Exception):
@@ -313,13 +315,13 @@ def get_optional_flag(**kwargs):
 
 def get_op_login():
     if not os.environ.get("OP_EMAIL"):
-        sys.exit("Please define OP_EMAIL environment variable")
+        raise MissingCredentialsError('OP_EMAIL')
     if not os.environ.get("OP_PASSWORD"):
-        sys.exit("Please define OP_PASSWORD environment variable")
+        raise MissingCredentialsError('OP_PASSWORD')
     if not os.environ.get("OP_SUBDOMAIN"):
-        sys.exit("Please define OP_SUBDOMAIN environment variable")
+        raise MissingCredentialsError('OP_SUBDOMAIN')
     if not os.environ.get("OP_SECRET_KEY"):
-        sys.exit("Please define OP_SECRET_KEY environment variable")
+        raise MissingCredentialsError('OP_SECRET_KEY')
     twofact_token=os.environ.get("OP_2FA_TOKEN", "")
     return {"password": os.environ.get("OP_PASSWORD"),
              "email": os.environ.get("OP_EMAIL"),
