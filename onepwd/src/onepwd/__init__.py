@@ -55,7 +55,7 @@ class InvalidOnePwdVersion(Exception):
 
 class OnePwd(object):
 
-    def __init__(self, secret=None, shorthand=None, bin_path="", session_timeout=30):
+    def __init__(self, secret, shorthand=None, bin_path="", session_timeout=30):
         self.op = os.path.join(bin_path, "op")
         self.session_timeout=session_timeout
         self.session_token=None
@@ -65,14 +65,11 @@ class OnePwd(object):
         else:
             self.shorthand=shorthand
         self.session_file=os.path.join(self.session_dir, self.shorthand)
-        if secret is not None:
-            self.create_session_dir()
-            self.session_token = self.retrieve_cached_token()
-            if self.session_token is None:
-                self.session_token = self.signin(secret, shorthand=self.shorthand)
-            self.cache_token()
-        else:
-            raise MissingCredentials()
+        self.create_session_dir()
+        self.session_token = self.retrieve_cached_token()
+        if self.session_token is None:
+            self.session_token = self.signin(secret, shorthand=self.shorthand)
+        self.cache_token()
             
         check_version = self.get_version()
         split_version=check_version.split(".")
