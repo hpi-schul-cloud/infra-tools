@@ -32,7 +32,7 @@ class MissingCredentialsError(Exception):
         super().__init__(message)
 
 
-class SigninFailureError(Exception):
+class SigninError(Exception):
     pass
 
 
@@ -83,7 +83,7 @@ class OnePwd(object):
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except json.decoder.JSONDecodeError:
-            raise UnknownResource(resource)
+            raise UnknownResourceError(resource)
 
     def create_item(self, category, json_item, title, vault=None, url=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -266,7 +266,7 @@ class OnePwd(object):
         child.readline()
         token = child.readline().decode('UTF-8').strip()
         if token.startswith('[ERROR]'):
-            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
+            raise SigninError(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
         return token
 
     def get_version(self):
@@ -295,7 +295,7 @@ def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) 
         if any(msg in full_error_message for msg in unauthorized_error_messages):
             raise Unauthorized()
         elif "More than one item matches" in full_error_message:
-            raise DuplicateItems()
+            raise DuplicateItemsError()
         elif "isn't an item" in full_error_message:
             raise UnknownResourceItem()
         else:
