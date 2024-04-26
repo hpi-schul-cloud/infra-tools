@@ -40,7 +40,7 @@ class UnknownResourceError(Exception):
     pass
 
 
-class UnknownResourceItemError(Exception):
+class UnknownResourceItem(Exception):
     pass
 
 class DuplicateItemsError(Exception):
