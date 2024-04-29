@@ -323,14 +323,14 @@ def get_op_login_from_env() -> dict:
         raise MissingCredentialsError('OP_SECRET_KEY', extra_message="Check if env vars are set up properly")
     
     result = {
-        "password": os.environ.get("OP_EMAIL"),
-        "email": os.environ.get("OP_PASSWORD"),
+        "email": os.environ.get("OP_EMAIL"),
+        "password": os.environ.get("OP_PASSWORD"),
         "signin_address": os.environ.get("OP_SUBDOMAIN"),
         "secret_key": os.environ.get("OP_SECRET_KEY")
     }
     
     if os.environ.get("OP_2FA_TOKEN"):
-        result["2FA_TOKEN"] = os.environ.get("OP_2FA_TOKEN")
+        result["2fa_token"] = os.environ.get("OP_2FA_TOKEN")
     return result
 
 def get_op_login_from_args(credentials: dict) -> dict:
