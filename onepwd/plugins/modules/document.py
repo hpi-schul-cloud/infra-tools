@@ -31,6 +31,19 @@ options:
       - Must be set when running in AWX.
     type: str
     default: the USER environment variable
+  credentials:
+    description:
+      - Allows passing credentials as dictionary
+      - dict must contain keys {"OP_EMAIL", "OP_PASSWORD", "OP_SUBDOMAIN", "OP_SECRET_KEY"}
+      - Key OP_2FA_TOKEN is optional
+    type: dict
+  credentials_file:
+    description:
+      - Allows passing credentials as file
+      - The file must be json
+      - The file must contain a dictionary with the keys {"OP_EMAIL", "OP_PASSWORD", "OP_SUBDOMAIN", "OP_SECRET_KEY"}
+      - Key OP_2FA_TOKEN is optional
+    type: dict
 '''
 
 EXAMPLES = r'''
@@ -39,6 +52,25 @@ EXAMPLES = r'''
     vault: "vault"
     name: "name"
     path: /path/to/file
+
+- name: Create Document with credentials dictionary
+  dbildungscloud.onepwd.document:
+    vault: "vault"
+    name: "name"
+    path: /path/to/file
+    credentials: 
+      OP_EMAIL: <email>
+      OP_PASSWORD": <password>
+      OP_SUBDOMAIN": <subdomain>
+      OP_SECRET_KEY": <secret-key>
+      OP_2FA_TOKEN": <2fa-token>
+
+- name: Create Document with credentials file
+  dbildungscloud.onepwd.document:
+    vault: "vault"
+    name: "name"
+    path: /path/to/file
+    credentials_file: path/to/file.json
 '''
 
 RETURN = r'''
