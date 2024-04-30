@@ -162,7 +162,7 @@ class OnePwd(object):
         try:
             run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
-            raise DeletionFailure(item_name, vault)
+            raise DeletionError(item_name, vault)
         except UnknownError as e:
             error_message = str(e)
             if "multiple items found" in error_message:
@@ -293,7 +293,7 @@ def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) 
                           "Authentication required"]
         full_error_message = process.stderr.decode("UTF-8")
         if any(msg in full_error_message for msg in unauthorized_error_messages):
-            raise Unauthorized()
+            raise UnauthorizedError()
         elif "More than one item matches" in full_error_message:
             raise DuplicateItemsError()
         elif "isn't an item" in full_error_message:
