@@ -6,7 +6,6 @@ import subprocess
 from sys import path
 import time
 from uuid import uuid4
-import sys
 import pexpect
 import argparse
 import yaml
@@ -15,7 +14,7 @@ from shlex import quote
 
 # Quelle: https://github.com/lettdigital/onepassword-python/blob/master/onepassword.py
 
-class DeletionFailure(Exception):
+class DeletionError(Exception):
     def __init__(self, item_name, vault):
         message = f"Unable to delete item '{item_name}' from vault '{vault}'"
 
@@ -23,26 +22,28 @@ class DeletionFailure(Exception):
         self.message = message
 
 
-class Unauthorized(Exception):
+class UnauthorizedError(Exception):
     pass
 
 
-class MissingCredentials(Exception):
+class MissingCredentialsError(Exception):
+    def __init__(self, missing_keys: str, code=None):
+        message = f'Missing credentials to login to 1password: {missing_keys}'
+        super().__init__(message)
+
+
+class SigninError(Exception):
     pass
 
 
-class SigninFailure(Exception):
-    pass
-
-
-class UnknownResource(Exception):
+class UnknownResourceError(Exception):
     pass
 
 
 class UnknownResourceItem(Exception):
     pass
 
-class DuplicateItems(Exception):
+class DuplicateItemsError(Exception):
     pass
 
 class UnknownError(Exception):
@@ -54,7 +55,7 @@ class InvalidOnePwdVersion(Exception):
 
 class OnePwd(object):
 
-    def __init__(self, secret=None, shorthand=None, bin_path="", session_timeout=30):
+    def __init__(self, secret, shorthand=None, bin_path="", session_timeout=30):
         self.op = os.path.join(bin_path, "op")
         self.session_timeout=session_timeout
         self.session_token=None
@@ -64,14 +65,11 @@ class OnePwd(object):
         else:
             self.shorthand=shorthand
         self.session_file=os.path.join(self.session_dir, self.shorthand)
-        if secret is not None:
-            self.create_session_dir()
-            self.session_token = self.retrieve_cached_token()
-            if self.session_token is None:
-                self.session_token = self.signin(secret, shorthand=self.shorthand)
-            self.cache_token()
-        else:
-            raise MissingCredentials()
+        self.create_session_dir()
+        self.session_token = self.retrieve_cached_token()
+        if self.session_token is None:
+            self.session_token = self.signin(secret, shorthand=self.shorthand)
+        self.cache_token()
             
         check_version = self.get_version()
         split_version=check_version.split(".")
@@ -85,7 +83,7 @@ class OnePwd(object):
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except json.decoder.JSONDecodeError:
-            raise UnknownResource(resource)
+            raise UnknownResourceError(resource)
 
     def create_item(self, category, json_item, title, vault=None, url=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -164,7 +162,7 @@ class OnePwd(object):
         try:
             run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
-            raise DeletionFailure(item_name, vault)
+            raise DeletionError(item_name, vault)
         except UnknownError as e:
             error_message = str(e)
             if "multiple items found" in error_message:
@@ -268,7 +266,7 @@ class OnePwd(object):
         child.readline()
         token = child.readline().decode('UTF-8').strip()
         if token.startswith('[ERROR]'):
-            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
+            raise SigninError(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
         return token
 
     def get_version(self):
@@ -295,9 +293,9 @@ def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) 
                           "Authentication required"]
         full_error_message = process.stderr.decode("UTF-8")
         if any(msg in full_error_message for msg in unauthorized_error_messages):
-            raise Unauthorized()
+            raise UnauthorizedError()
         elif "More than one item matches" in full_error_message:
-            raise DuplicateItems()
+            raise DuplicateItemsError()
         elif "isn't an item" in full_error_message:
             raise UnknownResourceItem()
         else:
@@ -313,13 +311,13 @@ def get_optional_flag(**kwargs):
 
 def get_op_login():
     if not os.environ.get("OP_EMAIL"):
-        sys.exit("Please define OP_EMAIL environment variable")
+        raise MissingCredentialsError('OP_EMAIL')
     if not os.environ.get("OP_PASSWORD"):
-        sys.exit("Please define OP_PASSWORD environment variable")
+        raise MissingCredentialsError('OP_PASSWORD')
     if not os.environ.get("OP_SUBDOMAIN"):
-        sys.exit("Please define OP_SUBDOMAIN environment variable")
+        raise MissingCredentialsError('OP_SUBDOMAIN')
     if not os.environ.get("OP_SECRET_KEY"):
-        sys.exit("Please define OP_SECRET_KEY environment variable")
+        raise MissingCredentialsError('OP_SECRET_KEY')
     twofact_token=os.environ.get("OP_2FA_TOKEN", "")
     return {"password": os.environ.get("OP_PASSWORD"),
              "email": os.environ.get("OP_EMAIL"),
