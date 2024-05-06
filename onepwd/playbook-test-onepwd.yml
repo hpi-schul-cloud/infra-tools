@@ -7,7 +7,26 @@
       Test file.
     document_updated_content: |-
       Updated file.
+    op_credentials:
+      OP_EMAIL: "{{ lookup('env','OP_EMAIL') }}"
+      OP_PASSWORD: "{{ lookup('env','OP_PASSWORD') }}"
+      OP_SECRET_KEY: "{{ lookup('env','OP_SECRET_KEY') }}"
+      OP_SUBDOMAIN: "{{ lookup('env','OP_SUBDOMAIN') }}"
+      OP_2FA_TOKEN: "{{ lookup('env','OP_2FA_TOKEN') }}"
+    op_credentials_file: "{{ playbook_dir }}/credentials.json"
+  
   tasks:
+    - name: Generate credentials file
+      template:
+        src: credentials.json.j2
+        dest: "{{ op_credentials_file }}"
+      vars:
+        OP_EMAIL: "{{ lookup('env','OP_EMAIL') }}"
+        OP_PASSWORD: "{{ lookup('env','OP_PASSWORD') }}"
+        OP_SECRET_KEY: "{{ lookup('env','OP_SECRET_KEY') }}"
+        OP_SUBDOMAIN: "{{ lookup('env','OP_SUBDOMAIN') }}"
+        OP_2FA_TOKEN: "{{ lookup('env','OP_2FA_TOKEN') }}"
+
     - name: Run the tests
       block:
         - name: Create item
@@ -38,6 +57,34 @@
               - op.item.title == 'create-test'
               - op.item.category | lower == 'password'
 
+        - name: Delete item (test credentials as arguments)
+          dbildungscloud.onepwd.item:
+            vault: Private
+            credentials: "{{ op_credentials }}"
+            name: create-test
+            category: password
+            state: absent
+          register: op
+        - name: Delete item
+          assert:
+            that:
+              - op.changed
+
+        - name: Re-create item (file credentials as arguments)
+          dbildungscloud.onepwd.item:
+            vault: Private
+            credentials_file: "{{ op_credentials_file }}"
+            name: create-test
+            category: password
+          register: op
+        - name: Re-create item (file credentials as arguments)
+          assert:
+            that:
+              - op.changed
+              - op.item is defined
+              - op.item.title == 'create-test'
+              - op.item.category | lower == 'password'
+
         - name: Item already exists, add fields
           dbildungscloud.onepwd.item:
             vault: Private
@@ -58,6 +105,7 @@
               - op.item.title == 'create-test'
               - op.item.category | lower == 'password'
               - op.item.fields | length >= 2
+
         - name: Item already exists, field already exists (overwrite set to False)
           dbildungscloud.onepwd.item:
             vault: Private
@@ -72,6 +120,7 @@
           assert:
             that:
               - not op.changed
+
         - name: Field have the correct values
           vars:
             fields:
@@ -156,7 +205,21 @@
         - name: Get document
           set_fact:
             onepassword_document: "{{ lookup('dbildungscloud.onepwd.onepwd', secret_name='document-test', vault='Private') }}"
-        - name: Create document
+        - name: Get document
+          assert:
+            that:
+              - onepassword_document == document_original_content
+        - name: Get document
+          set_fact:
+            onepassword_document: "{{ lookup('dbildungscloud.onepwd.onepwd', secret_name='document-test', vault='Private', credentials=op_credentials) }}"
+        - name: Get document credentials as args
+          assert:
+            that:
+              - onepassword_document == document_original_content
+        - name: Get document credentials as file
+          set_fact:
+            onepassword_document: "{{ lookup('dbildungscloud.onepwd.onepwd', secret_name='document-test', vault='Private', credentials_file=op_credentials_file) }}"
+        - name: Get document
           assert:
             that:
               - onepassword_document == document_original_content
@@ -174,11 +237,12 @@
         - name: Get document
           set_fact:
             onepassword_document: "{{ lookup('dbildungscloud.onepwd.onepwd', secret_name='document-test', vault='Private') }}"
-        - name: Create document
+        - name: Get document
           assert:
             that:
               - onepassword_document != document_original_content
               - onepassword_document == document_updated_content
+
 
       always:
         - name: Delete item
@@ -198,3 +262,12 @@
             name: document-test
             state: absent
           register: op
+        - name: Delete document
+          assert:
+            that:
+              - op.changed
+          register: op
+        - name: Delete credentials file
+          file:
+            path: "{{ op_credentials_file }}"
+            state: absent

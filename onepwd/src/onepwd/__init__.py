@@ -11,7 +11,7 @@ import argparse
 import yaml
 import pyotp
 from shlex import quote
-
+from getpass import getpass
 # Quelle: https://github.com/lettdigital/onepassword-python/blob/master/onepassword.py
 
 class DeletionError(Exception):
@@ -22,13 +22,13 @@ class DeletionError(Exception):
         self.message = message
 
 
-class UnauthorizedError(Exception):
+class UnauthorizedErrorError(Exception):
     pass
 
 
 class MissingCredentialsError(Exception):
-    def __init__(self, missing_keys: str, code=None):
-        message = f'Missing credentials to login to 1password: {missing_keys}'
+    def __init__(self, missing_keys: str, extra_message=None, code=None):
+        message = f'Missing credentials to login to 1password: {missing_keys}{f" ({extra_message})" if extra_message else ""}'
         super().__init__(message)
 
 
@@ -309,23 +309,73 @@ def get_optional_flag(**kwargs):
             if value
             else "")
 
-def get_op_login():
+def get_op_login_from_env() -> dict:
     if not os.environ.get("OP_EMAIL"):
-        raise MissingCredentialsError('OP_EMAIL')
+        raise MissingCredentialsError('OP_EMAIL', extra_message="Check if env vars are set up properly")
     if not os.environ.get("OP_PASSWORD"):
-        raise MissingCredentialsError('OP_PASSWORD')
+        raise MissingCredentialsError('OP_PASSWORD', extra_message="Check if env vars are set up properly")
     if not os.environ.get("OP_SUBDOMAIN"):
-        raise MissingCredentialsError('OP_SUBDOMAIN')
+        raise MissingCredentialsError('OP_SUBDOMAIN', extra_message="Check if env vars are set up properly")
     if not os.environ.get("OP_SECRET_KEY"):
-        raise MissingCredentialsError('OP_SECRET_KEY')
-    twofact_token=os.environ.get("OP_2FA_TOKEN", "")
-    return {"password": os.environ.get("OP_PASSWORD"),
-             "email": os.environ.get("OP_EMAIL"),
-             "signin_address": os.environ.get("OP_SUBDOMAIN"),
-             "secret_key": os.environ.get("OP_SECRET_KEY"),
-             "2fa_token": twofact_token}
+        raise MissingCredentialsError('OP_SECRET_KEY', extra_message="Check if env vars are set up properly")
+    
+    result = {
+        "email": os.environ.get("OP_EMAIL"),
+        "password": os.environ.get("OP_PASSWORD"),
+        "signin_address": os.environ.get("OP_SUBDOMAIN"),
+        "secret_key": os.environ.get("OP_SECRET_KEY")
+    }
+    
+    if os.environ.get("OP_2FA_TOKEN"):
+        result["2fa_token"] = os.environ.get("OP_2FA_TOKEN")
+    return result
+
+def get_op_login_from_args(credentials: dict) -> dict:
+    if "OP_EMAIL" not in credentials:
+        raise MissingCredentialsError('OP_EMAIL', extra_message="Check credential dictionary. Keys must be uppercase")
+    if "OP_PASSWORD" not in credentials:
+        raise MissingCredentialsError('OP_PASSWORD', extra_message="Check credential dictionary. Keys must be uppercase")
+    if "OP_SUBDOMAIN" not in credentials:
+        raise MissingCredentialsError('OP_SUBDOMAIN', extra_message="Check credential dictionary. Keys must be uppercase")
+    if "OP_SECRET_KEY" not in credentials:
+        raise MissingCredentialsError('OP_SECRET_KEY', extra_message="Check credential dictionary. Keys must be uppercase")
+    
+    result = {
+        "password": credentials["OP_PASSWORD"],
+        "email": credentials["OP_EMAIL"],
+        "signin_address": credentials["OP_SUBDOMAIN"],
+        "secret_key": credentials["OP_SECRET_KEY"]
+    }
+    
+    if "OP_2FA_TOKEN" in credentials:
+        result["2fa_token"] = credentials["OP_2FA_TOKEN"]
+    return result
+
+def get_op_login_from_file(file_path: str) -> dict:
+    with open(file_path, 'r') as file:
+        credentials = json.load(file)
+        if "OP_EMAIL" not in credentials:
+            raise MissingCredentialsError('OP_EMAIL', extra_message="Check credential file. Keys must be uppercase")
+        if "OP_PASSWORD" not in credentials:
+            raise MissingCredentialsError('OP_PASSWORD', extra_message="Check credential file. Keys must be uppercase")
+        if "OP_SUBDOMAIN" not in credentials:
+            raise MissingCredentialsError('OP_SUBDOMAIN', extra_message="Check credential file. Keys must be uppercase")
+        if "OP_SECRET_KEY" not in credentials:
+            raise MissingCredentialsError('OP_SECRET_KEY', extra_message="Check credential file. Keys must be uppercase")
+        
+        result = {
+            "password": credentials["OP_PASSWORD"],
+            "email": credentials["OP_EMAIL"],
+            "signin_address": credentials["OP_SUBDOMAIN"],
+            "secret_key": credentials["OP_SECRET_KEY"]
+        }
+        
+        if "OP_2FA_TOKEN" in credentials:
+            result["2fa_token"] = credentials["OP_2FA_TOKEN"]
+        return result
 
 def convert_dot_notation(key, val) -> dict:
+    print(key, val)
     split_list = key.split('.')
     if  len(split_list) == 1: # no dot notation found
         return {key:val}
@@ -353,13 +403,14 @@ def yaml_str_presenter(dumper, data):
     return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
   return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
+# TODO this function does not work as i would expect it and is not easy to use, recommend rework
 def generate_secrets_file(op, items, file, field=None, disable_empty=False, permissions=0o600):
     secrets={}
     sname=""
     secret_value=""
     for i in items:
         item=op.get('item',i['id'])
-        if item["category"]=='PASSWORD': # Password template type
+        if item["category"] in ['LOGIN', 'PASSWORD']: # Login / Password template
             sname=item["title"]
             if field is None:
                 field = "password"
@@ -380,7 +431,10 @@ def generate_secrets_file(op, items, file, field=None, disable_empty=False, perm
                 secrets=merge_dictionaries(secrets, subdict)
         else:
             subdict=convert_dot_notation(sname, secret_value)
+            print(subdict)
             secrets=merge_dictionaries(secrets, subdict)
+    
+    print(secrets)
 
     with open(file, 'w') as f:
          yaml.add_representer(str, yaml_str_presenter)
@@ -470,16 +524,48 @@ def build_assignment_statement(field):
 
 def main():
     parser=argparse.ArgumentParser(description="Generate secrets yaml file")
+    # secret location args
     parser.add_argument('--vault', type=str, required=True)
     parser.add_argument('--field', type=str, default=None)
+
+    # credential args
+    parser.add_argument('--subdomain', type=str)
+    parser.add_argument('--email', type=str)
+    parser.add_argument('--secret-key', type=str)
+    parser.add_argument('--twofa-token', type=str)
+    parser.add_argument('--credentials-file', type=str)
+
+    # output args
     parser.add_argument('--secrets-file', type=str, required=True)
     parser.add_argument('--secrets-file-permissions', type=oct2int, default=0o600, required=False)
     parser.add_argument('--session-shorthand', type=str, required=False)
     parser.add_argument('--session-timeout', type=int, default=30, required=False)
     parser.add_argument('--disable-empty', type=bool, default=False, required=False)
     parser.add_argument('--get-single-secret', type=str, required=False)
+
     args = parser.parse_args()
-    login_secret=get_op_login()
+
+    if args.subdomain or args.email or args.secret_key or args.twofa_token:
+        if not(args.subdomain) or not(args.email) or not(args.secret_key):
+            print("When using argument credential login, all arguments --subdomain, --email and --secret-key are needed")
+            print("Exiting...")
+            exit(1)
+        
+        password = getpass(prompt='Password: ')
+        credentials= {
+            "OP_EMAIL": args.email,
+            "OP_PASSWORD": password,
+            "OP_SUBDOMAIN": args.subdomain,
+            "OP_SECRET_KEY": args.secret_key,
+        }
+        if args.twofa_token:
+            credentials["OP_2FA_TOKEN"] = args.twofa_token
+        login_secret=get_op_login_from_args(credentials)
+    elif args.credentials_file:
+        login_secret=get_op_login_from_file(args.credentials_file)
+    else:
+        login_secret=get_op_login_from_env()
+    
     op = OnePwd(secret=login_secret, shorthand=args.session_shorthand, session_timeout=args.session_timeout)
     if args.get_single_secret:
         secret_value=get_single_secret(op, args.get_single_secret, field=args.field, vault=args.vault)

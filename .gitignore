@@ -10,3 +10,5 @@ venv
 dbcmetrics/dbcm_config.yaml
 prod-container-list/*.csv
 prod-container-list/*.log
+
+onepwd/credentials.json

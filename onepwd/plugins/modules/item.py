@@ -60,6 +60,19 @@ options:
       - If False existing items are not changed if there are differences (usefull if item should be generated only once)
     type: bool
     default: True
+  credentials:
+    description:
+      - Allows passing credentials as dictionary
+      - dict must contain keys {"OP_EMAIL", "OP_PASSWORD", "OP_SUBDOMAIN", "OP_SECRET_KEY"}
+      - Key OP_2FA_TOKEN is optional
+    type: dict
+  credentials_file:
+    description:
+      - Allows passing credentials as file
+      - The file must be json
+      - The file must contain a dictionary with the keys {"OP_EMAIL", "OP_PASSWORD", "OP_SUBDOMAIN", "OP_SECRET_KEY"}
+      - Key OP_2FA_TOKEN is optional
+    type: dict
 '''
 
 EXAMPLES = r'''
@@ -84,6 +97,35 @@ EXAMPLES = r'''
     state: absent
     vault: "vault"
     name: secret
+
+- name: Create Secret with credentials dictionary
+  dbildungscloud.onepwd.item:
+    vault: "vault"
+    category: "password"
+    name: "name"
+    fields:
+      - name: admin_password
+        type: password
+        value: password123
+        overwrite: False
+      credentials: 
+        OP_EMAIL: <email>
+        OP_PASSWORD": <password>
+        OP_SUBDOMAIN": <subdomain>
+        OP_SECRET_KEY": <secret-key>
+        OP_2FA_TOKEN": <2fa-token>
+
+- name: Create Document with credentials file
+  dbildungscloud.onepwd.item:
+    vault: "vault"
+    category: "password"
+    name: "name"
+    credentials_file: path/to/file.json
+    fields:
+      - name: admin_password
+        type: password
+        value: password123
+        overwrite: False
 '''
 
 RETURN = r'''
