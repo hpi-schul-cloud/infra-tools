@@ -15,7 +15,6 @@ from shlex import quote
 # Quelle: https://github.com/lettdigital/onepassword-python/blob/master/onepassword.py
 
 class DeletionError(Exception):
-class DeletionError(Exception):
     def __init__(self, item_name, vault):
         message = f"Unable to delete item '{item_name}' from vault '{vault}'"
 
@@ -38,14 +37,12 @@ class SigninFailure(Exception):
 
 
 class UnknownResourceError(Exception):
-class UnknownResourceError(Exception):
     pass
 
 
 class UnknownResourceItem(Exception):
     pass
 
-class DuplicateItemsError(Exception):
 class DuplicateItemsError(Exception):
     pass
 
