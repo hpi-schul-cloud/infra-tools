@@ -32,7 +32,7 @@ class MissingCredentialsError(Exception):
         super().__init__(message)
 
 
-class SigninFailure(Exception):
+class SigninError(Exception):
     pass
 
 
