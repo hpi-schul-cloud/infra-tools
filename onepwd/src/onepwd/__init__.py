@@ -15,6 +15,7 @@ from shlex import quote
 # Quelle: https://github.com/lettdigital/onepassword-python/blob/master/onepassword.py
 
 class DeletionError(Exception):
+class DeletionError(Exception):
     def __init__(self, item_name, vault):
         message = f"Unable to delete item '{item_name}' from vault '{vault}'"
 
@@ -22,7 +23,7 @@ class DeletionError(Exception):
         self.message = message
 
 
-class UnauthorizedError(Exception):
+class UnauthorizedErrorError(Exception):
     pass
 
 
@@ -32,10 +33,11 @@ class MissingCredentialsError(Exception):
         super().__init__(message)
 
 
-class SigninFailureError(Exception):
+class SigninFailure(Exception):
     pass
 
 
+class UnknownResourceError(Exception):
 class UnknownResourceError(Exception):
     pass
 
@@ -43,6 +45,7 @@ class UnknownResourceError(Exception):
 class UnknownResourceItem(Exception):
     pass
 
+class DuplicateItemsError(Exception):
 class DuplicateItemsError(Exception):
     pass
 
@@ -55,7 +58,7 @@ class InvalidOnePwdVersion(Exception):
 
 class OnePwd(object):
 
-    def __init__(self, secret=None, shorthand=None, bin_path="", session_timeout=30):
+    def __init__(self, secret, shorthand=None, bin_path="", session_timeout=30):
         self.op = os.path.join(bin_path, "op")
         self.session_timeout=session_timeout
         self.session_token=None
@@ -65,14 +68,11 @@ class OnePwd(object):
         else:
             self.shorthand=shorthand
         self.session_file=os.path.join(self.session_dir, self.shorthand)
-        if secret is not None:
-            self.create_session_dir()
-            self.session_token = self.retrieve_cached_token()
-            if self.session_token is None:
-                self.session_token = self.signin(secret, shorthand=self.shorthand)
-            self.cache_token()
-        else:
-            raise MissingCredentials()
+        self.create_session_dir()
+        self.session_token = self.retrieve_cached_token()
+        if self.session_token is None:
+            self.session_token = self.signin(secret, shorthand=self.shorthand)
+        self.cache_token()
             
         check_version = self.get_version()
         split_version=check_version.split(".")
@@ -86,7 +86,7 @@ class OnePwd(object):
         try:
             return json.loads(run_op_command_in_shell(op_command))
         except json.decoder.JSONDecodeError:
-            raise UnknownResource(resource)
+            raise UnknownResourceError(resource)
 
     def create_item(self, category, json_item, title, vault=None, url=None):
         vault_flag = get_optional_flag(vault=vault)
@@ -165,7 +165,7 @@ class OnePwd(object):
         try:
             run_op_command_in_shell(op_command)
         except subprocess.CalledProcessError:
-            raise DeletionFailure(item_name, vault)
+            raise DeletionError(item_name, vault)
         except UnknownError as e:
             error_message = str(e)
             if "multiple items found" in error_message:
@@ -269,7 +269,7 @@ class OnePwd(object):
         child.readline()
         token = child.readline().decode('UTF-8').strip()
         if token.startswith('[ERROR]'):
-            raise SigninFailure(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
+            raise SigninError(f'"{token}" - Please check email, password, subdomain, secret key, 2FA token, and your system time.')
         return token
 
     def get_version(self):
@@ -296,9 +296,9 @@ def run_op_command_in_shell(op_command:str, input:str=None, verbose:bool=False) 
                           "Authentication required"]
         full_error_message = process.stderr.decode("UTF-8")
         if any(msg in full_error_message for msg in unauthorized_error_messages):
-            raise Unauthorized()
+            raise UnauthorizedError()
         elif "More than one item matches" in full_error_message:
-            raise DuplicateItems()
+            raise DuplicateItemsError()
         elif "isn't an item" in full_error_message:
             raise UnknownResourceItem()
         else:
