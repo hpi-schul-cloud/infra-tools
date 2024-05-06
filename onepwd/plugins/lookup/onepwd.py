@@ -31,11 +31,9 @@ class LookupModule(LookupBase):
         if 'credentials' in kwargs:
             login_secret=onepwd.get_op_login_from_args(kwargs['credentials'])
         elif 'credentials_file' in kwargs:
-            print(f'file login')
             login_secret=onepwd.get_op_login_from_file(kwargs['credentials_file'])
         else:
             login_secret=onepwd.get_op_login_from_env()
-            print(f'env login: True')
 
         session_shorthand=kwargs.get('session_shorthand', os.getenv('USER'))
         session_timeout=kwargs.get('session_timeout', 30)
