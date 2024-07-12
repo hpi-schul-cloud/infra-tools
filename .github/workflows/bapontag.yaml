@@ -35,7 +35,7 @@ jobs:
   
   build_and_push:
     needs: pre_build
-    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@6
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@7
     permissions:
       packages: write
       contents: read

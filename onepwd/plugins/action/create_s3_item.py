@@ -34,7 +34,12 @@ class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None, **kwargs):
         # Log into OnePassword
-        login_secret=onepwd.get_op_login()
+        if 'credentials' in self._task.args:
+            login_secret=onepwd.get_op_login_from_args(self._task.args.get('credentials'))
+        elif 'credentials_file' in self._task.args:
+            login_secret=onepwd.get_op_login_from_file(self._task.args.get('credentials_file'))
+        else:
+            login_secret=onepwd.get_op_login_from_env()
         session_shorthand=self._task.args.get('session_shorthand', os.getenv('USER'))
         session_timeout=kwargs.get('session_timeout', 30)
         op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
