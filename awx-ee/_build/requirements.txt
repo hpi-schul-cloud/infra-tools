@@ -3,7 +3,8 @@ ansible==8.0.0
 ansible-core==2.15.2
 molecule==3.6.1
 kubernetes==17.17.0
-ionoscloud==6.1.3
+ionoscloud==6.1.9
+ionoscloud-dbaas-mongo==1.2.2
 pyotp==2.6.0
 grafana_api
 url64==0.1.0
