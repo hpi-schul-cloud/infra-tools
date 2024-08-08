@@ -1,0 +1,31 @@
+api:
+  url: "https://grafana.example.org/api/datasources/proxy/uid/exampleUID/api/v1/query_range"
+  token: "tokenhere"
+queries_by_source:
+    example-staging:
+    - metric: "container_cpu_usage_seconds_total"
+      timeframe: "1d"
+      label: "namespace"
+    - metric: "kubelet_volume_stats_used_bytes"
+      timeframe: "1d"
+      label: "namespace"
+    - metric: "container_memory_usage_bytes"
+      timeframe: "1d"
+      label: "namespace"
+    - metric: "storage_size_bucket"
+      timeframe: "1d"
+      label: "namespace"
+    - metric: "container_network_transmit_bytes_total"
+      timeframe: "1d"
+      label: "namespace"
+namespaces-tenants:
+  - "example1"
+  - "example2"
+email:
+  from: ""
+  to: ""
+  subject: "Monthly Report"
+  smtp_host: "smtp.example.com"
+  smtp_port: "587"
+  username: ""
+  password: ""
