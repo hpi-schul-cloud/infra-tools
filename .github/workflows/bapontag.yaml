@@ -7,6 +7,7 @@ on:
       - 'infra-tools-[0-9]+.[0-9]+.[0-9]+'
       - 'dbcmetrics-[0-9]+.[0-9]+.[0-9]+'
       - 'awx-ee-[0-9]+.[0-9]+.[0-9]+'
+      - 'cron-tools-[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   pre_build:
@@ -31,6 +32,8 @@ jobs:
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools' ]]; then
+            echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
           fi
   
   build_and_push:
