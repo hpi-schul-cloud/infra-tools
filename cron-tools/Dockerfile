@@ -17,6 +17,4 @@ RUN set -x \
     && apt-get -y install \
         mongodb-mongosh \
         postgresql-client-15 \
-    && apt-get clean -y \
-    
-
+    && apt-get clean -y
