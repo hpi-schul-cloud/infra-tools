@@ -1,20 +1,21 @@
-FROM ubuntu:22.04 as release
+FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
 
 RUN set -x \
     && apt-get -y update \
-    && apt-get -y install wget gnupg \
+    && apt-get -y install wget \
     && wget https://dl.k8s.io/release/v1.28.7/bin/linux/amd64/kubectl \
     && chmod +x kubectl \
     && mv ./kubectl /usr/local/bin/kubectl \
-    && wget -qO - https://pgp.mongodb.com/server-6.0.asc | gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor \
-    && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
-    && echo "deb https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc > /etc/apt/trusted.gpg.d/postgres.asc \
+    && wget -qO /usr/share/keyrings/mongodb.asc https://www.mongodb.org/static/pgp/server-6.0.asc \
+    && echo "deb [signed-by=/usr/share/keyrings/mongodb.asc] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-6.0.list \
+    && wget -qO /usr/share/keyrings/postgres.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    && echo "deb [signed-by=/usr/share/keyrings/postgres.asc] https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && apt-get -y update \
     && apt-get -y install \
         mongodb-mongosh \
         postgresql-client-15 \
+        jq \
     && apt-get clean -y
