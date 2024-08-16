@@ -1,0 +1,21 @@
+---
+name: cron-tools Docker Image on Push to GHCR
+
+on:
+  push:
+    branches-ignore:
+      - master
+    paths:
+      - 'cron-tools/**'
+
+jobs:
+  build_image_on_push:
+    permissions:
+      packages: write
+      security-events: write
+      actions: read
+      contents: read
+    uses: ./.github/workflows/imagetoghcr-on-push.yaml
+    with:
+      image_name: "cron-tools"
+      context: "./cron-tools/"
