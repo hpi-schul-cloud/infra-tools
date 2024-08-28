@@ -23,6 +23,7 @@ RUN \
 
 USER docops
 
+
 RUN \
     # Install doctoolchain
     cd /home/docops && \
