@@ -52,8 +52,8 @@ class LookupModule(LookupBase):
         values=[]
         try:
             values.append(onepwd.get_single_secret(op, secret_name, field=field, vault=vault))
-        # except onepwd.UnauthorizedError:
-        #     raise AnsibleError("Unauthorized")
+        except onepwd.UnauthorizedError:
+            raise AnsibleError("Unauthorized")
         except onepwd.DuplicateItemsError:
             raise AnsibleError(f"More than one item named {secret_name} in vault {vault}")
         except onepwd.UnknownResourceItem:
