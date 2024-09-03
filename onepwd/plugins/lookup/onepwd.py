@@ -59,7 +59,7 @@ class LookupModule(LookupBase):
             raise AnsibleError(f"More than one item named {secret_name} in vault {vault}")
         except onepwd.UnknownResourceItem:
             if ignore_not_found:
-                return None
+                return []
             raise AnsibleError(f"No item named {secret_name} in vault {vault}")
         except onepwd.UnknownError as unknown_error:
             raise AnsibleError(unknown_error)
