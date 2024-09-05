@@ -185,10 +185,7 @@ class OnePwd(object):
 
     def get_document(self, item_name):
         op_command = f"{self.op} document get '{item_name}' --session={self.session_token}"
-        try:
-            return run_op_command_in_shell(op_command)
-        except subprocess.CalledProcessError:
-            raise UnknownResourceItem(f"document: {item_name}")
+        return run_op_command_in_shell(op_command)
 
     def create_document_from_file(self, path, title, vault=None):
         vault_flag = get_optional_flag(vault=vault)
