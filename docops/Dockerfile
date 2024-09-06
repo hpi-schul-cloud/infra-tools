@@ -26,6 +26,7 @@ USER docops
 RUN \
     # Install doctoolchain
     cd /home/docops && \
+    export DTC_VERSION="3.4.1" && \
     curl -Lo dtcw https://doctoolchain.org/dtcw && \
     chmod +x ./dtcw && \
     ./dtcw install doctoolchain; \
