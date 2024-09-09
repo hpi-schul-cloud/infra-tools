@@ -9,6 +9,7 @@ on:
       - 'awx-ee/**'
       - 'dbcmetrics/**'
       - 'infra-tools/**'
+      - 'cron-tools/**'
 
 jobs:
   build_image_on_push:
