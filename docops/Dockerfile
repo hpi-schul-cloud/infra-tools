@@ -29,9 +29,10 @@ RUN \
     curl -Lo dtcw https://doctoolchain.org/dtcw && \
     chmod +x ./dtcw && \
     # trying to force V to 3.4.1 cause of hardcoded version in dtcw install script
-    sed -i '15s/DTC_VERSION:=3.4.0/DTC_VERSION:=3.4.1/' dtcw && \
+    # sed -i '15s/DTC_VERSION:=3.4.0/DTC_VERSION:=3.4.1/' dtcw && \
     ./dtcw install doctoolchain; \
     ./dtcw install java; \
+    sed -i '478s/^/def/' /.doctoolchain/docToolchain-3.4.0/core/src/main/groovy/org/docToolchain/tasks/Asciidoc2ConfluenceTask.groovy \ 
     # Install community.general collection, it contains the 'archive' module used in the doctoolchain playbook
     ansible-galaxy collection install community.general;
 
