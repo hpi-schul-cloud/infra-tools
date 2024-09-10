@@ -29,7 +29,8 @@ RUN \
     curl -Lo dtcw https://doctoolchain.org/dtcw && \
     chmod +x ./dtcw && \
     # trying to force V to 3.4.1 cause of hardcoded version in dtcw install script
-    # sed -i '15s/DTC_VERSION:=3.4.0/DTC_VERSION:=3.4.1/' dtcw && \
+    export DTC_VERSION="3.4.1" && \
+    sed -i '15s/DTC_VERSION:=3.4.0/DTC_VERSION:=3.4.1/' dtcw && \
     ./dtcw install doctoolchain; \
     ./dtcw install java; \
     cd /.doctoolchain/docToolchain-3.4.0/core/src/main/groovy/org/docToolchain/tasks &&  \
