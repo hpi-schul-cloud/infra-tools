@@ -21,7 +21,6 @@ RUN \
     # xvfb-run -a drawio --export --format png --output ./test.png ./test.drawio --disable-gpu --headless --no-sandbox
     dnf install -y xorg-x11-server-Xvfb;
 
-    
 
 USER docops
 
