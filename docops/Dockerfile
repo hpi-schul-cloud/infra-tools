@@ -33,8 +33,10 @@ RUN \
     sed -i '15s/DTC_VERSION:=3.4.0/DTC_VERSION:=3.4.1/' dtcw && \
     ./dtcw install doctoolchain; \
     ./dtcw install java; \
-    cd /.doctoolchain/docToolchain-3.4.0/core/src/main/groovy/org/docToolchain/tasks &&  \
-    sed -i '478s/^/def/' Asciidoc2ConfluenceTask.groovy; \ 
+    ./dtcw tasks --group doctoolchain; \
+    rm docToolchainConfig.groovy -f ; \
+    #cd /.doctoolchain/docToolchain-3.4.0/core/src/main/groovy/org/docToolchain/tasks &&  \
+    #sed -i '478s/^/def/' Asciidoc2ConfluenceTask.groovy; \ 
     # Install community.general collection, it contains the 'archive' module used in the doctoolchain playbook
     ansible-galaxy collection install community.general;
 
