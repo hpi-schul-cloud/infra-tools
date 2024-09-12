@@ -49,6 +49,18 @@ class LookupModule(LookupBase):
         secret_name=kwargs.get('secret_name', '')
         vault=kwargs.get('vault', None)
         field=kwargs.get('field', None)
+        ignore_not_found=kwargs.get('ignore_not_found', False)
         values=[]
-        values.append(onepwd.get_single_secret(op, secret_name, field=field, vault=vault))
+        try:
+            values.append(onepwd.get_single_secret(op, secret_name, field=field, vault=vault))
+        except onepwd.UnauthorizedError:
+            raise AnsibleError("Unauthorized")
+        except onepwd.DuplicateItemsError:
+            raise AnsibleError(f"More than one item named {secret_name} in vault {vault}")
+        except onepwd.UnknownResourceItem:
+            if ignore_not_found:
+                return []
+            raise AnsibleError(f"No item named {secret_name} in vault {vault}")
+        except onepwd.UnknownError as unknown_error:
+            raise AnsibleError(unknown_error)
         return values
