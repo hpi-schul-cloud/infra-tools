@@ -11,6 +11,7 @@ RUN \
     cd /home/docops/drawio && \
     curl -s https://api.github.com/repos/jgraph/drawio-desktop/releases/latest | grep browser_download_url | grep '.*drawio-x86_64-.*\.rpm' | cut -d '"' -f 4 | wget -i -  && \
     dnf install -y ./drawio-x86_64-*.rpm && \
+    dnf install -y libgbm1 && \
     dnf remove -y wget && \
     rm -rf /home/docops/drawio && \
     # Install X Virtual Framebuffer as an X server because it's needed to execute drawio in a headless mode
