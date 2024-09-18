@@ -1,5 +1,5 @@
 ---
-name: Build and push Docker Image on Tag
+name: Build and push moodle-tools Docker Image on Tag
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         uses: olegtarasov/get-tag@v2.1
         id: tag
         with:
-          tagRegex: (?<prefix>.*-)(?<tag>[0-9]+\.[0-9]+\.[0-9]+)(?<suffix>.*)?
+          tagRegex: (?<tag>[0-9]+\.[0-9]+\.[0-9]+)(?<suffix>.*)
   build_and_push:
     permissions:
       packages: write
