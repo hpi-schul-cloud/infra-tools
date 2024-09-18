@@ -13,10 +13,10 @@ RUN set -x \
     && echo "deb [signed-by=/usr/share/keyrings/postgres.asc] https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && apt-get -y update \
     && apt-get -y install \
-        postgresql-client-14 \
-        mariadb-client \
         duply \
         ca-certificates \
         gnupg \
         apt-transport-https \
+        postgresql-client-14 \
+        mariadb-client \
     && apt-get clean -y
