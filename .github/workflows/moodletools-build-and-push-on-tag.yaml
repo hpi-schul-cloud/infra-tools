@@ -29,5 +29,4 @@ jobs:
       registry: ghcr.io
       image: dbildungsplattform/moodle-tools
       tag: ${{ needs.pre_build.outputs.tag }}
-      image_name: "moodle-tools"
       context: "./moodle-tools/"
