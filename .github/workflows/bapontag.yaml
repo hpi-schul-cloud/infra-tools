@@ -31,12 +31,12 @@ jobs:
             echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'dbcmetrics' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'moodle-tools' ]]; then
-            echo "registries=ghcr.io" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools' ]]; then
             echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'moodle-tools' ]]; then
+            echo "registries=ghcr.io" >> $GITHUB_OUTPUT
           fi
   
   build_and_push:
