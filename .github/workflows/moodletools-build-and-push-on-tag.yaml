@@ -4,7 +4,7 @@ name: Build and push moodle-tools Docker Image on Tag
 on:
   push:
     tags:
-      - 'moodle-tools-[0-9]+.[0-9]+.[0-9]+*'
+      - 'moodle-tools-test-[0-9]+.[0-9]+.[0-9]+*'
 jobs:
   pre_build:
     runs-on: ubuntu-latest
