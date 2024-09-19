@@ -27,6 +27,6 @@ jobs:
     uses: hpi-schul-cloud/infra-tools/.github/workflows/build-and-push.yaml@master
     with:
       registry: ghcr.io
-      image: dbildungsplattform/moodle-tools
+      image: schulcloud/moodle-tools
       tag: ${{ needs.pre_build.outputs.tag }}
       context: "./moodle-tools/"
