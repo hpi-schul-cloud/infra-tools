@@ -10,6 +10,7 @@ on:
       - 'dbcmetrics/**'
       - 'infra-tools/**'
       - 'cron-tools/**'
+      - 'moodle-tools/**'
 
 jobs:
   build_image_on_push:

@@ -5,7 +5,7 @@ ENV TZ=Europe/Berlin
 
 RUN set -x \
     && apt-get -y update \
-    && apt-get -y install wget \
+    && apt-get -y install wget python3-pip \
     && wget https://dl.k8s.io/release/v1.28.7/bin/linux/amd64/kubectl \
     && chmod +x kubectl \
     && mv ./kubectl /usr/local/bin/kubectl \
