@@ -106,3 +106,4 @@ LABEL ansible-execution-environment=true
 USER 1000
 ENTRYPOINT ["/opt/builder/bin/entrypoint", "dumb-init"]
 CMD ["bash"]
+
