@@ -61,7 +61,7 @@ class ActionModule(ActionBase):
                 if not label_existing:
                     assignment_statements += " " + onepwd.build_assignment_statement(field)
             else:
-                if lowercase(field['type']) == 'file':
+                if field['type'].lower() == 'file':
                     overwrite_file_fields = True
                 assignment_statements += " " + onepwd.build_assignment_statement(field)
 
