@@ -27,9 +27,15 @@ jobs:
       count: ${{ steps.count_hosts.outputs.count }}
     steps:
       - uses: actions/checkout@v4
+      - name: Create virtual environment and install ansible
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          # Only keep Ansible in the pip requirements
+          pip3 install $(grep ansible $GITHUB_WORKSPACE/${{ inputs.requirements_file }})
+          echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+          echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
       - name: Count hosts in limit
         id: count_hosts
         run: |
-          # Only keep Ansible in the pip requirements
-          pip3 install $(grep ansible $GITHUB_WORKSPACE/${{ inputs.requirements_file }})
           echo "count=$(ansible-inventory -i $GITHUB_WORKSPACE/${{ inputs.inventory_file }} --list -l ${{ inputs.limit }} | jq -e '._meta.hostvars | keys | length')" >> $GITHUB_OUTPUT
