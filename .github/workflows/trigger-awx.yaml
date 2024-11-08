@@ -48,9 +48,13 @@ jobs:
   run_awx:
     runs-on: ubuntu-latest
     steps:
-      - name: Pip install awxkit
+      - name: Create venv and install awxkit
         run: |
-          pip3 install awxkit==${{ inputs.awxkit_version }}
+          python -m venv .venv
+          source .venv/bin/activate
+          pip3 install awxkit==${{ inputs.awxkit_version }} setuptools
+          echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+          echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
       - name: Set limit flag env
         run: echo "LIMIT_FLAG=--limit ${{ inputs.limit }}" >> $GITHUB_ENV
         if: ${{ inputs.limit != '' }}
