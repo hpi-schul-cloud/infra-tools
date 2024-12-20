@@ -25,6 +25,8 @@ RUN set -x \
         python3-pip \
         python3-boto3 \
         gpg \
+        gettext \
+        librsync-dev \
     && apt-get clean -y
-    
+
 RUN pip install duplicity==0.8.23
