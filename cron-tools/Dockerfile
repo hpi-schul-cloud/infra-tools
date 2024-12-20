@@ -17,5 +17,14 @@ RUN set -x \
     && apt-get -y install \
         mongodb-mongosh \
         postgresql-client-15 \
+        mariadb-client \
         jq \
+        openssl \
+        duply \
+        python3 \
+        python3-pip \
+        python3-boto3 \
+        gpg \
     && apt-get clean -y
+    
+RUN pip install duplicity==0.8.23
