@@ -48,6 +48,7 @@ RUN set -x \
         librsync-dev \
         python3-pip \
         ldap-utils \
+        jq \
     && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean -y \
