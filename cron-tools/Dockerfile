@@ -20,3 +20,4 @@ RUN set -x \
         postgresql-client-15 \
         jq \
     && apt-get clean -y
+CMD ["mongosh", "--nodb", "--eval", "disableTelemetry()"]

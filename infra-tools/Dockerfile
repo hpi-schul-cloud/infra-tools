@@ -53,3 +53,4 @@ RUN set -x \
     && apt-get install -y nodejs \
     && apt-get clean -y \
     && pip install duplicity==0.8.23
+CMD ["mongosh", "--nodb", "--eval", "disableTelemetry()"]
