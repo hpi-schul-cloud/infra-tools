@@ -45,7 +45,7 @@ RUN set -x \
         tcpdump \
         gettext-base \
         gettext \
-        librsync-dev=3.2.7-0ubuntu0.22.04.3 \
+        librsync-dev \
         python3-pip \
         ldap-utils \
         jq \
