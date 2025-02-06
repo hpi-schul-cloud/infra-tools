@@ -49,6 +49,8 @@ class ActionModule(ActionBase):
     
     def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, generate_password, overwrite, check):
         assignment_statements = ""
+        # Dry-run doesn't recognize changes in files so we always update items containing files
+        overwrite_file_fields = False
         for field in fields:
             if 'overwrite' in field and field['overwrite'] is False:
                 labels = op.get('item', item_name=name, vault=vault)
@@ -59,6 +61,8 @@ class ActionModule(ActionBase):
                 if not label_existing:
                     assignment_statements += " " + onepwd.build_assignment_statement(field)
             else:
+                if field['type'].lower() == 'file':
+                    overwrite_file_fields = True
                 assignment_statements += " " + onepwd.build_assignment_statement(field)
 
         result = {}
@@ -66,7 +70,7 @@ class ActionModule(ActionBase):
         try:
             get_result = op.get('item', item_name=name, vault=vault)
             edit_result = op.edit_item(name, assignment_statements, vault=vault, generate_password=generate_password, dry_run=True)
-            changed = not items_equal(get_result, edit_result) and overwrite
+            changed = (not items_equal(get_result, edit_result) or overwrite_file_fields) and overwrite
             if changed:
                 if not check:
                     edit_result = op.edit_item(name, assignment_statements, vault=vault, generate_password=generate_password)
