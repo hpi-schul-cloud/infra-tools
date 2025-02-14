@@ -20,6 +20,8 @@ jobs:
           - infra-tools
           - dbcmetrics
           - awx-ee
+          - docops
+          - cron-tools
     uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@master
     with:
       image-ref: 'docker.io/schulcloud/${{ matrix.image }}:latest'
