@@ -79,7 +79,7 @@ ARG ANSIBLE_GALAXY_CLI_ROLE_OPTS
 ARG ANSIBLE_INSTALL_REFS
 ARG PKGMGR
 
-ARG HELM_VERSION=3.13.3
+ARG HELM_VERSION=3.16.4
 ARG TERRAFORM_VERSION=1.5.4
 ARG KUBECTL_VERSION=1.27.10
 ARG OP_VERSION=2.24.0
@@ -104,7 +104,7 @@ RUN chmod ug+rw /etc/passwd
 RUN mkdir -p /runner && chgrp 0 /runner && chmod -R ug+rwx /runner
 WORKDIR /runner
 RUN $PYCMD -m pip install --no-cache-dir 'dumb-init==1.2.5'
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 RUN rm -rf /output
 LABEL ansible-execution-environment=true
 USER 1000
