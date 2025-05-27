@@ -11,7 +11,6 @@ dependencies:
   galaxy: _build/requirements.yml
   system: _build/bindep.txt
   python_interpreter:
-    # 3.10 is not available and 3.11 has dependency problem with pyyaml (requested by molecule==3.3.4)
     package_system: "python312"
     python_path: "/usr/bin/python3.12"
   python: _build/requirements.txt
@@ -36,3 +35,4 @@ additional_build_steps:
     RUN export LANGUAGE="C.UTF-8" 
   append_final:
     - RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+    - RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
