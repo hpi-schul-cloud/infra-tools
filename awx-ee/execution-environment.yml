@@ -34,5 +34,5 @@ additional_build_steps:
     RUN rm /tmp/helm-v$HELM_VERSION-linux-amd64.tar.gz /tmp/op /tmp/op.sig /tmp/op_linux_amd64_v$OP_VERSION.zip /tmp/terraform /tmp/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     RUN export LANGUAGE="C.UTF-8" 
   append_final:
-    - RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+    # - RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
     - RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
