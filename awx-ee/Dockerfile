@@ -87,6 +87,7 @@ RUN pip3 install --upgrade pip setuptools
 RUN dnf install -y unzip
 RUN dnf install -y openssl
 RUN dnf upgrade libcurl-minimal -y
+RUN dnf upgrade --refresh
 RUN cd /tmp && curl -LO https://releases.hashicorp.com/terraform/$TERRAFORM_VERSION/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && install -o root -g root -m 0755 terraform /usr/local/bin/terraform
 RUN curl -LO https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl
 RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
