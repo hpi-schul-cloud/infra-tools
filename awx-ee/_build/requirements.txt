@@ -1,8 +1,7 @@
 git+https://github.com/hpi-schul-cloud/infra-tools.git#subdirectory=onepwd
-ansible==8.0.0
-ansible-core==2.15.2
-molecule==3.6.1
-kubernetes==17.17.0
+ansible==11.6.0
+ansible-core==2.18.6
+kubernetes==32.0.1
 ionoscloud==6.1.9
 ionoscloud-dbaas-mongo==1.2.2
 pyotp==2.6.0
@@ -10,16 +9,15 @@ grafana_api
 url64==0.1.0
 boto3==1.21.43
 pexpect==4.8.0
-jinja2==3.0.3
+jinja2==3.1.6
 urllib3~=1.26
-pyOpenSSL==24.0.0
-dnspython==2.3.0
-netaddr==0.8.0
+pyOpenSSL==25.1.0
+dnspython==2.7.0
+netaddr==1.3.0
 passlib==1.7.4
 PyYAML==6.0.1
 
-awxkit>=19.4.0
-cryptography==42.0.4
-ipaddress>=1.0.0
-jsonpatch>=1.32
-requests>=2.31.0
+awxkit==24.6.1
+ipaddress==1.0.23
+jsonpatch>=1.33
+requests==2.32.3

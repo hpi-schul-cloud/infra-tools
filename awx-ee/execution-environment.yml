@@ -5,28 +5,28 @@ images:
     name: quay.io/centos/centos:stream9
 dependencies:
   ansible_core:
-    package_pip: ansible-core==2.15.2
+    package_pip: ansible-core==2.18.6
   ansible_runner:
-    package_pip: ansible-runner==2.2.1
+    package_pip: ansible-runner==2.4.1
   galaxy: _build/requirements.yml
   system: _build/bindep.txt
   python_interpreter:
-    # 3.10 is not available and 3.11 has dependency problem with pyyaml (requested by molecule==3.3.4)
-    package_system: "python39"
-    python_path: "/usr/bin/python3.9"
+    package_system: "python312"
+    python_path: "/usr/bin/python3.12"
   python: _build/requirements.txt
 options:
   user: '1000'
 additional_build_steps:
   prepend_final: |
-    ARG HELM_VERSION=3.13.3
+    ARG HELM_VERSION=3.18.2
     ARG TERRAFORM_VERSION=1.5.4
-    ARG KUBECTL_VERSION=1.27.10
-    ARG OP_VERSION=2.24.0
+    ARG KUBECTL_VERSION=1.30.7
+    ARG OP_VERSION=2.31.0
     RUN pip3 install --upgrade pip setuptools
     RUN dnf install -y unzip
     RUN dnf install -y openssl
     RUN dnf upgrade libcurl-minimal -y
+    RUN dnf upgrade --refresh
     RUN cd /tmp && curl -LO https://releases.hashicorp.com/terraform/$TERRAFORM_VERSION/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && install -o root -g root -m 0755 terraform /usr/local/bin/terraform
     RUN curl -LO https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl
     RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
@@ -35,4 +35,4 @@ additional_build_steps:
     RUN rm /tmp/helm-v$HELM_VERSION-linux-amd64.tar.gz /tmp/op /tmp/op.sig /tmp/op_linux_amd64_v$OP_VERSION.zip /tmp/terraform /tmp/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     RUN export LANGUAGE="C.UTF-8" 
   append_final:
-    - RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
+    - RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
