@@ -3,10 +3,8 @@ name: docops Docker Image on Push to GHCR
 
 on:
   push:
-    branches-ignore:
-      - master
-    paths:
-      - 'docops/**'
+    tags:
+      - 'docops-[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build_image_on_push:
