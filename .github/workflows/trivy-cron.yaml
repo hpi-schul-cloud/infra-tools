@@ -15,6 +15,7 @@ permissions:
 jobs:
   trivy_image_scan_cron:
     strategy:
+      fail-fast: false
       matrix:
         image:
           - infra-tools
