@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 as release
+FROM ubuntu:24.04 as release
 
 ARG BUILD_BRANCH
 ARG BUILD_HASH
@@ -11,14 +11,18 @@ LABEL build.branch="${BUILD_BRANCH}"
 LABEL build.hash="${BUILD_HASH}"
 RUN set -x \
     && apt-get -y update \
-    && apt-get -y install wget gnupg \
-    && wget -qO - https://pgp.mongodb.com/server-6.0.asc | gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor \
-    && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list \
-    && echo "deb https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get -y install curl wget gnupg \
+    && wget https://dl.k8s.io/release/v1.32.8/bin/linux/amd64/kubectl \
+    && chmod +x kubectl \
+    && mv ./kubectl /usr/local/bin/kubectl \
+    && curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
+        gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg \
+        --dearmor \
+    && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list \
+    && echo "deb https://apt.postgresql.org/pub/repos/apt noble-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc > /etc/apt/trusted.gpg.d/postgres.asc \
     && apt-get -y update \
     && apt-get -y install \
-        curl \
         git \
         make \
         bash \
@@ -31,7 +35,7 @@ RUN set -x \
         dnsutils \
         redis-tools \
         mongodb-mongosh \
-        mongodb-database-tools \
+        mongodb-org-database-tools-extra \
         vim-nox \
         mc \
         gpg \
@@ -52,4 +56,5 @@ RUN set -x \
     && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean -y \
-    && pip install duplicity==0.8.23
+    # https://stackoverflow.com/questions/75602063/pip-install-r-requirements-txt-is-failing-this-environment-is-externally-mana
+    && pip install duplicity==0.8.23 --break-system-packages
