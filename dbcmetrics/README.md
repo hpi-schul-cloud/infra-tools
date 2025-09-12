@@ -1,17 +1,18 @@
 # dbcmetrics
 
-A containerized Python application which exposes sepcial dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application version of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes.
+A containerized Python application which exposes special dBildungscloud values as Prometheus metrics. The application can have multiple modules for different values, e.g. a module for the application version of a running dBildungscloud instance or a further module providing the amount of mails in the dBidlungscloud mailboxes.
 The port where metrics are exposed is currently hard coded to 9000.
 
 The source code can be found in the [dbcmetrics](https://github.com/hpi-schul-cloud/infra-tools/tree/master/dbcmetrics) folder of the infra-tools repository of hpi-schul-cloud on github.
 
 ## Modules
-| Name               | metrics for       |
-| ------------------ | ----------------- |
-| storage            | S3 buckets        |
-| version            | service versions  |
-| ionosmaintenance   | maintenance windows of clusters | 
-| plannedmaintenance | planned maintenance windows (Cachet) | 
+| Name                  | metrics for       |
+| ------------------    | ----------------- |
+| storage               | S3 buckets        |
+| version               | service versions  |
+| ionosmaintenance      | maintenance windows of clusters | 
+| plannedmaintenance    | planned maintenance windows (Cachet) | 
+| uptimekumamaintenance | planned maintenance windows (Uptime kuma) | 
 
 # Configuration
 
@@ -32,6 +33,7 @@ The following environment variables are read by the dbcmetrics application:
 | VERSION_METRICS_ENABLED | version | Enables or disabled the version monitoring module | `true` |
 | IONOS_MAINTENANCE_METRICS_ENABLED | ionosmaintenance | Enables or disabled the ionosmaintenance monitoring module | `true` |
 | PLANNED_MAINTENANCE_METRICS_ENABLED | plannedmaintenance | Enables or disabled the ionosmaintenance monitoring module | `true` |
+| UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED | uptimekumamaintenance | Enables or disabled the uptimekumamaintenance monitoring module | `true` |
 | STORAGE_METRICS_ENABLED | storage | Enables or disabled the storage monitoring module | `true` |
 | STORAGE_INTERVAL | storage | Number of seconds between cycles in which the storage metrics are fetched | `30` |
 | STORAGE_EXCLUDE_SUBFOLDERS | storage | Defines if metric generation for folders inside of top-level folders should be disabled  | `true` |
@@ -42,6 +44,8 @@ The following environment variables are read by the dbcmetrics application:
 | STORAGE_ACCESS_SECRET | storage | The Secret Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
 | TERRAFORM_STATE_S3_ACCESS_KEY | ionosmaintenance | The Access Key of your Object Storage Key with access to the Terraform State Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
 | TERRAFORM_STATE_S3_SECRET_KEY | ionosmaintenance | The Secret Key of your Object Storage Key with access to the Terraform State Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
+| UPTIME_KUMA_API_KEY | uptimekumamaintenance | The Access Key of Uptime kuma (Secret in Kubernetes) | `khQfofQfCRKl8GpaAwYzkPvpud1_JzlHxS2PMUU-woI8EDUEihABPef5f4dpyCZAXoHKCRMl8GpaZwYzkJvp` (random generated) |
+
 
 # Run dbcmetrics on your local machine
 
@@ -70,6 +74,7 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 "VERSION_METRICS_ENABLED": "false",
                 "IONOS_MAINTENANCE_METRICS_ENABLED": "false",
                 "PLANNED_MAINTENANCE_METRICS_ENABLED": "false",
+                "UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED": "false",
                 "STORAGE_INTERVAL": "30",
                 "STORAGE_EXCLUDE_SUBFOLDERS": "true",
                 "STORAGE_PROVIDER_URL": "<S3 endpoint>",
@@ -77,7 +82,8 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 // Secrets in Kubernetes
                 "STORAGE_BUCKET_NAME": "<The Name of the Bucket to monitor>",
                 "STORAGE_ACCESS_KEY": "<The Access Key of your Object Storage Key with access to the Bucket>",
-                "STORAGE_ACCESS_SECRET": "<The Secret Key of your Object Storage Key with access to the Bucket>"
+                "STORAGE_ACCESS_SECRET": "<The Secret Key of your Object Storage Key with access to the Bucket>",
+                "UPTIME_KUMA_API_KEY": "<The Access Key of Uptime kuma>"
             },
         }
     ]
@@ -102,6 +108,7 @@ docker run `
     -e VERSION_METRICS_ENABLED="false" `
     -e IONOS_MAINTENANCE_METRICS_ENABLED="false" `
     -e PLANNED_MAINTENANCE_METRICS_ENABLED="false" `
+    -e UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED="false" `
     -e STORAGE_INTERVAL="30" `
     -e STORAGE_EXCLUDE_SUBFOLDERS="true" `
     -e STORAGE_PROVIDER_URL="<S3 endpoint>" `
@@ -109,6 +116,7 @@ docker run `
     -e STORAGE_BUCKET_NAME="<The Name of the Bucket to monitor>" `
     -e STORAGE_ACCESS_KEY="<The Access Key of your Object Storage Key with access to the Bucket>" `
     -e STORAGE_ACCESS_SECRET="<The Secret Key of your Object Storage Key with access to the Bucket>" `
+    -e UPTIME_KUMA_API_KEY="<The Access Key of Uptime kuma>" `
     dbcmetrics:latest
 ```
 
@@ -131,6 +139,12 @@ If the ionosmaintenance module is enabled you need a secret with the name `ionos
 | ----------- | ----------- |
 | s3_access_key | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
 | s3_access_secret | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
+
+If the uptimekumamaintenance module is enabled you need a secret with the name `uptimekuma-maintenance-metrics` with the following key-value pairs for the uptime kuma status page:
+
+| Key |  Value (Example) |
+| ----------- | ----------- |
+| api-key | `ofQfCRKl8GpaAwYzkPvpud1_JzlHxS2PMUU-woI8EDUEihABPef5f4dpyCZAXoHK` (random generated) |
 
 If you have done that you can install the dbcmetrics helm chart by in the `charts/` directory of the cloned `infra-schulcloud` repository and run the command
 ```
@@ -190,4 +204,11 @@ And a section like this for the plannedmaintenance module:
 # TYPE planned_maintenance_window gauge
 planned_maintenance_window{platform="exampleplatform-1"} 0.0
 planned_maintenance_window{platform="exampleplatform-2"} 1.0
+```
+
+And a section like this for the uptimekumamaintenance module:
+```
+# HELP uptime_kuma_maintenance_active 1 if any monitor is in a scheduled maintenance window, else 0
+# TYPE uptime_kuma_maintenance_active gauge
+uptime_kuma_maintenance_active 1.0
 ```

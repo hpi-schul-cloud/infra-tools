@@ -8,7 +8,7 @@ from dbcm_logic.dbcstorage import StorageMetricsThreading
 from dbcm_logic.dbcversion import VersionMetricsThreading
 from dbcm_logic.dbcionosmaintenance import IonosMaintenanceWindowThreading
 from dbcm_logic.dbcplannedmaintenance import PlannedMaintenanceWindowThreading
-
+from dbcm_logic.dbcuptimekumamaintenance import UptimeKumaMaintenanceWindowThreading
 
 if __name__ == '__main__':
     loglevel = os.environ.get('LOGLEVEL', 'INFO').upper()
@@ -43,6 +43,12 @@ if __name__ == '__main__':
             planned_maintenance_metrics_thread = PlannedMaintenanceWindowThreading(dbcm_config)
             dbcmThreads.append(planned_maintenance_metrics_thread)
             logging.info("Planned Maintenance window metrics started")
+            active_modules += 1
+        if os.getenv("UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED", default = "false").lower() == 'true':
+            logging.info("Uptimekuma Maintenance window metrics starting...")
+            uptimekuma_maintenance_metrics_thread = UptimeKumaMaintenanceWindowThreading(dbcm_config)
+            dbcmThreads.append(uptimekuma_maintenance_metrics_thread)
+            logging.info("Uptimekuma Maintenance window metrics started")
             active_modules += 1
         if active_modules == 0:
             logging.warning("No module is enabled!")

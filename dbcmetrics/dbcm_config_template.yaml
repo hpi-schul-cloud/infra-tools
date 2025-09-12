@@ -23,6 +23,11 @@ planned_maintenance_metrics:
   platforms:
     - name: "<platform name>"
       url: "<Base URL of the cachet page, for example: https://status.example.org>"
+uptimekuma_maintenance_metrics:
+  api_url: "<Base URL of the Uptime kuma page, for example: https://status.example.org>"
+  timezone: "<timezone of the Uptime kuma servers, for example Europe/Berlin>"
+  metric_refresh_interval_sec: <value in seconds, how often the metric is refreshed>
+  status_page_slug: "<The unique slug of the status page>"
 storage_metrics:
   url: "<URL of the S3 endpoint for the bucket>"
   region: "<Region of the bucket>"
