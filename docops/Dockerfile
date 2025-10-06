@@ -6,7 +6,8 @@ RUN \
     # Add non-privileged user
     adduser docops --uid 1000 --gid 0 && \
     # Install drawio
-    dnf install -y wget && \
+    dnf install -y wget sudo && \
+    echo "docops ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/docops && \
     mkdir /home/docops/drawio && \
     cd /home/docops/drawio && \
     curl -s https://api.github.com/repos/jgraph/drawio-desktop/releases/latest | grep browser_download_url | grep '.*drawio-x86_64-.*\.rpm' | cut -d '"' -f 4 | wget -i -  && \
