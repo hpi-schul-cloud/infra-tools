@@ -44,7 +44,8 @@ The following environment variables are read by the dbcmetrics application:
 | STORAGE_ACCESS_SECRET | storage | The Secret Key of your Object Storage Key with access to the Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
 | TERRAFORM_STATE_S3_ACCESS_KEY | ionosmaintenance | The Access Key of your Object Storage Key with access to the Terraform State Bucket (Secret in Kubernetes) | `mkMfCRMp8GpwZwXzkJbp` (random generated) |
 | TERRAFORM_STATE_S3_SECRET_KEY | ionosmaintenance | The Secret Key of your Object Storage Key with access to the Terraform State Bucket (Secret in Kubernetes) | `y8R+6P1Je+62xp9QPF7+euO005HbXr95zD/Clztm` (random generated) |
-| UPTIME_KUMA_API_KEY | uptimekumamaintenance | The Access Key of Uptime kuma (Secret in Kubernetes) | `khQfofQfCRKl8GpaAwYzkPvpud1_JzlHxS2PMUU-woI8EDUEihABPef5f4dpyCZAXoHKCRMl8GpaZwYzkJvp` (random generated) |
+| UPTIME_KUMA_USERNAME | uptimekumamaintenance | The Username for Uptime kuma (Secret in Kubernetes) | `admin` (random generated) |
+| UPTIME_KUMA_PASSWORD | uptimekumamaintenance | The Password for Uptime kuma (Secret in Kubernetes) | `khQfofQfCRKl8GpaAwYzkPvpud1_JzlHxS2PMUU-woI8EDUEihABPef5f4dpyCZAXoHKCRMl8GpaZwYzkJvp` (random generated) |
 
 
 # Run dbcmetrics on your local machine
