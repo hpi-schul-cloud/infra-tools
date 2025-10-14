@@ -40,7 +40,8 @@ class UptimeKumaMaintenanceWindowThreading(object):
     # Prometheus gauge metric
     self.metric = Gauge(
       "uptime_kuma_maintenance_active",
-      "1 if any monitor is in a scheduled maintenance window, else 0"
+      "1 if any monitor is in a scheduled maintenance window, else 0",
+      ["slug"]
     )
 
     # Loads initial data, starts a background thread to refresh metrics periodically.
@@ -62,6 +63,8 @@ class UptimeKumaMaintenanceWindowThreading(object):
       with UptimeKumaApi(self.API_URL) as api:
         api.login(self.UPTIME_KUMA_USERNAME, self.UPTIME_KUMA_PASSWORD)
         maintenances = api.get_maintenances()
+        status_page_groups = api.get_status_page(self.STATUS_PAGE_SLUG).get('publicGroupList')
+        status_page_monitor_ids = {monitor['id'] for entry in status_page_groups for monitor in entry['monitorList']}
 
         self.windows.clear()
 
@@ -71,18 +74,23 @@ class UptimeKumaMaintenanceWindowThreading(object):
         filtered_maintenances = list(filter(is_active_and_not_ended, maintenances))
 
         for maintenance in filtered_maintenances:
-          tz = timezone(maintenance.get("timezone"))
-          for slot in maintenance.get("timeslotList", []):
-            start = parse(slot["startDate"])
-            end = parse(slot["endDate"])
 
-            if start.tzinfo is None:
-              start = start.replace(tzinfo=tz)
-            if end.tzinfo is None:
-              end = end.replace(tzinfo=tz)
+          # Only process the maintenance element if it is relevant to the status page configured via the slug
+          if any(
+            monitor['id'] in status_page_monitor_ids for monitor in api.get_monitor_maintenance(maintenance.get("id"))):
 
-            self.windows.append((start, end))
-            logging.info(f"Loaded {len(self.windows)} maintenance windows.")
+            tz = timezone(maintenance.get("timezone"))
+            for slot in maintenance.get("timeslotList", []):
+              start = parse(slot["startDate"])
+              end = parse(slot["endDate"])
+
+              if start.tzinfo is None:
+                start = start.replace(tzinfo=tz)
+              if end.tzinfo is None:
+                end = end.replace(tzinfo=tz)
+
+              self.windows.append((start, end))
+              logging.info(f"Loaded {len(self.windows)} maintenance windows.")
 
     except Exception as e:
       logging.error("Error loading maintenance windows from API.")
@@ -92,4 +100,4 @@ class UptimeKumaMaintenanceWindowThreading(object):
   def refresh_metrics(self):
     now = datetime.datetime.now(datetime.UTC)
     in_window = any(start <= now <= end for start, end in self.windows)
-    self.metric.set(1 if in_window else 0)
+    self.metric.labels(slug=self.STATUS_PAGE_SLUG).set(1 if in_window else 0)
