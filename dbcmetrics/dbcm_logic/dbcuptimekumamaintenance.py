@@ -1,9 +1,10 @@
 import os
 import datetime
+from zoneinfo import ZoneInfo
+
 from dateutil.parser import parse
 import time
 import logging
-from pytz import timezone
 from prometheus_client import Gauge
 from uptime_kuma_api import UptimeKumaApi
 
@@ -77,9 +78,9 @@ class UptimeKumaMaintenanceWindowThreading(object):
 
           # Only process the maintenance element if it is relevant to the status page configured via the slug
           if any(
-            monitor['id'] in status_page_monitor_ids for monitor in api.get_monitor_maintenance(maintenance.get("id"))):
+            monitor.get("id") in status_page_monitor_ids for monitor in api.get_monitor_maintenance(maintenance.get("id"))):
 
-            tz = timezone(maintenance.get("timezone"))
+            tz = ZoneInfo(maintenance.get("timezone"))
             for slot in maintenance.get("timeslotList", []):
               start = parse(slot["startDate"])
               end = parse(slot["endDate"])
