@@ -44,10 +44,10 @@ if __name__ == '__main__':
             dbcmThreads.append(planned_maintenance_metrics_thread)
             logging.info("Planned Maintenance window metrics started")
             active_modules += 1
-        if os.getenv("UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED", default = "false").lower() == 'true':
+        if os.getenv("UPTIME_KUMA_MAINTENANCE_METRICS_ENABLED", default = "false").lower() == 'true':
             logging.info("Uptimekuma Maintenance window metrics starting...")
-            uptimekuma_maintenance_metrics_thread = UptimeKumaMaintenanceWindowThreading(dbcm_config)
-            dbcmThreads.append(uptimekuma_maintenance_metrics_thread)
+            uptime_kuma_maintenance_metrics_thread = UptimeKumaMaintenanceWindowThreading(dbcm_config)
+            dbcmThreads.append(uptime_kuma_maintenance_metrics_thread)
             logging.info("Uptimekuma Maintenance window metrics started")
             active_modules += 1
         if active_modules == 0:

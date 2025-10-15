@@ -33,7 +33,7 @@ The following environment variables are read by the dbcmetrics application:
 | VERSION_METRICS_ENABLED | version | Enables or disabled the version monitoring module | `true` |
 | IONOS_MAINTENANCE_METRICS_ENABLED | ionosmaintenance | Enables or disabled the ionosmaintenance monitoring module | `true` |
 | PLANNED_MAINTENANCE_METRICS_ENABLED | plannedmaintenance | Enables or disabled the ionosmaintenance monitoring module | `true` |
-| UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED | uptimekumamaintenance | Enables or disabled the uptimekumamaintenance monitoring module | `true` |
+| UPTIME_KUMA_MAINTENANCE_METRICS_ENABLED | uptimekumamaintenance | Enables or disabled the uptimekumamaintenance monitoring module | `true` |
 | STORAGE_METRICS_ENABLED | storage | Enables or disabled the storage monitoring module | `true` |
 | STORAGE_INTERVAL | storage | Number of seconds between cycles in which the storage metrics are fetched | `30` |
 | STORAGE_EXCLUDE_SUBFOLDERS | storage | Defines if metric generation for folders inside of top-level folders should be disabled  | `true` |
@@ -75,7 +75,7 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 "VERSION_METRICS_ENABLED": "false",
                 "IONOS_MAINTENANCE_METRICS_ENABLED": "false",
                 "PLANNED_MAINTENANCE_METRICS_ENABLED": "false",
-                "UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED": "false",
+                "UPTIME_KUMA_MAINTENANCE_METRICS_ENABLED": "false",
                 "STORAGE_INTERVAL": "30",
                 "STORAGE_EXCLUDE_SUBFOLDERS": "true",
                 "STORAGE_PROVIDER_URL": "<S3 endpoint>",
@@ -109,7 +109,7 @@ docker run `
     -e VERSION_METRICS_ENABLED="false" `
     -e IONOS_MAINTENANCE_METRICS_ENABLED="false" `
     -e PLANNED_MAINTENANCE_METRICS_ENABLED="false" `
-    -e UPTIMEKUMA_MAINTENANCE_METRICS_ENABLED="false" `
+    -e UPTIME_KUMA_MAINTENANCE_METRICS_ENABLED="false" `
     -e STORAGE_INTERVAL="30" `
     -e STORAGE_EXCLUDE_SUBFOLDERS="true" `
     -e STORAGE_PROVIDER_URL="<S3 endpoint>" `

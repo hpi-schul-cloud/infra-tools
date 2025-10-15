@@ -18,7 +18,7 @@ class UptimeKumaMaintenanceWindowThreading(object):
   def __init__(self, config: dict):
     try:
       # Initializes instance variables from the config.
-      file_configs = config["uptimekuma_maintenance_metrics"]
+      file_configs = config["uptime_kuma_maintenance_metrics"]
       self.API_URL = file_configs["api_url"]
 
       # cannot use api key as the socket.io api needed for retrieval of planned maintenance does not support it, cf. https://github.com/louislam/uptime-kuma/issues/3625#issuecomment-1686760395
