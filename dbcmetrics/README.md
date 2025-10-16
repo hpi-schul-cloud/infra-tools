@@ -141,9 +141,10 @@ If the ionosmaintenance module is enabled you need a secret with the name `ionos
 
 If the uptimekumamaintenance module is enabled you need a secret with the name `uptimekuma-maintenance-metrics` with the following key-value pairs for the uptime kuma status page:
 
-| Key |  Value (Example) |
-| ----------- | ----------- |
-| api-key | `ofQfCRKl8GpaAwYzkPvpud1_JzlHxS2PMUU-woI8EDUEihABPef5f4dpyCZAXoHK` (random generated) |
+| Key      |  Value (Example) |
+|----------| ----------- |
+| username | `ofQfCRKl8GpaAwYzkPvpud1_JzlHxS2PMUU-woI8EDUEihABPef5f4dpyCZAXoHK` (random generated) |
+| password | `ofQfCRKl8GpaAwYzkPvpud1_JzlHxS2PMUU-woI8EDUEihABPef5f4dpyCZAXoHK` (random generated) |
 
 If you have done that you can install the dbcmetrics helm chart by in the `charts/` directory of the cloned `infra-schulcloud` repository and run the command
 ```
