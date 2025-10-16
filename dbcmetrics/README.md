@@ -210,5 +210,5 @@ And a section like this for the uptimekumamaintenance module:
 ```
 # HELP uptime_kuma_maintenance_active 1 if any monitor is in a scheduled maintenance window, else 0
 # TYPE uptime_kuma_maintenance_active gauge
-uptime_kuma_maintenance_active 1.0
+uptime_kuma_maintenance_active{monitor_id="1",monitor_name="Test"} 1.0
 ```
