@@ -83,8 +83,7 @@ Then you need to create a run configuration by adding or editing the file `.vsco
                 // Secrets in Kubernetes
                 "STORAGE_BUCKET_NAME": "<The Name of the Bucket to monitor>",
                 "STORAGE_ACCESS_KEY": "<The Access Key of your Object Storage Key with access to the Bucket>",
-                "STORAGE_ACCESS_SECRET": "<The Secret Key of your Object Storage Key with access to the Bucket>",
-                "UPTIME_KUMA_API_KEY": "<The Access Key of Uptime kuma>"
+                "STORAGE_ACCESS_SECRET": "<The Secret Key of your Object Storage Key with access to the Bucket>"
             },
         }
     ]
@@ -117,7 +116,6 @@ docker run `
     -e STORAGE_BUCKET_NAME="<The Name of the Bucket to monitor>" `
     -e STORAGE_ACCESS_KEY="<The Access Key of your Object Storage Key with access to the Bucket>" `
     -e STORAGE_ACCESS_SECRET="<The Secret Key of your Object Storage Key with access to the Bucket>" `
-    -e UPTIME_KUMA_API_KEY="<The Access Key of Uptime kuma>" `
     dbcmetrics:latest
 ```
 
