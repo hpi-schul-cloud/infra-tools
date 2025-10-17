@@ -38,26 +38,33 @@ class ActionModule(ActionBase):
             raise AnsibleActionFail('State must be one of absent, present.')
         generate_password = self._task.args.get('generate_password', None)
         overwrite = self._task.args.get('overwrite', True)
+        create = self._task.args.get('create', False)
         check = self._task.check_mode
 
         result = {}
         if state == 'present':
-            result = self.run_present(op, category, name, vault, fields, generate_password, overwrite, check)
+            result = self.run_present(op, category, name, vault, fields, generate_password, overwrite, check, create)
         if state == 'absent':
             result = self.run_absent(op, name, vault, check)
         return result
     
-    def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, generate_password, overwrite, check):
+    def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, generate_password, overwrite, check, create):
         assignment_statements = ""
         # Dry-run doesn't recognize changes in files so we always update items containing files
         overwrite_file_fields = False
         for field in fields:
             if 'overwrite' in field and field['overwrite'] is False:
-                labels = op.get('item', item_name=name, vault=vault)
                 label_existing  = False
-                for element in labels["fields"]:
-                    if field['name'] == element["label"]:
-                        label_existing = True
+                try:
+                    labels = op.get('item', item_name=name, vault=vault)
+                    for element in labels["fields"]:
+                        if field['name'] == element["label"]:
+                            label_existing = True
+                except onepwd.UnknownResourceItem as exception:
+                    # if the create flag is not set, reraise the exception to make the run fail
+                    if not self.create:
+                        raise exception
+                
                 if not label_existing:
                     assignment_statements += " " + onepwd.build_assignment_statement(field)
             else:
