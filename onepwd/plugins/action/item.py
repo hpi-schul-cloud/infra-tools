@@ -53,11 +53,14 @@ class ActionModule(ActionBase):
         overwrite_file_fields = False
         for field in fields:
             if 'overwrite' in field and field['overwrite'] is False:
-                labels = op.get('item', item_name=name, vault=vault)
                 label_existing  = False
-                for element in labels["fields"]:
-                    if field['name'] == element["label"]:
-                        label_existing = True
+                try:
+                    labels = op.get('item', item_name=name, vault=vault)
+                    for element in labels["fields"]:
+                        if field['name'] == element["label"]:
+                            label_existing = True
+                except onepwd.UnknownResourceItem as exception:
+                    pass
                 if not label_existing:
                     assignment_statements += " " + onepwd.build_assignment_statement(field)
             else:
