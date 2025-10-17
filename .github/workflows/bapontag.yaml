@@ -28,13 +28,13 @@ jobs:
       - name: Determine registries
         id: registries
         run: |
-          if [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools' ]]; then
+          if [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools' || "${{ steps.nameTag.outputs.tag }}" == 'infra-tools-debian' ]]; then
             echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'dbcmetrics' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools' ]]; then
+          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools' || "${{ steps.nameTag.outputs.tag }}" == 'cron-tools-debian' ]]; then
             echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
           fi
   
