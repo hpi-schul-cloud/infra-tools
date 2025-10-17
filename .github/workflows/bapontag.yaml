@@ -5,9 +5,11 @@ on:
   push:
     tags:
       - 'infra-tools-[0-9]+.[0-9]+.[0-9]+'
+      - 'infra-tools-debian-[0-9]+.[0-9]+.[0-9]+'
       - 'dbcmetrics-[0-9]+.[0-9]+.[0-9]+'
       - 'awx-ee-[0-9]+.[0-9]+.[0-9]+'
       - 'cron-tools-[0-9]+.[0-9]+.[0-9]+'
+      - 'cron-tools-debian-[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   pre_build:

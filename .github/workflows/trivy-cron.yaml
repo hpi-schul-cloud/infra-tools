@@ -19,10 +19,12 @@ jobs:
       matrix:
         image:
           - infra-tools
+          - infra-tools-debian
           - dbcmetrics
           - awx-ee
           - docops
           - cron-tools
+          - cron-tools-debian
     uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@master
     with:
       image-ref: 'docker.io/schulcloud/${{ matrix.image }}:latest'

@@ -1,0 +1,21 @@
+---
+name: infra-tools-debian Docker Image on Push to GHCR
+
+on:
+  push:
+    branches-ignore:
+      - master
+    paths:
+      - 'infra-tools-debian/**'
+
+jobs:
+  build_image_on_push:
+    permissions:
+      packages: write
+      security-events: write
+      actions: read
+      contents: read
+    uses: ./.github/workflows/imagetoghcr-on-push.yaml
+    with:
+      image_name: "infra-tools-debian"
+      context: "./infra-tools-debian/"
