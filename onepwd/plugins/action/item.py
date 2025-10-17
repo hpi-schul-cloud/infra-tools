@@ -62,7 +62,7 @@ class ActionModule(ActionBase):
                             label_existing = True
                 except onepwd.UnknownResourceItem as exception:
                     # if the create flag is not set, reraise the exception to make the run fail
-                    if not self.create:
+                    if not create:
                         raise exception
                 
                 if not label_existing:
