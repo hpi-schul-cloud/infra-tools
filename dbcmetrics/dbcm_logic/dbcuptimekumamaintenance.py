@@ -49,7 +49,7 @@ class UptimeKumaMaintenanceWindowThreading(object):
 
     # Loads initial data, starts a background thread to refresh metrics periodically.
     self.load_maintenance_windows()
-    self.last_loaded = time.time()
+    self.last_time_windows_loaded = time.time()
 
     RepeatingThread(interval=self.METRICS_INTERVAL, name="Metrics Refresh", target=self.run)
     logging.info(f"Uptime Kuma Maintenance Metrics Thread started. UTC Time: {datetime.datetime.now(datetime.UTC)}")
@@ -57,7 +57,7 @@ class UptimeKumaMaintenanceWindowThreading(object):
   def run(self):
     if (time.time() - self.last_time_windows_loaded)/60 > self.LOADING_INTERVAL_MIN:
       self.load_maintenance_windows()
-      self.last_loaded = time.time()
+      self.last_time_windows_loaded = time.time()
     self.refresh_metrics()
 
   # Fetches maintenance data from Uptime Kuma API.
