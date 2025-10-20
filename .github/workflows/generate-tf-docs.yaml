@@ -1,0 +1,43 @@
+# https://github.com/terraform-docs/gh-actions
+ 
+name: Generate Terraform-Docs
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: "Name on which to push changes to github"
+        required: true
+        type: string
+      email:
+        description: "Email on which to push changes to github"
+        required: true
+        type: string
+      src_path_tf:
+        description: "Provide dir on which to run tf-docs"
+        required: false
+        type: string
+      terraform_docs_config_file:
+        description: "Name custom tf-docs template file if existing"
+        required: false
+        type: string
+
+jobs:
+  create_tf-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking out code to Runner
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}    
+    - name: Render Terraform-Docs
+      uses: terraform-docs/gh-actions@v0.11.0
+      with:
+        find-dir: ${{ inputs.src_path_tf}}
+        config-file:  ${{ inputs.terraform_docs_config_file }}
+        output-file: README.md
+        # other methods "replace" or "reprint", "inject"
+        output-method: replace
+        git-push: true
+        git-commit-message: "Updating README.md via GithubActions (tf-docs)"
+        git-push-user-email: ${{ inputs.email }}
+        git-push-user-name: ${{ inputs.name }}

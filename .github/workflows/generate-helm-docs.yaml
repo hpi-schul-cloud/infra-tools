@@ -1,0 +1,46 @@
+# https://github.com/norwoodj/helm-docs
+ 
+name: Generate Helm-Docs
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: "Name on which to push changes to github"
+        required: true
+        type: string
+      email:
+        description: "Email on which to push changes to github"
+        required: true
+        type: string
+      src_path_helm:
+        description: "Provide dirs on which to run helm-docs, can be multiple, separate by comma without space"
+        required: true
+        type: string
+      helm_docs_template_file:
+        description: "Name custom helm-docs template file if existing"
+        required: false
+        type: string
+      helm_ignored_dirs:
+        description: "Provide dirs name to ignore, can be multiple, separate by comma without space"
+        required: false
+        type: string
+ 
+jobs:
+  create_helm-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking out code to Runner
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}    
+    - name: Render Helm-Docs
+      uses: hpi-schul-cloud/infra-tools/.github/actions/helm-docs@tf-helm-docs-v1
+      with:
+        # provide name of dirs to run helm-docs on, separate by comma without space
+        src_path: ${{ inputs.src_path_helm}}
+        template_file: ${{ inputs.helm_docs_template_file }}
+        # provide name of dirs to ignore, separate by comma without space
+        ignored_dirs: ${{ inputs.helm_ignored_dirs}}
+        git_push: true 
+        username: ${{ inputs.name }}
+        email: ${{ inputs.email }}
