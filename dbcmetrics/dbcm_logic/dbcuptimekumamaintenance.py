@@ -19,6 +19,9 @@ class UptimeKumaMaintenanceWindowThreading(object):
     try:
       # Initializes instance variables from the config.
       file_configs = config["uptime_kuma_maintenance_metrics"]
+      self.LOADING_INTERVAL_MIN = file_configs["window_refresh_interval_min"]
+      self.METRICS_INTERVAL = datetime.timedelta(seconds=file_configs["metric_refresh_interval_sec"])
+
       self.API_URL = file_configs["api_url"]
 
       # cannot use api key as the socket.io api needed for retrieval of planned maintenance does not support it, cf. https://github.com/louislam/uptime-kuma/issues/3625#issuecomment-1686760395
@@ -28,8 +31,6 @@ class UptimeKumaMaintenanceWindowThreading(object):
       if self.UPTIME_KUMA_USERNAME is None or self.UPTIME_KUMA_PASSWORD is None:
         logging.error("Missing uptime kuma credentials")
         raise DBCMException
-
-      self.METRIC_REFRESH_INTERVAL = datetime.timedelta(seconds=file_configs["metric_refresh_interval_sec"])
 
     except Exception as e:
       logging.error("Missing or invalid configuration for Uptime Kuma API maintenance metrics.")
@@ -50,11 +51,11 @@ class UptimeKumaMaintenanceWindowThreading(object):
     self.load_maintenance_windows()
     self.last_loaded = time.time()
 
-    RepeatingThread(interval=self.METRIC_REFRESH_INTERVAL, name="Metrics Refresh", target=self.run)
+    RepeatingThread(interval=self.METRICS_INTERVAL, name="Metrics Refresh", target=self.run)
     logging.info(f"Uptime Kuma Maintenance Metrics Thread started. UTC Time: {datetime.datetime.now(datetime.UTC)}")
 
   def run(self):
-    if (time.time() - self.last_loaded) > self.METRIC_REFRESH_INTERVAL.total_seconds():
+    if (time.time() - self.last_time_windows_loaded)/60 > self.LOADING_INTERVAL_MIN:
       self.load_maintenance_windows()
       self.last_loaded = time.time()
     self.refresh_metrics()
