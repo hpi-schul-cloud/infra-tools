@@ -26,6 +26,7 @@ planned_maintenance_metrics:
 uptime_kuma_maintenance_metrics:
   api_url: "<Base URL of the Uptime kuma page, for example: https://status.example.org>"
   metric_refresh_interval_sec: <value in seconds, how often the metric is refreshed>
+  window_refresh_interval_min: <value in minutes, how often the maintenance windows are polled>
 storage_metrics:
   url: "<URL of the S3 endpoint for the bucket>"
   region: "<Region of the bucket>"
