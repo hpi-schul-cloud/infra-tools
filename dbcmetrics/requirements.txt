@@ -3,6 +3,7 @@ requests==2.32.4
 prometheus-client==0.22.1
 boto3==1.39.6
 pytz==2025.2
-regex==2024.11.6
+regex==2025.9.18
 # Fix for ERROR: Could not find a version that satisfies the requirement charset_normalizer<4,>=2 (from requests) (from versions: none)
 charset-normalizer==3.4.2
+uptime-kuma-api==1.2.1
