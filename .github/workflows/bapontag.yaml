@@ -5,9 +5,11 @@ on:
   push:
     tags:
       - 'infra-tools-[0-9]+.[0-9]+.[0-9]+'
+      - 'infra-tools-debian-[0-9]+.[0-9]+.[0-9]+'
       - 'dbcmetrics-[0-9]+.[0-9]+.[0-9]+'
       - 'awx-ee-[0-9]+.[0-9]+.[0-9]+'
       - 'cron-tools-[0-9]+.[0-9]+.[0-9]+'
+      - 'cron-tools-debian-[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   pre_build:
@@ -28,12 +30,16 @@ jobs:
         run: |
           if [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools' ]]; then
             echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools-debian' ]]; then
+            echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'dbcmetrics' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
             echo "registries=dockerhub" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools' ]]; then
             echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools-debian' ]]; then
+            echo "registries=dockerhub" >> $GITHUB_OUTPUT
           fi
   
   build_and_push:
