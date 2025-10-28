@@ -68,9 +68,13 @@ class UptimeKumaMaintenanceWindowThreading(object):
       with UptimeKumaApi(self.API_URL) as api:
         api.login(self.UPTIME_KUMA_USERNAME, self.UPTIME_KUMA_PASSWORD)
 
+        monitors_temp = {}
+
         for monitor in api.get_monitors():
           windows_temp[monitor.get("id")] = []
-          self.monitors[monitor.get("id")] = monitor.get("name")
+          monitors_temp[monitor.get("id")] = monitor.get("name")
+
+        self.monitors = monitors_temp
 
         def is_active_and_not_ended(item):
           return item.get("active") and item.get("status") != "ended"
@@ -106,8 +110,12 @@ class UptimeKumaMaintenanceWindowThreading(object):
   def refresh_metrics(self):
     now = datetime.datetime.now(datetime.UTC)
 
+    # Handle cases when monitors are deleted / renamed - accept small probability of metrics being empty on request in favor of shorter code
+    self.metric.clear()
+
     for monitor_id, monitor_windows in self.windows.items():
+      monitor_name = self.monitors[monitor_id]
       if any(start <= now <= end for start, end in monitor_windows):
-        self.metric.labels(monitor_id=monitor_id,monitor_name=self.monitors[monitor_id]).set(1)
+        self.metric.labels(monitor_id=monitor_id,monitor_name=monitor_name).set(1)
       else:
-        self.metric.labels(monitor_id=monitor_id,monitor_name=self.monitors[monitor_id]).set(0)
+        self.metric.labels(monitor_id=monitor_id,monitor_name=monitor_name).set(0)
