@@ -1,4 +1,4 @@
-FROM debian:12-slim
+FROM debian:13-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
@@ -15,7 +15,7 @@ RUN set -x \
         gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg \
         --dearmor \
     && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/8.0 main" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list \
-    && echo "deb https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && echo "deb https://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc > /etc/apt/trusted.gpg.d/postgres.asc \
     && apt-get -y update \
     && apt-get -y install \
@@ -25,15 +25,10 @@ RUN set -x \
         jq \
         openssl \
         duply \
-        python3 \
-        python3-pip \
-        python3-boto3 \
-        gpg \
-        gettext \
-        librsync-dev \
+        duplicity \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
     
     # https://stackoverflow.com/questions/75602063/pip-install-r-requirements-txt-is-failing-this-environment-is-externally-mana
-RUN pip install duplicity==0.8.23 --break-system-packages
+#RUN pip install duplicity==3.0.6 boto3 --break-system-packages
