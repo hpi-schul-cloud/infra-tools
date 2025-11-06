@@ -24,6 +24,7 @@ RUN set -x \
         mariadb-client \
         jq \
         openssl \
+        python3-boto3 \
         duply \
         duplicity \
     && apt-get clean -y \
