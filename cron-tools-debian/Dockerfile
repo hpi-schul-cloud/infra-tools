@@ -27,6 +27,7 @@ RUN set -x \
         python3-boto3 \
         duply \
         duplicity \
+        gpg \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
