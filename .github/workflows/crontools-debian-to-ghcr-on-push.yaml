@@ -19,3 +19,15 @@ jobs:
     with:
       image_name: "cron-tools-debian"
       context: "./cron-tools-debian/"
+
+  scan_image_on_push:
+    permissions:
+      packages: write
+      security-events: write
+      actions: read
+      contents: read
+    needs: build_image_on_push
+    uses: ./.github/workflows/clamav.yml
+    with:
+      image_name: "cron-tools-debian"
+      context: "./cron-tools-debian/"
