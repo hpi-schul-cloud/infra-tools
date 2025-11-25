@@ -1,5 +1,5 @@
 ---
-name: Trivy Image Vulnerability Scann Job
+name: Trivy Image Vulnerability Scan Job
 on:
   workflow_call:
     inputs:
