@@ -36,11 +36,19 @@ jobs:
       security-events: write
       actions: read
       contents: read
+      
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Docker meta Service Name for docker hub
+      - name: Log into registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+          - name: Docker meta Service Name for docker hub
         id: docker_meta_img
         uses: docker/metadata-action@v5
         with:
@@ -98,13 +106,6 @@ jobs:
             exit 1
           fi
           
-      - name: Log into registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Push all scanned image to ghcr.io
         run: |
           echo "${{ steps.docker_meta_img.outputs.tags }}" | grep -v '^$' | while read TAG; do
