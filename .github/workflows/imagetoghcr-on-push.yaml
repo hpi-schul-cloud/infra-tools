@@ -40,13 +40,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Create lowercase image ref
-        id: lower-repo
-        env:
-          image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
-        run: | 
-          echo "repository=${image_ref@L}" >> $GITHUB_OUTPUT
-
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img
         uses: docker/metadata-action@v3
@@ -73,6 +66,12 @@ jobs:
           tags: ${{ steps.docker_meta_img.outputs.tags }}
           labels: ${{ steps.docker_meta_img.outputs.labels }}
 
+      - name: Create lowercase image ref
+        id: lower-repo
+        env:
+          image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
+        run: | 
+          echo "repository=${image_ref@L}" >> $GITHUB_OUTPUT
 
       - name: Export Docker image as tar
         run: |
