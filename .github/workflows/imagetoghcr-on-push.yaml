@@ -54,10 +54,11 @@ jobs:
         id: lower-repo
         env:
           #image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
-          #image_ref: '${{ github.repository_owner }}/${{ inputs.image_name }}:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}'
+          repo_ref: '${{ github.repository_owner }}/${{ inputs.image_name }}:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}'
           image_ref: '${{ github.repository_owner }}/${{ inputs.image_name }}'
         run: | 
-          echo "repository=${image_ref@L}" >> $GITHUB_OUTPUT
+          echo "repository=${repo_ref@L}" >> $GITHUB_OUTPUT
+          echo "image=${image_ref@L}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ github.repository }}
         id: docker_build_push
@@ -71,29 +72,29 @@ jobs:
 
       - name: Export Docker image as tar
         run: |
-          docker save ghcr.io/${{ steps.lower-repo.outputs.repository }} -o image.tar
+          docker save ghcr.io/${{ steps.lower-repo.outputs.image }} -o image.tar
           mkdir -p ${{ github.workspace }}/clamavscan
           mv image.tar ${{ github.workspace }}/clamavscan/image.tar
 
       - name: Run ClamAV scan
         run: |
           docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest freshclam
-          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest clamscan /scan/image.tar > ${{ github.workspace }}/clamav-results-${{ matrix.variant }}.txt
+          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest clamscan /scan/image.tar > ${{ github.workspace }}/clamav-results.txt
 
       - name: Upload ClamAV scan results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: clamav-results-${{ matrix.variant }}
-          path: clamav-results-${{ matrix.variant }}.txt
+          name: clamav-results
+          path: clamav-results.txt
 
       - name: Check ClamAV scan result
         run: |
-          if grep -q "/scan/image.tar: OK" ${{ github.workspace }}/clamav-results-${{ matrix.variant }}.txt; then
-            echo "No malware found for variant ${{ matrix.variant }}."
+          if grep -q "/scan/image.tar: OK" ${{ github.workspace }}/clamav-results.txt; then
+            echo "No malware found."
           else
-            echo "::warning::Malware detected or scan failed for variant ${{ matrix.variant }}!"
-            cat ${{ github.workspace }}/clamav-results-${{ matrix.variant }}.txt
+            echo "::warning::Malware detected!"
+            cat ${{ github.workspace }}/clamav-results.txt
             exit 1
           fi
           
@@ -114,9 +115,9 @@ jobs:
       # GHCR requires the image to be all lowercase, otherwise trivy can't pull the image
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
+        uses: aquasecurity/trivy-action@v0.33.0
         with:
-          image-ref: ${{ steps.lower_repo.outputs.repository }}
+          image-ref: ${{ steps.lower-repo.outputs.repository }}
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
