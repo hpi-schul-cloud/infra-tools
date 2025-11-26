@@ -62,8 +62,8 @@ jobs:
         id: lower-repo
         env:
           #image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
-          repo_ref: '${{ github.repository_owner }}/${{ inputs.image_name }}:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}'
-          image_ref: '${{ github.repository_owner }}/${{ inputs.image_name }}'
+          repo_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}'
+          image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}'
         run: | 
           echo "repository=${repo_ref@L}" >> $GITHUB_OUTPUT
           echo "image=${image_ref@L}" >> $GITHUB_OUTPUT
@@ -80,7 +80,7 @@ jobs:
 
       - name: Export Docker image as tar
         run: |
-          docker save ghcr.io/${{ steps.lower-repo.outputs.image }} -o image.tar
+          docker save ${{ steps.lower-repo.outputs.image }} -o image.tar
           mkdir -p ${{ github.workspace }}/clamavscan
           mv image.tar ${{ github.workspace }}/clamavscan/image.tar
 
@@ -118,7 +118,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.29.0
         with:
-          image-ref: ${{ github.repository_owner }}/${{ inputs.image_name }}:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
+          image-ref: ${{ steps.lower-repo.outputs.repository }}
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
