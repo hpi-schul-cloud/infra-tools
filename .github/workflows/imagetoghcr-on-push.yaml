@@ -116,7 +116,7 @@ jobs:
       # GHCR requires the image to be all lowercase, otherwise trivy can't pull the image
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
           image-ref: ${{ steps.lower-repo.outputs.repository }}
           format: "sarif"
