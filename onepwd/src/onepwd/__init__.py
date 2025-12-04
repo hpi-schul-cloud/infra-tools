@@ -123,19 +123,6 @@ class OnePwd(object):
             fields_to_change += f"BUCKET_NAME={BUCKET_NAME} "
         return self.edit_item(title, fields_to_change, vault)
 
-    # used in ansible action update_s3_values_of_item
-    def update_s3_values_of_server_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
-        fields_to_change = ""
-        if ACCESS_KEY is not None:
-            fields_to_change += f"FILES_STORAGE__S3_ACCESS_KEY_ID={ACCESS_KEY} "
-        if ACCESS_SECRET is not None:
-            fields_to_change += f"FILES_STORAGE__S3_SECRET_ACCESS_KEY={ACCESS_SECRET} "
-        if BUCKET_NAME is not None:
-            fields_to_change += f"FILES_STORAGE__S3_BUCKET={BUCKET_NAME} "
-        if ENDPOINT_URL is not None:
-            fields_to_change += f"FILES_STORAGE__S3_ENDPOINT={ENDPOINT_URL} "
-        return self.edit_item(title, fields_to_change, vault)
-
     # used in ansible action update_s3_values_of_item used by nextcloud and ionos-s3-password-backup
     def update_s3_values_of_standard_s3_item(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None, ENDPOINT_URL=None):
         fields_to_change = ""
