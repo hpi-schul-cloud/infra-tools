@@ -102,7 +102,7 @@ jobs:
 
       - name: Check ClamAV scan result
         run: |
-          if grep -q "/scan/image.tar: OK" ${{ github.workspace }}/clamav-results.txt; then
+          if grep -q "Infected files: 0" ${{ github.workspace }}/clamav-results.txt; then
             echo "No malware found."
           else
             echo "::warning::Malware detected!"
