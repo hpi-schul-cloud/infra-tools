@@ -80,14 +80,17 @@ jobs:
 
       - name: Export Docker image as tar
         run: |
-          docker save ${{ steps.lower-repo.outputs.image }} -o image.tar
-          mkdir -p ${{ github.workspace }}/clamavscan
-          mv image.tar ${{ github.workspace }}/clamavscan/image.tar
+          mkdir -p ${{ github.workspace }}/clamavscan/container_fs
+          docker create --name temp_scan_container ${{ steps.lower-repo.outputs.image }}
+          docker export temp_scan_container -o ${{ github.workspace }}/clamavscan/container_fs.tar
+          tar -xf ${{ github.workspace }}/clamavscan/container_fs.tar -C ${{ github.workspace }}/clamavscan/container_fs
+          docker rm temp_scan_container
+          rm -rf ${{ github.workspace }}/clamavscan/container_fs.tar
 
       - name: Run ClamAV scan
         run: |
-          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest freshclam
-          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest clamscan /scan/image.tar > ${{ github.workspace }}/clamav-results.txt
+          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest freshclam --datadir=/scan
+          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest clamscan /scan/container_fs -d /scan -r > ${{ github.workspace }}/clamav-results.txt
 
       - name: Upload ClamAV scan results
         if: ${{ always() }}
