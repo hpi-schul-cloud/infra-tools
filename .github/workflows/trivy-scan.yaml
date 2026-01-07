@@ -37,3 +37,21 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+      
+      - name: run trivy vulnerability scanner to generate SBOM
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ inputs.image-ref }}
+          format: "github"
+          output: "dependency-results.sbom.json"
+          scan-type: 'image'
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          TRIVY_SKIP_DB_UPDATE: false
+          TRIVY_SKIP_JAVA_DB_UPDATE: false
+
+      - name: Upload trivy report as a Github artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "trivy-sbom-report"
+          path: '${{ github.workspace }}/dependency-results.sbom.json'
