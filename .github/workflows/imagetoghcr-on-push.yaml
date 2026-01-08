@@ -68,7 +68,7 @@ jobs:
           echo "repository=${repo_ref@L}" >> $GITHUB_OUTPUT
           echo "image=${image_ref@L}" >> $GITHUB_OUTPUT
 
-      - name: Build and push ${{ github.repository }}
+      - name: Build ${{ github.repository }} (without push)
         id: docker_build_push
         uses: docker/build-push-action@v6
         with:
