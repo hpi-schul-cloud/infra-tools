@@ -23,7 +23,7 @@ jobs:
         # Third-party action, pin to commit SHA!
         # See https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
         # Breaking API Aqua Security Trivy Action 0.8.0
-        uses: aquasecurity/trivy-action@9ab158e8597f3b310480b9a69402b419bc03dbd5
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8
         with:
           image-ref: ${{ inputs.image-ref }}
           format: 'sarif'
@@ -37,9 +37,9 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
-      
+
       - name: run trivy vulnerability scanner to generate SBOM
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8
         with:
           image-ref: ${{ inputs.image-ref }}
           format: "github"
@@ -51,7 +51,7 @@ jobs:
           TRIVY_SKIP_JAVA_DB_UPDATE: false
 
       - name: Upload trivy report as a Github artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: "trivy-sbom-report"
           path: '${{ github.workspace }}/dependency-results.sbom.json'
