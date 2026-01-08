@@ -17,7 +17,7 @@ jobs:
       security-events: write
       # only required for workflows in private repositories
       actions: read
-      contents: read
+      contents: write
     steps:
       - name: Run Trivy vulnerability scanner
         # Third-party action, pin to commit SHA!
