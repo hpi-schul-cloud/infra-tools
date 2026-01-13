@@ -61,7 +61,6 @@ jobs:
       - name: Create lowercase image ref
         id: lower-repo
         env:
-          #image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
           repo_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}'
           image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}'
         run: | 
