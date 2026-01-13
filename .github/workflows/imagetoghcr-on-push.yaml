@@ -36,47 +36,92 @@ jobs:
       security-events: write
       actions: read
       contents: read
+      
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Docker meta Service Name for docker hub
-        id: docker_meta_img_hub
-        uses: docker/metadata-action@v3
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}
-          tags: |
-            type=match,value={{branch}},pattern=.*\d,suffix=-latest
-            type=match,pattern=docops-\d+\.\d+\.\d+
+        uses: actions/checkout@v4
 
       - name: Log into registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push ${{ github.repository }}
+      - name: Docker meta Service Name for docker hub
+        id: docker_meta_img
+        uses: docker/metadata-action@v5
+        with:
+          context: git
+          images: ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}
+          tags: |
+            type=match,value={{branch}},pattern=.*\d,suffix=-latest
+            type=match,pattern=docops-\d+\.\d+\.\d+
+
+      - name: Create lowercase image ref
+        id: lower-repo
+        env:
+          repo_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}:${{ env.DOCKER_METADATA_OUTPUT_VERSION }}'
+          image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}'
+        run: | 
+          echo "repository=${repo_ref@L}" >> $GITHUB_OUTPUT
+          echo "image=${image_ref@L}" >> $GITHUB_OUTPUT
+
+      - name: Build ${{ github.repository }} (without push)
         id: docker_build_push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.context }}
           platforms: linux/amd64
-          push: true
-          tags: ${{ steps.docker_meta_img_hub.outputs.tags }}
-          labels: ${{ steps.docker_meta_img_hub.outputs.labels }}
+          load: true
+          tags: ${{ steps.docker_meta_img.outputs.tags }}
+          labels: ${{ steps.docker_meta_img.outputs.labels }}
+
+      - name: Export Docker image as tar
+        run: |
+          mkdir -p ${{ github.workspace }}/clamavscan/container_fs
+          chmod -R 777 ${{ github.workspace }}/clamavscan
+          docker create --name temp_scan_container ${{ steps.lower-repo.outputs.image }}
+          docker export temp_scan_container -o ${{ github.workspace }}/clamavscan/container_fs.tar
+          tar -xf ${{ github.workspace }}/clamavscan/container_fs.tar -C ${{ github.workspace }}/clamavscan/container_fs
+          docker rm temp_scan_container
+          rm -rf ${{ github.workspace }}/clamavscan/container_fs.tar
+
+      - name: Run ClamAV scan
+        run: |
+          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest freshclam --datadir=/scan
+          docker run --rm -v ${{ github.workspace }}/clamavscan:/scan clamav/clamav:latest clamscan /scan/container_fs -d /scan -r > ${{ github.workspace }}/clamav-results.txt
+
+      - name: Upload ClamAV scan results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: clamav-results
+          path: clamav-results.txt
+
+      - name: Check ClamAV scan result
+        run: |
+          if grep -q "Infected files: 0" ${{ github.workspace }}/clamav-results.txt; then
+            echo "No malware found."
+          else
+            echo "::warning::Malware detected!"
+            cat ${{ github.workspace }}/clamav-results.txt
+            exit 1
+          fi
+          
+      - name: Push all scanned image to ghcr.io
+        run: |
+          echo "${{ steps.docker_meta_img.outputs.tags }}" | grep -v '^$' | while read TAG; do
+            docker push "$TAG"
+          done
+        timeout-minutes: 10
 
       # GHCR requires the image to be all lowercase, otherwise trivy can't pull the image
-      - name: Create lowercase image ref
-        id: image_ref_lower
-        env:
-          image_ref: 'ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}@${{ steps.docker_build_push.outputs.digest }}'
-        run: echo "output=${image_ref,,}" >> $GITHUB_OUTPUT
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
-          image-ref: ${{ steps.image_ref_lower.outputs.output }}
+          image-ref: ${{ steps.lower-repo.outputs.repository }}
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
