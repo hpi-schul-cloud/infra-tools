@@ -147,10 +147,7 @@ class ActionModule(ActionBase):
 
         # Update Secret if changes are present
         if (check_bucket and check_key and check_secret and check_endpoint_url) == False and overwrite == True:
-            if SECRET_NAME == "server":
-                onepwd.OnePwd.update_s3_values_of_server_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
-            else:
-                onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
+            onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
             print("Secret updated...") 
             return {'changed': 'true',
                 'executed' : 'Secret updated'}
