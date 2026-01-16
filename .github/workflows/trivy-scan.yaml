@@ -7,6 +7,10 @@ on:
         description: "repository image reference"
         required: true
         type: string
+      image:
+        description: "image name"
+        required: true
+        type: string
 
 jobs:
   build:
