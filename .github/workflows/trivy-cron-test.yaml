@@ -25,7 +25,7 @@ jobs:
           - docops
           - cron-tools
           - cron-tools-debian
-    uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@master
+    uses: hpi-schul-cloud/infra-tools/.github/workflows/trivy-scan.yaml@DOPS-429-SBOM
     with:
       image-ref: 'docker.io/schulcloud/${{ matrix.image }}:latest'
       image: '${{ matrix.image }}'
