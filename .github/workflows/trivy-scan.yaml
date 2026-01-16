@@ -43,7 +43,7 @@ jobs:
         with:
           image-ref: ${{ inputs.image-ref }}
           format: "github"
-          output: "dependency-results.sbom.json"
+          output: "dependency-results-${{ inputs.image }}.sbom.json"
           scan-type: 'image'
           github-pat: ${{ secrets.GITHUB_TOKEN }}
         env:
@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: "trivy-sbom-report"
-          path: '${{ github.workspace }}/dependency-results.sbom.json'
+          path: '${{ github.workspace }}/dependency-results-${{ inputs.image }}.sbom.json'
