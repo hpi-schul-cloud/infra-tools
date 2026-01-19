@@ -50,7 +50,7 @@ jobs:
 
       - name: Docker meta Service Name for docker hub
         id: docker_meta_img
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 #v5
         with:
           context: git
           images: ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}
@@ -69,7 +69,7 @@ jobs:
 
       - name: Build ${{ github.repository }} (without push)
         id: docker_build_push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6
         with:
           context: ${{ inputs.context }}
           platforms: linux/amd64
@@ -94,7 +94,7 @@ jobs:
 
       - name: Upload ClamAV scan results
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: clamav-results
           path: clamav-results.txt
@@ -119,7 +119,7 @@ jobs:
       # GHCR requires the image to be all lowercase, otherwise trivy can't pull the image
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 #0.33.1
         with:
           image-ref: ${{ steps.lower-repo.outputs.repository }}
           format: "sarif"
@@ -130,6 +130,6 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: ${{ always() }}
-        uses: github/codeql-action/upload-sarif@ece8414c725e29de2e18c0859fda9e7280df9488
+        uses: github/codeql-action/upload-sarif@cdefb33c0f6224e58673d9004f47f7cb3e328b89 #v4
         with:
           sarif_file: 'trivy-results.sarif'
