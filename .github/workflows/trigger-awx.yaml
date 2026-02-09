@@ -52,7 +52,7 @@ jobs:
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          pip3 install awxkit==${{ inputs.awxkit_version }} setuptools
+          pip3 install awxkit==${{ inputs.awxkit_version }} setuptools==80.10.2
           echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
           echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
       - name: Set limit flag env
