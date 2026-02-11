@@ -121,6 +121,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 #0.33.1
         with:
+          version: v0.69.1
           image-ref: ${{ steps.lower-repo.outputs.repository }}
           format: "sarif"
           output: "trivy-results.sarif"
