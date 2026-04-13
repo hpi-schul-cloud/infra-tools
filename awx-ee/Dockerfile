@@ -8,7 +8,7 @@ ARG ANSIBLE_INSTALL_REFS="ansible-core==2.18.6 ansible-runner==2.4.1"
 ARG PKGMGR="/usr/bin/dnf"
 
 # Base build stage
-FROM $EE_BASE_IMAGE as base
+FROM $EE_BASE_IMAGE AS base
 USER root
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 ARG EE_BASE_IMAGE
@@ -27,7 +27,7 @@ RUN /output/scripts/pip_install $PYCMD
 RUN $PYCMD -m pip install --no-cache-dir $ANSIBLE_INSTALL_REFS
 
 # Galaxy build stage
-FROM base as galaxy
+FROM base AS galaxy
 ARG EE_BASE_IMAGE
 ARG PYCMD
 ARG PYPKG
@@ -46,7 +46,7 @@ RUN ansible-galaxy role install $ANSIBLE_GALAXY_CLI_ROLE_OPTS -r requirements.ym
 RUN ANSIBLE_GALAXY_DISABLE_GPG_VERIFY=1 ansible-galaxy collection install $ANSIBLE_GALAXY_CLI_COLLECTION_OPTS -r requirements.yml --collections-path "/usr/share/ansible/collections"
 
 # Builder build stage
-FROM base as builder
+FROM base AS builder
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 WORKDIR /build
 ARG EE_BASE_IMAGE
@@ -68,7 +68,7 @@ RUN $PYCMD /output/scripts/introspect.py introspect --user-pip=requirements.txt 
 RUN /output/scripts/assemble
 
 # Final build stage
-FROM base as final
+FROM base AS final
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 ARG EE_BASE_IMAGE
 ARG PYCMD
@@ -83,9 +83,10 @@ ARG HELM_VERSION=3.18.2
 ARG TERRAFORM_VERSION=1.5.4
 ARG KUBECTL_VERSION=1.33.7
 ARG OP_VERSION=2.31.0
+ARG AGE_VERSION=1.3.1
 RUN pip3 install --upgrade pip setuptools
-RUN dnf install -y unzip
-RUN dnf install -y openssl
+RUN dnf install -y unzip openssl
+RUN cd /tmp && curl -L -o age.tar.gz https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}/age-v${AGE_VERSION}-linux-amd64.tar.gz && tar -xzf age.tar.gz && install -o root -g root -m 0755 age/age /usr/local/bin/age && rm -rf age age.tar.gz
 RUN dnf upgrade libcurl-minimal -y
 RUN dnf upgrade --refresh
 RUN cd /tmp && curl -LO https://releases.hashicorp.com/terraform/$TERRAFORM_VERSION/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && install -o root -g root -m 0755 terraform /usr/local/bin/terraform
