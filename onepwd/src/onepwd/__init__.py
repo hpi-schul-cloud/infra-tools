@@ -81,12 +81,8 @@ class OnePwd(object):
       raise InvalidOnePwdVersion("1Password CLI 2 (2.7 or higher) is required. To check version use: \"op --version\"")
 
   def _session_flag(self):
-    if self.use_service_account:
-      self._env = dict(os.environ)
-      self._env["OP_SERVICE_ACCOUNT_TOKEN"] = service_account_token
-    else:
-      self._env = os.environ
-      twofact_digits=input("Enter your six-digit authentication code: ")
+    self._env = os.environ
+    twofact_digits=input("Enter your six-digit authentication code: ")
     child.sendline(twofact_digits)
     child.readline()
     token = child.readline().decode('UTF-8').strip()
