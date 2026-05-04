@@ -13,14 +13,6 @@ EXAMPLES = """
     SECRET_NAME: "my-new-item"
     USER_EMAIL: "my-user-email"
     LOGIN_URL: "my-login-url"
-
-- name: Create S3 secret with service account token
-  dbildungscloud.onepwd.create_s3_secret:
-    vault: "vault"
-    SECRET_NAME: "my-new-item"
-    USER_EMAIL: "my-user-email"
-    LOGIN_URL: "my-login-url"
-    service_account_token: "{{ op_service_account_token }}"
 """
 
 RETURN = """

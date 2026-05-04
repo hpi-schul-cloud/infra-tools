@@ -19,18 +19,6 @@ EXAMPLES = """
     SECTION: "s3_credentials"
     ENDPOINT_URL: "s3_url"
     OVERWRITE: True
-
-- name: Update S3 credentials with service account token
-  dbildungscloud.onepwd.update_s3_values_of_item:
-    vault: "vault"
-    BUCKET_NAME: "bucket-name"
-    SECRET_NAME: "secret_name"
-    ACCESS_KEY: "access_key"
-    ACCESS_SECRET: "access_secret"
-    SECTION: "s3_credentials"
-    ENDPOINT_URL: "s3_url"
-    OVERWRITE: True
-    service_account_token: "{{ op_service_account_token }}"
 """
 
 RETURN = """
