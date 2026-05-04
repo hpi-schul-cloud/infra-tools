@@ -9,10 +9,10 @@ from ansible.errors import AnsibleError, AnsibleFileNotFound, AnsibleAction, Ans
 
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None, **kwargs):
-        # Log into OnePassword
         if 'service_account_token' in self._task.args:
             op = onepwd.OnePwd(service_account_token=self._task.args.get('service_account_token'))
         else:
+            #Log into OnePassword
             if 'credentials' in self._task.args:
                 login_secret=onepwd.get_op_login_from_args(self._task.args.get('credentials'))
             elif 'credentials_file' in self._task.args:
@@ -48,7 +48,7 @@ class ActionModule(ActionBase):
         if state == 'absent':
             result = self.run_absent(op, name, vault, check)
         return result
-    
+
     def run_present(self, op:onepwd.OnePwd, category, name, vault, fields, generate_password, overwrite, check):
         assignment_statements = ""
         # Dry-run doesn't recognize changes in files so we always update items containing files

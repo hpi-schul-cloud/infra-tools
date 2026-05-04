@@ -38,10 +38,10 @@ import json
 class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None, **kwargs):
-        # Log into OnePassword
         if 'service_account_token' in self._task.args:
             op = onepwd.OnePwd(service_account_token=self._task.args.get('service_account_token'))
         else:
+            # Log into OnePassword
             if 'credentials' in self._task.args:
                 login_secret=onepwd.get_op_login_from_args(self._task.args.get('credentials'))
             elif 'credentials_file' in self._task.args:
@@ -150,7 +150,7 @@ class ActionModule(ActionBase):
         # Update Secret if changes are present
         if (check_bucket and check_key and check_secret and check_endpoint_url) == False and overwrite == True:
             onepwd.OnePwd.update_s3_values_of_standard_s3_item(op, title=SECRET_NAME, vault=vault, BUCKET_NAME=BUCKET_NAME, ACCESS_KEY=ACCESS_KEY, ACCESS_SECRET=ACCESS_SECRET, ENDPOINT_URL=ENDPOINT_URL)
-            print("Secret updated...") 
+            print("Secret updated...")
             return {'changed': 'true',
                 'executed' : 'Secret updated'}
         print("Nothing new to update")

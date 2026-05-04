@@ -27,10 +27,10 @@ display = Display()
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
-        # Log into OnePassword
         if 'service_account_token' in kwargs:
             op = onepwd.OnePwd(service_account_token=kwargs['service_account_token'])
         else:
+            # Log into OnePassword
             if 'credentials' in kwargs:
                 login_secret=onepwd.get_op_login_from_args(kwargs['credentials'])
             elif 'credentials_file' in kwargs:
