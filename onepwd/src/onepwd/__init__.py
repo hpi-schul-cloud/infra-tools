@@ -269,16 +269,17 @@ class OnePwd(object):
 
 def run_op_command_in_shell(op_command: str, input: str = None, verbose: bool = False,
                             service_account_token: str = None) -> str:
-  os.environ["OP_FORMAT"] = "json"
+  env = dict(os.environ)
+  env["OP_FORMAT"] = "json"
   if service_account_token is not None:
-    os.environ["OP_SERVICE_ACCOUNT_TOKEN"] = service_account_token
+    env["OP_SERVICE_ACCOUNT_TOKEN"] = service_account_token
   process = subprocess.run(op_command,
                            shell=True,
                            check=False,
                            input=input,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
-                           env=os.environ)
+                           env=env)
 
   try:
     process.check_returncode()
