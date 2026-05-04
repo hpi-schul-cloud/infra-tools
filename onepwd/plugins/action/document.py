@@ -10,16 +10,18 @@ from ansible.errors import AnsibleActionFail
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None, **kwargs):
         # Log into OnePassword
-        if 'credentials' in self._task.args:
-            login_secret=onepwd.get_op_login_from_args(self._task.args.get('credentials'))
-        elif 'credentials_file' in self._task.args:
-            login_secret=onepwd.get_op_login_from_file(self._task.args.get('credentials_file'))
+        if 'service_account_token' in self._task.args:
+            op = onepwd.OnePwd(service_account_token=self._task.args.get('service_account_token'))
         else:
-            login_secret=onepwd.get_op_login_from_env()
-        
-        session_shorthand=self._task.args.get('session_shorthand', os.getenv('USER'))
-        session_timeout=kwargs.get('session_timeout', 30)
-        op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
+            if 'credentials' in self._task.args:
+                login_secret=onepwd.get_op_login_from_args(self._task.args.get('credentials'))
+            elif 'credentials_file' in self._task.args:
+                login_secret=onepwd.get_op_login_from_file(self._task.args.get('credentials_file'))
+            else:
+                login_secret=onepwd.get_op_login_from_env()
+            session_shorthand=self._task.args.get('session_shorthand', os.getenv('USER'))
+            session_timeout=kwargs.get('session_timeout', 30)
+            op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
 
         # Input validation
         for arg in ['vault', 'name', 'path']:

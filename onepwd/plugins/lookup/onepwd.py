@@ -28,24 +28,26 @@ class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
         # Log into OnePassword
-        if 'credentials' in kwargs:
-            login_secret=onepwd.get_op_login_from_args(kwargs['credentials'])
-        elif 'credentials_file' in kwargs:
-            login_secret=onepwd.get_op_login_from_file(kwargs['credentials_file'])
+        if 'service_account_token' in kwargs:
+            op = onepwd.OnePwd(service_account_token=kwargs['service_account_token'])
         else:
-            login_secret=onepwd.get_op_login_from_env()
-
-        session_shorthand=kwargs.get('session_shorthand', os.getenv('USER'))
-        session_timeout=kwargs.get('session_timeout', 30)
-        display.debug(u"Session shorthand is %s" % session_shorthand)
+            if 'credentials' in kwargs:
+                login_secret=onepwd.get_op_login_from_args(kwargs['credentials'])
+            elif 'credentials_file' in kwargs:
+                login_secret=onepwd.get_op_login_from_file(kwargs['credentials_file'])
+            else:
+                login_secret=onepwd.get_op_login_from_env()
+            session_shorthand=kwargs.get('session_shorthand', os.getenv('USER'))
+            session_timeout=kwargs.get('session_timeout', 30)
+            display.debug(u"Session shorthand is %s" % session_shorthand)
+            display.debug(u"OP_EMAIL is %s" % os.environ.get("OP_EMAIL"))
+            display.debug(u"OP_PASSWORD is %s" % os.environ.get("OP_PASSWORD"))
+            display.debug(u"OP_SUBDOMAIN is %s" % os.environ.get("OP_SUBDOMAIN"))
+            display.debug(u"OP_SECRET_KEY is %s" % os.environ.get("OP_SECRET_KEY"))
+            op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
         display.debug(u"Secret name is %s" % kwargs.get('secret_name', ''))
         display.debug(u"vault is %s" % kwargs.get('vault', None))
         display.debug(u"field is %s" % kwargs.get('field', None))
-        display.debug(u"OP_EMAIL is %s" % os.environ.get("OP_EMAIL"))
-        display.debug(u"OP_PASSWORD is %s" % os.environ.get("OP_PASSWORD"))
-        display.debug(u"OP_SUBDOMAIN is %s" % os.environ.get("OP_SUBDOMAIN"))
-        display.debug(u"OP_SECRET_KEY is %s" % os.environ.get("OP_SECRET_KEY"))
-        op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
         secret_name=kwargs.get('secret_name', '')
         vault=kwargs.get('vault', None)
         field=kwargs.get('field', None)
