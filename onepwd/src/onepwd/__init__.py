@@ -557,7 +557,9 @@ def main():
 
   args = parser.parse_args()
 
-  if not args.service_account_token:
+  if args.service_account_token:
+    op = OnePwd(service_account_token=args.service_account_token)
+  else:
     if args.subdomain or args.email or args.secret_key or args.twofa_token:
       if not (args.subdomain) or not (args.email) or not (args.secret_key):
         print("When using argument credential login, all arguments --subdomain, --email and --secret-key are needed")
@@ -580,8 +582,6 @@ def main():
       login_secret = get_op_login_from_env()
 
     op = OnePwd(secret=login_secret, shorthand=args.session_shorthand, session_timeout=args.session_timeout)
-  else:
-    op = OnePwd(service_account_token=args.service_account_token)
 
   if args.get_single_secret:
     secret_value = get_single_secret(op, args.get_single_secret, field=args.field, vault=args.vault)
