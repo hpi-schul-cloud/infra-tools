@@ -14,6 +14,16 @@ EXAMPLES = """
     ACCESS_KEY: "access-key"
     ACCESS_SECRET: "access-secret"
     OVERWRITE: True
+
+- name: Upload S3 secret with service account token
+  dbildungscloud.onepwd.upload_s3_secret:
+    vault: "vault"
+    BUCKET_NAME: "bucket_name"
+    SECRET_NAME: "secret_name"
+    ACCESS_KEY: "access-key"
+    ACCESS_SECRET: "access-secret"
+    OVERWRITE: True
+    service_account_token: "{{ op_service_account_token }}"
 """
 
 RETURN = """
