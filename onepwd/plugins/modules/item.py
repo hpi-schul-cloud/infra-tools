@@ -73,6 +73,11 @@ options:
       - The file must contain a dictionary with the keys {"OP_EMAIL", "OP_PASSWORD", "OP_SUBDOMAIN", "OP_SECRET_KEY"}
       - Key OP_2FA_TOKEN is optional
     type: dict
+  service_account_token:
+    description:
+      - 1Password service account token for authentication.
+      - When provided, credentials and credentials_file are not needed.
+    type: str
 '''
 
 EXAMPLES = r'''
@@ -121,6 +126,18 @@ EXAMPLES = r'''
     category: "password"
     name: "name"
     credentials_file: path/to/file.json
+    fields:
+      - name: admin_password
+        type: password
+        value: password123
+        overwrite: False
+
+- name: Create Secret with service account token
+  dbildungscloud.onepwd.item:
+    vault: "vault"
+    category: "password"
+    name: "name"
+    service_account_token: "{{ op_service_account_token }}"
     fields:
       - name: admin_password
         type: password

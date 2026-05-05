@@ -60,32 +60,37 @@ class InvalidOnePwdVersion(Exception):
 
 class OnePwd(object):
 
-  def __init__(self, secret, shorthand=None, bin_path="", session_timeout=30):
+  def __init__(self, secret=None, service_account_token=None, shorthand=None, bin_path="", session_timeout=30):
     self.op = os.path.join(bin_path, "op")
-    self.session_timeout = session_timeout
-    self.session_token = None
-    self.session_dir = os.path.join(os.environ.get("HOME"), ".config/op/sessions")
-    if shorthand is None:
-      self.shorthand = str(uuid4())
-    else:
-      self.shorthand = shorthand
-    self.session_file = os.path.join(self.session_dir, self.shorthand)
-    self.create_session_dir()
-    self.session_token = self.retrieve_cached_token()
-    if self.session_token is None:
-      self.session_token = self.signin(secret, shorthand=self.shorthand)
-    self.cache_token()
+    self.service_account_token = service_account_token
+    if self.service_account_token is None:
+      self.session_timeout = session_timeout
+      self.session_token = None
+      self.session_dir = os.path.join(os.environ.get("HOME"), ".config/op/sessions")
+      if shorthand is None:
+        self.shorthand = str(uuid4())
+      else:
+        self.shorthand = shorthand
+      self.session_file = os.path.join(self.session_dir, self.shorthand)
+      self.create_session_dir()
+      self.session_token = self.retrieve_cached_token()
+      if self.session_token is None:
+        self.session_token = self.signin(secret, shorthand=self.shorthand)
+      self.cache_token()
 
     check_version = self.get_version()
     split_version = check_version.split(".")
     if not (int(split_version[0]) == 2 and int(split_version[1]) >= 7):
       raise InvalidOnePwdVersion("1Password CLI 2 (2.7 or higher) is required. To check version use: \"op --version\"")
 
+  def _get_session_flag(self):
+    return f"--session={self.session_token}" if self.service_account_token is None else ""
+
   def list(self, resource, vault=None):
     vault_flag = get_optional_flag(vault=vault)
-    op_command = f"{self.op} {resource} list {vault_flag} --session={self.session_token}"
+    op_command = f"{self.op} {resource} list {vault_flag} {self._get_session_flag()}"
     try:
-      return json.loads(run_op_command_in_shell(op_command))
+      return json.loads(run_op_command_in_shell(op_command, service_account_token=self.service_account_token))
     except json.decoder.JSONDecodeError:
       raise UnknownResourceError(resource)
 
@@ -96,10 +101,11 @@ class OnePwd(object):
     command = f"""
             {self.op} item  create --category={quote(category)} - \
             --title='{title}' \
-            --session={self.session_token} \
+            {self._get_session_flag()} \
             {vault_flag} {url_flag}
         """
-    return json.loads(run_op_command_in_shell(command, input=json_item.encode()))
+    return json.loads(
+      run_op_command_in_shell(command, input=json_item.encode(), service_account_token=self.service_account_token))
 
   def create_item_string(self, category, title, assignment_statements: str, vault=None, url=None,
                          generate_password: str = None, dry_run=False):
@@ -111,11 +117,11 @@ class OnePwd(object):
     command = f"""
             {self.op} item  create --category={quote(category)} - \
             --title='{title}' \
-            --session={self.session_token} \
+            {self._get_session_flag()} \
             {vault_flag} {url_flag} \
             {generate_password_flag} {assignment_statements} {dry_run_flag}
         """
-    return json.loads(run_op_command_in_shell(command))
+    return json.loads(run_op_command_in_shell(command, service_account_token=self.service_account_token))
 
   # used in the ansible action 'upload_s3_secret'
   def update_s3_values(self, title, vault=None, ACCESS_KEY=None, ACCESS_SECRET=None, BUCKET_NAME=None):
@@ -146,14 +152,14 @@ class OnePwd(object):
     vault_flag = get_optional_flag(vault=vault)
     dry_run_flag = get_optional_flag(dry_run=dry_run)
     generate_password_flag = get_optional_flag(generate_password=generate_password)
-    command = f""" {self.op} item edit '{title}' --session={self.session_token} {vault_flag} {generate_password_flag} {dry_run_flag} {assignment_statements} """
-    return json.loads(run_op_command_in_shell(command))
+    command = f""" {self.op} item edit '{title}' {self._get_session_flag()} {vault_flag} {generate_password_flag} {dry_run_flag} {assignment_statements} """
+    return json.loads(run_op_command_in_shell(command, service_account_token=self.service_account_token))
 
   def delete_item(self, item_name, vault=None):
     vault_flag = get_optional_flag(vault=vault)
-    op_command = f"{self.op} item delete '{item_name}' {vault_flag} --session={self.session_token}"
+    op_command = f"{self.op} item delete '{item_name}' {vault_flag} {self._get_session_flag()}"
     try:
-      run_op_command_in_shell(op_command)
+      run_op_command_in_shell(op_command, service_account_token=self.service_account_token)
     except subprocess.CalledProcessError:
       raise DeletionError(item_name, vault)
     except UnknownError as e:
@@ -173,12 +179,12 @@ class OnePwd(object):
 
   def get(self, resource, item_name, vault=None):
     vault_flag = get_optional_flag(vault=vault)
-    op_command = f"{self.op} {resource} get '{item_name}' {vault_flag} --session={self.session_token}"
-    return json.loads(run_op_command_in_shell(op_command))
+    op_command = f"{self.op} {resource} get '{item_name}' {vault_flag} {self._get_session_flag()}"
+    return json.loads(run_op_command_in_shell(op_command, service_account_token=self.service_account_token))
 
   def get_document(self, item_name):
-    op_command = f"{self.op} document get '{item_name}' --session={self.session_token}"
-    return run_op_command_in_shell(op_command)
+    op_command = f"{self.op} document get '{item_name}' {self._get_session_flag()}"
+    return run_op_command_in_shell(op_command, service_account_token=self.service_account_token)
 
   def create_document_from_file(self, path, title, vault=None):
     vault_flag = get_optional_flag(vault=vault)
@@ -186,20 +192,20 @@ class OnePwd(object):
     command = f"""
             {self.op} document create {path} \
             --title='{title}' \
-            --session={self.session_token} \
+            {self._get_session_flag()} \
             {vault_flag}
         """
-    return run_op_command_in_shell(command)
+    return run_op_command_in_shell(command, service_account_token=self.service_account_token)
 
   def edit_document_from_file(self, path, title, vault=None):
     vault_flag = get_optional_flag(vault=vault)
 
     command = f"""
             {self.op} document edit {title} {path} \
-            --session={self.session_token} \
+            {self._get_session_flag()} \
             {vault_flag}
         """
-    return run_op_command_in_shell(command)
+    return run_op_command_in_shell(command, service_account_token=self.service_account_token)
 
   def share(self, item_name, vault=None, emails=[], expiry=None, view_once=False):
     vault_flag = get_optional_flag(vault=vault)
@@ -207,8 +213,8 @@ class OnePwd(object):
     emails_flag = get_optional_flag(emails=emails_list)
     view_once_flag = "--view-once" if view_once else ""
 
-    op_command = f"{self.op} item share '{item_name}' {vault_flag} {emails_flag} {view_once_flag} --session={self.session_token}"
-    return run_op_command_in_shell(op_command)
+    op_command = f"{self.op} item share '{item_name}' {vault_flag} {emails_flag} {view_once_flag} {self._get_session_flag()}"
+    return run_op_command_in_shell(op_command, service_account_token=self.service_account_token)
 
   def create_session_dir(self):
     try:
@@ -261,15 +267,19 @@ class OnePwd(object):
     return run_op_command_in_shell(f"{self.op} --version")
 
 
-def run_op_command_in_shell(op_command: str, input: str = None, verbose: bool = False) -> str:
-  os.environ["OP_FORMAT"] = "json"
+def run_op_command_in_shell(op_command: str, input: str = None, verbose: bool = False,
+                            service_account_token: str = None) -> str:
+  env = dict(os.environ)
+  env["OP_FORMAT"] = "json"
+  if service_account_token is not None:
+    env["OP_SERVICE_ACCOUNT_TOKEN"] = service_account_token
   process = subprocess.run(op_command,
                            shell=True,
                            check=False,
                            input=input,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
-                           env=os.environ)
+                           env=env)
 
   try:
     process.check_returncode()
@@ -536,6 +546,7 @@ def main():
   parser.add_argument('--secret-key', type=str)
   parser.add_argument('--twofa-token', type=str)
   parser.add_argument('--credentials-file', type=str)
+  parser.add_argument('--service-account-token', type=str)
 
   # output args
   parser.add_argument('--secrets-file', type=str, required=True)
@@ -547,28 +558,32 @@ def main():
 
   args = parser.parse_args()
 
-  if args.subdomain or args.email or args.secret_key or args.twofa_token:
-    if not (args.subdomain) or not (args.email) or not (args.secret_key):
-      print("When using argument credential login, all arguments --subdomain, --email and --secret-key are needed")
-      print("Exiting...")
-      exit(1)
-
-    password = getpass(prompt='Password: ')
-    credentials = {
-      "OP_EMAIL": args.email,
-      "OP_PASSWORD": password,
-      "OP_SUBDOMAIN": args.subdomain,
-      "OP_SECRET_KEY": args.secret_key,
-    }
-    if args.twofa_token:
-      credentials["OP_2FA_TOKEN"] = args.twofa_token
-    login_secret = get_op_login_from_args(credentials)
-  elif args.credentials_file:
-    login_secret = get_op_login_from_file(args.credentials_file)
+  if args.service_account_token:
+    op = OnePwd(service_account_token=args.service_account_token)
   else:
-    login_secret = get_op_login_from_env()
+    if args.subdomain or args.email or args.secret_key or args.twofa_token:
+      if not (args.subdomain) or not (args.email) or not (args.secret_key):
+        print("When using argument credential login, all arguments --subdomain, --email and --secret-key are needed")
+        print("Exiting...")
+        exit(1)
 
-  op = OnePwd(secret=login_secret, shorthand=args.session_shorthand, session_timeout=args.session_timeout)
+      password = getpass(prompt='Password: ')
+      credentials = {
+        "OP_EMAIL": args.email,
+        "OP_PASSWORD": password,
+        "OP_SUBDOMAIN": args.subdomain,
+        "OP_SECRET_KEY": args.secret_key,
+      }
+      if args.twofa_token:
+        credentials["OP_2FA_TOKEN"] = args.twofa_token
+      login_secret = get_op_login_from_args(credentials)
+    elif args.credentials_file:
+      login_secret = get_op_login_from_file(args.credentials_file)
+    else:
+      login_secret = get_op_login_from_env()
+
+    op = OnePwd(secret=login_secret, shorthand=args.session_shorthand, session_timeout=args.session_timeout)
+
   if args.get_single_secret:
     secret_value = get_single_secret(op, args.get_single_secret, field=args.field, vault=args.vault)
     with open(args.secrets_file, 'w') as f:
