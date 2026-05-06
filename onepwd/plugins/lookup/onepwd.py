@@ -16,8 +16,8 @@ from ansible.errors import AnsibleError
 from ansible.module_utils._text import to_bytes, to_text
 from ansible.plugins.lookup import LookupBase
 from ansible.utils.display import Display
+from ..plugin_utils._onepwd_common import get_onepwd_client
 
-import os
 import onepwd
 
 display = Display()
@@ -27,24 +27,14 @@ display = Display()
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
-        if 'service_account_token' in kwargs:
-            op = onepwd.OnePwd(service_account_token=kwargs['service_account_token'])
-        else:
-            # Log into OnePassword
-            if 'credentials' in kwargs:
-                login_secret=onepwd.get_op_login_from_args(kwargs['credentials'])
-            elif 'credentials_file' in kwargs:
-                login_secret=onepwd.get_op_login_from_file(kwargs['credentials_file'])
-            else:
-                login_secret=onepwd.get_op_login_from_env()
-            session_shorthand=kwargs.get('session_shorthand', os.getenv('USER'))
-            session_timeout=kwargs.get('session_timeout', 30)
-            display.debug(u"Session shorthand is %s" % session_shorthand)
-            display.debug(u"OP_EMAIL is %s" % os.environ.get("OP_EMAIL"))
-            display.debug(u"OP_PASSWORD is %s" % os.environ.get("OP_PASSWORD"))
-            display.debug(u"OP_SUBDOMAIN is %s" % os.environ.get("OP_SUBDOMAIN"))
-            display.debug(u"OP_SECRET_KEY is %s" % os.environ.get("OP_SECRET_KEY"))
-            op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
+        op = get_onepwd_client(
+          service_account_token=kwargs.get('service_account_token'),
+          credentials=kwargs.get('credentials'),
+          credentials_file=kwargs.get('credentials_file'),
+          session_shorthand=kwargs.get('session_shorthand'),
+          session_timeout=kwargs.get('session_timeout'),
+        )
+
         display.debug(u"Secret name is %s" % kwargs.get('secret_name', ''))
         display.debug(u"vault is %s" % kwargs.get('vault', None))
         display.debug(u"field is %s" % kwargs.get('field', None))

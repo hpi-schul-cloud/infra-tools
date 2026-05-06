@@ -24,27 +24,21 @@ from subprocess import Popen, PIPE
 from ansible.errors import AnsibleError
 from ansible.module_utils._text import to_bytes, to_text
 from ansible.plugins.action import ActionBase
-import os
 import onepwd
 import url64
+from ..plugin_utils._onepwd_common import get_onepwd_client
 
 # https://docs.ansible.com/ansible/latest/dev_guide/developing_plugins.html#action-plugins
 class ActionModule(ActionBase):
 
     def run(self, tmp=None, task_vars=None, **kwargs):
-        if 'service_account_token' in self._task.args:
-            op = onepwd.OnePwd(service_account_token=self._task.args.get('service_account_token'))
-        else:
-            # Log into OnePassword
-            if 'credentials' in self._task.args:
-                login_secret=onepwd.get_op_login_from_args(self._task.args.get('credentials'))
-            elif 'credentials_file' in self._task.args:
-                login_secret=onepwd.get_op_login_from_file(self._task.args.get('credentials_file'))
-            else:
-                login_secret=onepwd.get_op_login_from_env()
-            session_shorthand=self._task.args.get('session_shorthand', os.getenv('USER'))
-            session_timeout=kwargs.get('session_timeout', 30)
-            op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
+        op = get_onepwd_client(
+            service_account_token=self._task.args.get('service_account_token'),
+            credentials=self._task.args.get('credentials'),
+            credentials_file=self._task.args.get('credentials_file'),
+            session_shorthand=self._task.args.get('session_shorthand'),
+            session_timeout=kwargs.get('session_timeout', self._task.args.get('session_timeout')),
+        )
 
         # Getting Vars from Ansible
         # required values
