@@ -10,7 +10,7 @@ def get_onepwd_client(
     session_timeout=30,
 ):
     if service_account_token:
-      return onepwd.OnePwd(service_account_token)
+      return onepwd.OnePwd(service_account_token=service_account_token)
     else:
       #Log into OnePassword
       if credentials:
