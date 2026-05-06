@@ -18,7 +18,6 @@ from ansible.plugins.lookup import LookupBase
 from ansible.utils.display import Display
 from ..plugin_utils._onepwd_common import get_onepwd_client
 
-import os
 import onepwd
 
 display = Display()
