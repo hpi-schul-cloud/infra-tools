@@ -2,26 +2,20 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-import os
 import onepwd
 from ansible.plugins.action import ActionBase
 from ansible.errors import AnsibleError, AnsibleFileNotFound, AnsibleAction, AnsibleActionFail
+from ..plugin_utils._onepwd_common import get_onepwd_client
 
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None, **kwargs):
-        if 'service_account_token' in self._task.args:
-            op = onepwd.OnePwd(service_account_token=self._task.args.get('service_account_token'))
-        else:
-            #Log into OnePassword
-            if 'credentials' in self._task.args:
-                login_secret=onepwd.get_op_login_from_args(self._task.args.get('credentials'))
-            elif 'credentials_file' in self._task.args:
-                login_secret=onepwd.get_op_login_from_file(self._task.args.get('credentials_file'))
-            else:
-                login_secret=onepwd.get_op_login_from_env()
-            session_shorthand=self._task.args.get('session_shorthand', os.getenv('USER'))
-            session_timeout=kwargs.get('session_timeout', 30)
-            op = onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
+        op = get_onepwd_client(
+            service_account_token=self._task.args.get('service_account_token'),
+            credentials=self._task.args.get('credentials'),
+            credentials_file=self._task.args.get('credentials_file'),
+            session_shorthand=self._task.args.get('session_shorthand'),
+            session_timeout=kwargs.get('session_timeout', self._task.args.get('session_timeout')),
+        )
 
         # Input validation
         for arg in ['vault', 'name']:
