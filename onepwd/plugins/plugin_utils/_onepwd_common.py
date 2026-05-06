@@ -21,5 +21,7 @@ def get_onepwd_client(
         login_secret=onepwd.get_op_login_from_env()
       if session_shorthand is None:
         session_shorthand = os.getenv('USER')
+      if session_timeout is None:
+        session_timeout = 30
 
       return onepwd.OnePwd(secret=login_secret, shorthand=session_shorthand, session_timeout=session_timeout)
