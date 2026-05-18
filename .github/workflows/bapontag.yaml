@@ -1,47 +1,28 @@
----
 name: Build and push Docker Image on Tag
 
 on:
   push:
     tags:
-      - 'infra-tools-[0-9]+.[0-9]+.[0-9]+'
-      - 'infra-tools-debian-[0-9]+.[0-9]+.[0-9]+'
-      - 'dbcmetrics-[0-9]+.[0-9]+.[0-9]+'
-      - 'awx-ee-[0-9]+.[0-9]+.[0-9]+'
-      - 'cron-tools-[0-9]+.[0-9]+.[0-9]+'
-      - 'cron-tools-debian-[0-9]+.[0-9]+.[0-9]+'
+      - "infra-tools-*.*.*"
+      - "infra-tools-debian-*.*.*"
+      - "dbcmetrics-*.*.*"
+      - "awx-ee-*.*.*"
+      - "cron-tools-*.*.*"
+      - "cron-tools-debian-*.*.*"
 
 jobs:
   pre_build:
     runs-on: ubuntu-latest
     outputs:
-      nameTag: ${{ steps.nameTag.outputs.tag }}
-      registries: ${{ steps.registries.outputs.registries }}
+      image_name: ${{ steps.extract.outputs.image_name }}
     steps:
-      - name: Filter Tag name
-        uses: olegtarasov/get-tag@v2.1
-        id: nameTag
-        with:
-          tagRegex: "(.+?(?=-[0-9]))"   # unabhängig von dbmetrics und infra-tools gives name
-          tagRegexGroup: 1
-      
-      - name: Determine registries
-        id: registries
+      - name: Extract image name from tag
+        id: extract
         run: |
-          if [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools' ]]; then
-            echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'infra-tools-debian' ]]; then
-            echo "registries=dockerhub" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'dbcmetrics' ]]; then
-            echo "registries=dockerhub" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'awx-ee' ]]; then
-            echo "registries=dockerhub" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools' ]]; then
-            echo "registries=dockerhub,quay.io" >> $GITHUB_OUTPUT
-          elif [[ "${{ steps.nameTag.outputs.tag }}" == 'cron-tools-debian' ]]; then
-            echo "registries=dockerhub" >> $GITHUB_OUTPUT
-          fi
-  
+          IMAGE_NAME="$(echo "${GITHUB_REF_NAME}" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+$//')"
+          echo "image_name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "Image name: ${IMAGE_NAME}"
+
   build_and_push:
     needs: pre_build
     uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@7
@@ -50,16 +31,12 @@ jobs:
       contents: read
       security-events: write
     with:
-      image_name: ${{ needs.pre_build.outputs.nameTag }}
-      container_registry: ${{ needs.pre_build.outputs.registries }}
-      dockerhub_repository_owner: "schulcloud"
-      quay_repository_owner: "schulcloudverbund"
+      image_name: ${{ needs.pre_build.outputs.image_name }}
+      container_registry: "ghcr.io"
       add_latest_tag: true
       image_tag_generation: "mmp_git_tag,mm_git_tag"
-      context: ${{ needs.pre_build.outputs.nameTag }}
+      context: ./${{ needs.pre_build.outputs.image_name }}
       run_trivy_scan: false
-    secrets:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
-      QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}      
+      run_clamav_scan: false
+      limit-severities-for-sarif: false
+    secrets: inherit

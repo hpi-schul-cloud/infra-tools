@@ -1,21 +1,28 @@
----
 name: cron-tools-debian Docker Image on Push to GHCR
 
 on:
   push:
     branches-ignore:
-      - master
+      - main
     paths:
-      - 'cron-tools-debian/**'
+      - "cron-tools-debian/**"
+concurrency:
+  group: cron-tools-debian-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_image_on_push:
     permissions:
       packages: write
       security-events: write
-      actions: read
       contents: read
-    uses: ./.github/workflows/imagetoghcr-on-push.yaml
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@7
     with:
       image_name: "cron-tools-debian"
       context: "./cron-tools-debian/"
+      image_tag_generation: "ticket_from_branch"
+      add_latest_tag: false
+      container_registry: "ghcr.io"
+      run_trivy_scan: true
+      run_clamav_scan: true
+      limit-severities-for-sarif: false

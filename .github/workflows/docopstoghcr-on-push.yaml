@@ -1,19 +1,27 @@
----
 name: docops Docker Image on Push to GHCR
 
 on:
   push:
     tags:
-      - 'docops-[0-9]+.[0-9]+.[0-9]+'
+      - "docops-*.*.*"
+
+concurrency:
+  group: docops-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_image_on_push:
     permissions:
       packages: write
       security-events: write
-      actions: read
       contents: read
-    uses: ./.github/workflows/imagetoghcr-on-push.yaml
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@7
     with:
       image_name: "docops"
       context: "./docops/"
+      image_tag_generation: "mmp_git_tag"
+      add_latest_tag: true
+      container_registry: "ghcr.io"
+      run_trivy_scan: true
+      run_clamav_scan: true
+      limit-severities-for-sarif: false

@@ -7,7 +7,7 @@ RUN set -x \
     && apt-get -y update \
     && apt-get -y install bsdextrautils \
     && apt-get -y install curl wget gnupg \
-    && wget https://dl.k8s.io/release/v1.32.8/bin/linux/amd64/kubectl \
+    && wget https://dl.k8s.io/release/v1.33.3/bin/linux/amd64/kubectl \
     && chmod +x kubectl \
     && mv ./kubectl /usr/local/bin/kubectl \
     && curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
@@ -27,6 +27,7 @@ RUN set -x \
         python3 \
         python3-pip \
         python3-boto3 \
+        python3-yaml \
         gpg \
         gettext \
         librsync-dev \

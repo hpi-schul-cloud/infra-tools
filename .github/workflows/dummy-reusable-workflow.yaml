@@ -1,6 +1,5 @@
 ---
 name: Dummy Docker Image on Push to GHCR
-
 on:
   workflow_call:
 

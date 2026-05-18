@@ -4,7 +4,7 @@ name: Dummy Docker Image on Push to GHCR
 on:
   push:
     branches-ignore:
-      - master
+      - main
     paths-ignore:
       - 'awx-ee/**'
       - 'dbcmetrics/**'

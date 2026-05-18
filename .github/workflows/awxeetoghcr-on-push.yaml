@@ -1,21 +1,27 @@
----
 name: awx-ee Docker Image on Push to GHCR
 
 on:
   push:
     branches-ignore:
-      - master
+      - main
     paths:
-      - 'awx-ee/**'
-
+      - "awx-ee/**"
+concurrency:
+  group: awx-ee-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build_image_on_push:
     permissions:
       packages: write
       security-events: write
-      actions: read
       contents: read
-    uses: ./.github/workflows/imagetoghcr-on-push.yaml
+    uses: dBildungsplattform/dbp-github-workflows/.github/workflows/image-publish-trivy.yaml@7
     with:
       image_name: "awx-ee"
       context: "./awx-ee/"
+      image_tag_generation: "ticket_from_branch"
+      add_latest_tag: false
+      container_registry: "ghcr.io"
+      run_trivy_scan: true
+      run_clamav_scan: true
+      limit-severities-for-sarif: false

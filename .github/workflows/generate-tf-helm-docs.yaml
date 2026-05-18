@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checking out code to Runner
-      uses: actions/checkout@v2
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6
       with:
         ref: ${{ github.event.pull_request.head.ref }}    
     - name: Render Terraform-Docs
@@ -55,7 +55,7 @@ jobs:
         git-push-user-email: ${{ inputs.email }}
         git-push-user-name: ${{ inputs.name }}
     - name: Render Helm-Docs
-      uses: hpi-schul-cloud/infra-tools/.github/actions/helm-docs@tf-helm-docs-v1
+      uses: dBildungsplattform/infra-tools/.github/actions/helm-docs@tf-helm-docs-v1
       with:
         # provide name of dirs to run helm-docs on, separate by comma without space
         src_path: ${{ inputs.src_path_helm}}
